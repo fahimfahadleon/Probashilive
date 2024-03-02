@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="viewModel"
+            type="com.probashiincltd.probashilive.viewmodels.ActivityHomeViewModel" />
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:theme="@style/Theme.MaterialComponents"
+        tools:context=".ui.HomeActivity">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="?android:attr/actionBarSize"
+            android:id="@+id/fragmentcontainer"
+            app:layout_anchor="@id/bottomappbar"
+            app:layout_anchorGravity="top"/>
+
+
+
+        <com.google.android.material.bottomappbar.BottomAppBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/bottomappbar"
+            android:layout_gravity="bottom"
+            app:fabCradleMargin="4dp"
+            app:fabCradleRoundedCornerRadius="@dimen/_10sdp">
+            <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="16dp"
+                android:background="#00ffffff"
+                android:alpha="0.8"
+                android:id="@+id/bottomNavigationView"
+                app:menu="@menu/tab_menu"
+                app:labelVisibilityMode="labeled"
+                />
+
+        </com.google.android.material.bottomappbar.BottomAppBar>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/add"
+            app:layout_anchor="@id/bottomappbar"
+            android:onClick="@{viewModel::setOnClickEvents}"
+            app:backgroundTint="@color/fabBackground"
+            android:contentDescription="@string/nodescription" />
+            
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

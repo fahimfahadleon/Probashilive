@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "428944620126",
+    "project_id": "probashilive-43659",
+    "storage_bucket": "probashilive-43659.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:428944620126:android:2f2b5f5d1685194ab892cf",
+        "android_client_info": {
+          "package_name": "com.probashiincltd.probashilive"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "428944620126-0r0avr2qcc56cbv1hqettogjnufb1b50.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.probashiincltd.probashilive",
+            "certificate_hash": "430139e58da7b3c64740dc650ec9d554eb100d59"
+          }
+        },
+        {
+          "client_id": "428944620126-0ftfrh2bvoabhefa096vvek5b3e53lp2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAN2pqWPTiIUlORjorwled7hH78SlbDdbc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "428944620126-0ftfrh2bvoabhefa096vvek5b3e53lp2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
