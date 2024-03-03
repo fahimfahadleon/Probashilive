@@ -49,27 +49,27 @@ public class HomeFragment extends Fragment {
         return homeFragment;
     }
 
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false);
         model = new ViewModelProvider(this).get(HomeFragmentViewModel.class);
         binding.setViewModel(model);
-        binding.setLifecycleOwner(this);
+        binding.setLifecycleOwner(binding.getLifecycleOwner());
         binding.refreshLayout.setRefreshHeader(new ClassicsHeader(requireContext()));
         binding.refreshLayout.setRefreshFooter(new ClassicsFooter(requireContext()));
         binding.refreshLayout.setOnRefreshLoadMoreListener(model.onRefreshLoadMoreListener);
-        initViewModel();
-        return binding.getRoot();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
         HomeFragmentRVAdapter adapter = new HomeFragmentRVAdapter();
         model.setAdapter(adapter);
         model.initViewModel();
         binding.refreshLayout.autoRefresh();
+        initViewModel();
+        Log.e("oncreateview","called");
+        return binding.getRoot();
     }
+
+
+
 
     void initViewModel() {
         model.getSelectedItem().observe(getViewLifecycleOwner(), liveItem -> {
@@ -93,9 +93,6 @@ public class HomeFragment extends Fragment {
             }
         });
     }
-
-
-
     Pair getLiveItems(String args) {
         Pair pair;
         if (args.isEmpty()) {
@@ -109,7 +106,6 @@ public class HomeFragment extends Fragment {
     private void loadData(boolean isRefresh) {
         binding.recyclerview.post(() -> {
             if (isRefresh) {
-                Log.e("isRefresh","called");
                 model.getAdapter().clearData();
                 page = "";
             }else {

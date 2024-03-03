@@ -15,6 +15,10 @@ public class Configurations {
     public static final String USER_PROFILE = "userProfile";
     public static final String SUBJECT_TYPE_COMMENT = "comment";
     public static final String SUBJECT_TYPE_JOINED_LIVE= "joined_live";
+    public static final String SUBJECT_TYPE_LIVE_ACTION= "live_action";
+    public static final String LIVE_ACTION = "action_title";
+    public static final String ACTION_TYPE_LIVE_ENDED = "live_ended";
+    public static final String ACTION_TYPE_LIVE_LEFT = "left";
     public static final String RTMP_URL = "rtmp://server.probashilive.xyz/live/";
     public static final String INITIAL_COMMENT = "Joined the live";
 

@@ -5,6 +5,20 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("/home/fahim/Projects/ProbashiLive/probashiliverelease.jks")
+            storePassword = "64742812"
+            keyAlias = "key0"
+            keyPassword = "64742812"
+        }
+        create("release") {
+            storeFile = file("/home/fahim/Projects/ProbashiLive/probashiliverelease.jks")
+            storePassword = "64742812"
+            keyAlias = "key0"
+            keyPassword = "64742812"
+        }
+    }
     namespace = "com.probashiincltd.probashilive"
     compileSdk = 34
 
@@ -27,7 +41,13 @@ android {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("release")
         }
+
+        debug {
+            signingConfig = signingConfigs.getByName("debug")
+        }
+    
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8

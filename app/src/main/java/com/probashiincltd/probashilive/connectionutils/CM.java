@@ -77,6 +77,10 @@ public class CM extends XmppConnection {
 
     static ArrayList<HeadlineMessageListener> headlineMessageListeners;
 
+    public static void removeListener(HeadlineMessageListener listener){
+        headlineMessageListeners.remove(listener);
+    }
+
 
     public static void setHeadlineMessageListener(HeadlineMessageListener listener) {
         headlineMessageListeners.add(listener);

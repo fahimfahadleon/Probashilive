@@ -55,10 +55,11 @@ public class MainActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this).get(ActivityMainViewModel.class);
         binding.setViewModel(viewModel);
         binding.setLifecycleOwner(this);
+        Functions.init(this);
         initViewModel();
         new Thread(() -> mGoogleSignInClient = Functions.getGoogleSigninClient(MainActivity.this)).start();
 
-
+        Log.e("MainActivityOnc","called");
     }
 
     void startRegisterOrLogin(String user,String password,String action){
@@ -66,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
         new CM(MainActivity.this, user,password, action, new RegisterCallback() {
             @Override
             public void registerSuccessful() {
+
+                Log.e("registerCallback","called");
+
                 openProgress.dismissProgress();
                 startActivity(new Intent(MainActivity.this,HomeActivity.class));
                 finish();

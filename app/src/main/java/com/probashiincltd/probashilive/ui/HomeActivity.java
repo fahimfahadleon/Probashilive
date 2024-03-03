@@ -44,6 +44,7 @@ public class HomeActivity extends AppCompatActivity {
         mGoogleSignInClient = Functions.getGoogleSigninClient(this);
         initViewModel();
 
+        Log.e("oncreate","called");
         setUpFragment(HomeFragment.getInstance());
 
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
@@ -106,8 +107,8 @@ public class HomeActivity extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-         // Replace YourFragment with your actual Fragment class
         fragmentTransaction.replace(R.id.fragmentcontainer, f);
+        fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
 

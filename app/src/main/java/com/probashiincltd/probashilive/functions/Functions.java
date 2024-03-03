@@ -59,8 +59,12 @@ public class Functions {
     private static PowerManager.WakeLock mProximityWakeLock;
     private static final String PROXIMITY_WAKE_LOCK_TAG = "live:in-rtp-session";
 
-    public static GoogleSignInClient getGoogleSigninClient(Context context) {
+    public static void init(Context context){
         preferences = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
+    }
+
+    public static GoogleSignInClient getGoogleSigninClient(Context context) {
+
         GoogleSignInOptions mGoogleSigninOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();

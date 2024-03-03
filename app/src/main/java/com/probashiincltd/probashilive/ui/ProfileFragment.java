@@ -40,7 +40,7 @@ public class ProfileFragment extends Fragment {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_profile, container, false);
         model = new ViewModelProvider(this).get(ProfileFragmentViewModel.class);
         binding.setViewModel(model);
-        binding.setLifecycleOwner(this);
+        binding.setLifecycleOwner(binding.getLifecycleOwner());
         return binding.getRoot();
     }
 }

@@ -41,7 +41,7 @@ public class NotificationFragment extends Fragment {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_notification, container, false);
         model = new ViewModelProvider(this).get(NotificationFragmentViewModel.class);
         binding.setViewModel(model);
-        binding.setLifecycleOwner(this);
+        binding.setLifecycleOwner(binding.getLifecycleOwner());
         return binding.getRoot();
     }
 }

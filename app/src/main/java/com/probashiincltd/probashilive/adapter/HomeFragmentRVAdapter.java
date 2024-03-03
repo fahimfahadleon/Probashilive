@@ -1,5 +1,6 @@
 package com.probashiincltd.probashilive.adapter;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -18,10 +19,11 @@ public class HomeFragmentRVAdapter extends RecyclerView.Adapter<HomeFragmentRVAd
         this.models = new ArrayList<>();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void clearData(){
         int size = models.size();
         models.clear();
-        notifyItemRangeRemoved(0,size);
+        notifyDataSetChanged();
     }
 
 

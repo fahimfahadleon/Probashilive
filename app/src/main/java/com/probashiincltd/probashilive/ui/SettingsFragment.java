@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.probashiincltd.probashilive.R;
 import com.probashiincltd.probashilive.databinding.FragmentSettingsBinding;
-import com.probashiincltd.probashilive.viewmodels.NotificationFragmentViewModel;
 import com.probashiincltd.probashilive.viewmodels.SettingsFragmentViewModel;
 
 public class SettingsFragment extends Fragment {
@@ -43,7 +42,7 @@ public class SettingsFragment extends Fragment {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_settings, container, false);
         model = new ViewModelProvider(this).get(SettingsFragmentViewModel.class);
         binding.setViewModel(model);
-        binding.setLifecycleOwner(this);
+        binding.setLifecycleOwner(binding.getLifecycleOwner());
         return binding.getRoot();
     }
 }

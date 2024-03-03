@@ -38,7 +38,7 @@
             tools:listitem="@layout/single_comment"
             app:reverseLayout="true"
             android:adapter="@{viewModel.adapter}"
-            app:layoutManager=".ui.RTMPCall$WrapContentLinearLayoutManager"
+            app:layoutManager=".ui.WrapContentLinearLayoutManager"
             android:id="@+id/commentLayout"/>
 
         <EditText

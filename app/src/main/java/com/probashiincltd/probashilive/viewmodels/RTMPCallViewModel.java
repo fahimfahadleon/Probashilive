@@ -1,16 +1,11 @@
 package com.probashiincltd.probashilive.viewmodels;
 
-import static com.probashiincltd.probashilive.utils.Configurations.ACTION;
-import static com.probashiincltd.probashilive.utils.Configurations.INITIAL_COMMENT;
-import static com.probashiincltd.probashilive.utils.Configurations.LIVE_TYPE_VIDEO;
-import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_AUDIENCE;
-import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_COMPETITOR;
-import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_HOST;
-import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_COMMENT;
-import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_JOINED_LIVE;
+import static com.probashiincltd.probashilive.utils.Configurations.*;
+
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -25,6 +20,7 @@ import com.probashiincltd.probashilive.callbacks.HeadlineMessageListener;
 import com.probashiincltd.probashilive.connectionutils.CM;
 import com.probashiincltd.probashilive.functions.Functions;
 import com.probashiincltd.probashilive.models.CommentModel;
+import com.probashiincltd.probashilive.models.LiveAction;
 import com.probashiincltd.probashilive.pubsubItems.LiveItem;
 import com.probashiincltd.probashilive.utils.Configurations;
 
@@ -50,8 +46,13 @@ public class RTMPCallViewModel extends ViewModel {
     private final MutableLiveData<String> onSendButtonClick = new MutableLiveData<>();
     CommentAdapter adapter;
     private final MutableLiveData<CommentModel> selectedItem = new MutableLiveData<>();
+    private final MutableLiveData<LiveAction> liveActiondata = new MutableLiveData<>();
     String myJid;
     ArrayList<String>users;
+
+    public LiveData<LiveAction>getLiveAction(){
+        return liveActiondata;
+    }
 
     public void onClickSend(View vi){
         int id = vi.getId();
@@ -69,11 +70,21 @@ public class RTMPCallViewModel extends ViewModel {
         cm.setName(CM.getProfile().getContent().get("name"));
         cm.setPp(CM.getProfile().getContent().get("profile_picture"));
         cm.setVip(CM.getProfile().getContent().get("vip"));
-        adapter.addData(cm);
-        for(String s:users){
+        Log.e("action",action);
+        if(action.equals(LIVE_USER_TYPE_HOST)){
+            adapter.addData(cm);
+            broadCastComment(cm);
+        }else {
+            CM.sendHLM(SUBJECT_TYPE_COMMENT,new Gson().toJson(cm),myJid,getData().get("room_id"));
+        }
+
+    }
+    public void broadCastComment(CommentModel cm){
+        for(String s:viewers){
             CM.sendHLM(SUBJECT_TYPE_COMMENT,new Gson().toJson(cm),myJid,s);
         }
     }
+
 
     HeadlineMessageListener headlineMessageListener = stanza -> {
         Message message = (Message) stanza;
@@ -81,10 +92,18 @@ public class RTMPCallViewModel extends ViewModel {
             case SUBJECT_TYPE_JOINED_LIVE:{
                 viewers.add(message.getFrom().asFullJidOrThrow().toString());
                 break;
-            }
-            case SUBJECT_TYPE_COMMENT:{
+            } case SUBJECT_TYPE_COMMENT:{
                 CommentModel cm = new Gson().fromJson(message.getBody(),CommentModel.class);
                 adapter.addData(cm);
+                if(action.equals(LIVE_USER_TYPE_HOST)){
+                    broadCastComment(cm);
+                }
+
+                break;
+            } case SUBJECT_TYPE_LIVE_ACTION:{
+                LiveAction liveAction = new Gson().fromJson(message.getBody(),LiveAction.class);
+                liveActiondata.postValue(liveAction);
+                break;
             }
         }
     };
@@ -93,7 +112,7 @@ public class RTMPCallViewModel extends ViewModel {
 
 
 
-
+    @SuppressWarnings("unchecked")
     public void initViewModel(Context context, Intent i, FrameLayout surface){
         this.action = i.getStringExtra(ACTION);
         users = new ArrayList<>();
@@ -102,7 +121,6 @@ public class RTMPCallViewModel extends ViewModel {
 
         switch (action) {
             case LIVE_USER_TYPE_HOST: {
-
                 setUpForHost(context,surface);
                 break;
             }
@@ -127,11 +145,12 @@ public class RTMPCallViewModel extends ViewModel {
     void setUpForHost(Context context,FrameLayout vi) {
 
         int width= context.getResources().getDisplayMetrics().widthPixels;
+        int height = context.getResources().getDisplayMetrics().widthPixels;
 
         nodePublisher = new NodePublisher(context, "");
-        nodePublisher.setAudioCodecParam(NodePublisher.NMC_CODEC_ID_AAC, NodePublisher.NMC_PROFILE_AUTO, 48000, 1, 64_000);
+        nodePublisher.setAudioCodecParam(NodePublisher.NMC_CODEC_ID_AAC, NodePublisher.NMC_PROFILE_AUTO, 48000, 2, 64_000);
         nodePublisher.setVideoOrientation(NodePublisher.VIDEO_ORIENTATION_PORTRAIT);
-        nodePublisher.setVideoCodecParam(NodePublisher.NMC_CODEC_ID_H264, NodePublisher.NMC_PROFILE_AUTO, width, width, 30, 1_000_000);
+        nodePublisher.setVideoCodecParam(NodePublisher.NMC_CODEC_ID_H264, NodePublisher.NMC_PROFILE_AUTO, width, height, 30, 1_000_000);
         nodePublisher.attachView(vi);
         nodePublisher.setCameraFrontMirror(true);
         nodePublisher.setLinearZoom(0.0f);
@@ -173,11 +192,14 @@ public class RTMPCallViewModel extends ViewModel {
         this.adapter = adapter;
     }
 
+    public void viewerLeft(String s){
+        viewers.remove(s);
+    }
 
     void setUpForAudience(Context context,FrameLayout surface) {
         String receiver = getData().get("room_id");
-        if(!users.contains(receiver)){
-            users.add(receiver);
+        if(!viewers.contains(receiver)){
+            viewers.add(receiver);
         }
         nodePlayer = new NodePlayer(context,"");
         nodePlayer.attachView(surface);
@@ -198,12 +220,33 @@ public class RTMPCallViewModel extends ViewModel {
 
     public void onDestroy() {
         if(action.equals(LIVE_USER_TYPE_HOST)){
-            nodePublisher.detachView();
+//            nodePublisher.detachView();
             nodePublisher.closeCamera();
             nodePublisher.stop();
+
+            LiveAction liveAction = new LiveAction();
+            liveAction.setActionType(ACTION_TYPE_LIVE_ENDED);
+            liveAction.setActionContent(ACTION_TYPE_LIVE_ENDED);
+            liveAction.setContentMap(new HashMap<>());
+            for(String s:viewers){
+                CM.sendHLM(SUBJECT_TYPE_LIVE_ACTION,new Gson().toJson(liveAction),myJid,s);
+            }
+            Functions.deleteFromNode(CM.NODE_LIVE_USERS,CM.getProfile().getContent().get("name"));
+            CM.removeListener(headlineMessageListener);
         }else {
+            LiveAction liveAction = new LiveAction();
+            liveAction.setActionType(ACTION_TYPE_LIVE_LEFT);
+            liveAction.setActionContent(ACTION_TYPE_LIVE_LEFT);
+            HashMap<String,String> map = new HashMap<>();
+            map.put("name",CM.getProfile().getName());
+            map.put("jid",CM.getConnection().getUser().asFullJidOrThrow().toString());
+            liveAction.setContentMap(map);
             nodePlayer.detachView();
             nodePlayer.stop();
+            for(String s: viewers){
+                CM.sendHLM(SUBJECT_TYPE_LIVE_ACTION,new Gson().toJson(liveAction),myJid,s);
+            }
+            CM.removeListener(headlineMessageListener);
         }
 
     }
