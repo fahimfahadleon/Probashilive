@@ -3,33 +3,76 @@
     <data>
         <variable
             name="viewModel"
-            type="com.probashiincltd.probashilive.viewmodels.RTMPCallViewModel" />
+            type="com.probashiincltd.probashilive.viewmodels.ConferenceViewModel" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.LiveActivity">
+        tools:context=".ui.ConferenceActivity">
 
-
-        <FrameLayout
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/camera_view"/>
+            android:layout_height="@dimen/_45sdp"
+            android:text="Conference"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:textStyle="bold"
+            android:gravity="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:textColor="@color/textColor"
+            android:id="@+id/title"/>
+        <ImageView
+            android:layout_width="@dimen/_85sdp"
+            android:layout_height="@dimen/_85sdp"
+            android:id="@+id/profile"
+            android:src="@drawable/person"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:background="@drawable/round_image_view"
+            app:layout_constraintTop_toBottomOf="@id/title"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/profile"
+            app:layout_constraintEnd_toEndOf="@id/profile"
+            app:layout_constraintTop_toBottomOf="@id/profile"
+            android:textColor="@color/textColor"
+            android:layout_marginTop="@dimen/_4sdp"
+            android:text="name"
+            android:id="@+id/name"/>
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:itemCount="8"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/name"
+            tools:listitem="@layout/single_conference_item"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="4"
+            android:id="@+id/conferenceRV"
+            android:adapter="@{viewModel.ConferenceAdapter}"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="0dp"
-            android:layout_height="@dimen/_200sdp"
+            android:layout_height="0dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/options"
+            app:layout_constraintTop_toBottomOf="@id/conferenceRV"
             app:layout_constraintBottom_toTopOf="@id/commentEDT"
             tools:listitem="@layout/single_comment"
-            app:reverseLayout="true"
-            android:adapter="@{viewModel.adapter}"
             app:layoutManager=".ui.WrapContentLinearLayoutManager"
-            android:id="@+id/commentLayout"/>
+            android:id="@+id/commentRV"
+            android:adapter="@{viewModel.CommentAdapter}"/>
+
 
         <EditText
             android:layout_width="0dp"
@@ -70,5 +113,6 @@
             app:layout_constraintBottom_toBottomOf="@id/commentEDT"
             app:layout_constraintEnd_toEndOf="parent"
             android:id="@+id/options"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -24,10 +24,13 @@ import com.probashiincltd.probashilive.viewmodels.RTMPCallViewModel;
 
 import java.util.List;
 
-public class RTMPCall extends AppCompatActivity {
+public class RTMPCallActivity extends AppCompatActivity {
     ActivityRtmpcallBinding binding;
     RTMPCallViewModel model;
     boolean doubleBackToExitPressedOnce = false;
+
+
+
 
 
     @Override
@@ -45,19 +48,19 @@ public class RTMPCall extends AppCompatActivity {
                 if (allGranted) {
                     CommentAdapter commentAdapter = new CommentAdapter();
                     model.setAdapter(commentAdapter);
-                    model.initViewModel(RTMPCall.this, getIntent(), binding.cameraView);
+                    model.initViewModel(RTMPCallActivity.this, getIntent(), binding.cameraView);
                     observeViewModel();
                 } else {
-                    PermissionX.init(RTMPCall.this).permissions("android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE", "android.permission.CAMERA", "android.permission.RECORD_AUDIO").explainReasonBeforeRequest().request(new RequestCallback() {
+                    PermissionX.init(RTMPCallActivity.this).permissions("android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE", "android.permission.CAMERA", "android.permission.RECORD_AUDIO").explainReasonBeforeRequest().request(new RequestCallback() {
                         @Override
                         public void onResult(boolean allGranted, @NonNull List<String> grantedList, @NonNull List<String> deniedList) {
                             if (allGranted) {
                                 CommentAdapter commentAdapter = new CommentAdapter();
                                 model.setAdapter(commentAdapter);
-                                model.initViewModel(RTMPCall.this, getIntent(), binding.cameraView);
+                                model.initViewModel(RTMPCallActivity.this, getIntent(), binding.cameraView);
                                 observeViewModel();
                             } else {
-                                Toast.makeText(RTMPCall.this, "Permission is needed", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(RTMPCallActivity.this, "Permission is needed", Toast.LENGTH_SHORT).show();
                                 finish();
                             }
                         }

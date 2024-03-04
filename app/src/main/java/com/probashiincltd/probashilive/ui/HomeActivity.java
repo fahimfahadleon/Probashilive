@@ -2,15 +2,20 @@ package com.probashiincltd.probashilive.ui;
 
 import static com.probashiincltd.probashilive.utils.Configurations.ACTION;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_TYPE;
+import static com.probashiincltd.probashilive.utils.Configurations.LIVE_TYPE_AUDIO;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_TYPE_VIDEO;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_HOST;
 import static com.probashiincltd.probashilive.utils.Configurations.LOGIN_PASSWORD;
 import static com.probashiincltd.probashilive.utils.Configurations.LOGIN_STATUS;
 import static com.probashiincltd.probashilive.utils.Configurations.LOGIN_USER;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
@@ -23,8 +28,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.probashiincltd.probashilive.R;
 import com.probashiincltd.probashilive.connectionutils.CM;
 import com.probashiincltd.probashilive.databinding.ActivityHomeBinding;
+import com.probashiincltd.probashilive.databinding.LiveChooserBinding;
 import com.probashiincltd.probashilive.functions.Functions;
 import com.probashiincltd.probashilive.viewmodels.ActivityHomeViewModel;
+
+import java.util.Objects;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -73,10 +81,7 @@ public class HomeActivity extends AppCompatActivity {
             switch (s){
                 case "live":{
 //                    signOut();
-                    Intent i = new Intent(HomeActivity.this,RTMPCall.class);
-                    i.putExtra(ACTION,LIVE_USER_TYPE_HOST);
-                    i.putExtra(LIVE_TYPE,LIVE_TYPE_VIDEO);
-                    startActivity(i);
+                    openChooser();
                     break;
                 }
             }
@@ -104,12 +109,12 @@ public class HomeActivity extends AppCompatActivity {
 
     void setUpFragment(Fragment f){
         Log.e("fragmentContainer","called");
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        fragmentTransaction.replace(R.id.fragmentcontainer, f);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        ft.replace(R.id.fragmentcontainer, f);
+        ft.addToBackStack(null);
+        ft.commit();
     }
 
     public void signOut(){
@@ -122,4 +127,38 @@ public class HomeActivity extends AppCompatActivity {
         CM.getConnection().disconnect();
 
     }
+
+
+
+    AlertDialog cd;
+    void openChooser() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.Base_Theme_ProbashiLive);
+        LiveChooserBinding b = LiveChooserBinding.inflate(getLayoutInflater());
+        builder.setView(b.getRoot());
+        cd = builder.create();
+        cd.show();
+        Objects.requireNonNull(cd.getWindow()).setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        cd.getWindow().setGravity(Gravity.CENTER);
+        cd.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        cd.getWindow().setDimAmount(0.5f);
+
+        b.joinVideo.setOnClickListener(v -> {
+            Intent i = new Intent(HomeActivity.this, RTMPCallActivity.class);
+            i.putExtra(ACTION,LIVE_USER_TYPE_HOST);
+            i.putExtra(LIVE_TYPE,LIVE_TYPE_VIDEO);
+            startActivity(i);
+        });
+
+        b.joinAudio.setOnClickListener(v->{
+            Intent i = new Intent(HomeActivity.this, ConferenceActivity.class);
+            i.putExtra(ACTION,LIVE_USER_TYPE_HOST);
+            i.putExtra(LIVE_TYPE,LIVE_TYPE_AUDIO);
+            startActivity(i);
+        });
+    }
+
+
+
+
+
 }

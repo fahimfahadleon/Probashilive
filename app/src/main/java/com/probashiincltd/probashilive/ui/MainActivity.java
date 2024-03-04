@@ -196,7 +196,6 @@ public class MainActivity extends AppCompatActivity {
 
     AlertDialog registerDialog;
     void performRawRegistration() {
-
         AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.Base_Theme_ProbashiLive);
         RegistrationLayoutBinding registrationLayoutBinding = RegistrationLayoutBinding.inflate(getLayoutInflater());
         builder.setView(registrationLayoutBinding.getRoot());
@@ -231,12 +230,7 @@ public class MainActivity extends AppCompatActivity {
                 registerDialog.dismiss();
                 startEjabberdRegistration(email,password);
             }
-
-
         });
-
-
-
     }
 
 

@@ -1,5 +1,7 @@
 package com.probashiincltd.probashilive.adapter;
 
+
+
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -10,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.probashiincltd.probashilive.R;
 import com.probashiincltd.probashilive.databinding.SingleCommentBinding;
 import com.probashiincltd.probashilive.models.CommentModel;
 
@@ -27,12 +30,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         Log.e("addData","called");
         if(!models.contains(commentModel)){
             this.models.add(0,commentModel);
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    notifyItemInserted(0);
-                }
-            },100);
+            new Handler(Looper.getMainLooper()).postDelayed(() -> notifyItemInserted(0),100);
         }
 
     }
@@ -47,6 +45,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.onItemClickListener = listener;
     }
+
 
     @NonNull
     @Override
@@ -66,19 +65,19 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         return models.size();
     }
 
-    class CommentViewHolder extends RecyclerView.ViewHolder {
+    protected class CommentViewHolder extends RecyclerView.ViewHolder {
         SingleCommentBinding binding;
 
-        public void setUpData(CommentModel cm){
+        protected void setUpData(CommentModel cm){
 
             Log.e("comment",cm.toString());
-            binding.vip.setText("Vip: "+cm.getVip());
+            binding.vip.setText(cm.getVip().isEmpty()?"":cm.getVip());
             binding.comment.setText(cm.getComment());
             binding.name.setText(cm.getName());
-            Glide.with(binding.profile).load(cm.getPp()).into(binding.profile);
+            Glide.with(binding.profile).load(cm.getPp()).placeholder(R.drawable.person).into(binding.profile);
             binding.getRoot().setOnClickListener(v -> onItemClickListener.onItemClick(cm));
         }
-        public CommentViewHolder(SingleCommentBinding binding) {
+        protected CommentViewHolder(SingleCommentBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }

@@ -73,7 +73,7 @@ public class HomeFragment extends Fragment {
 
     void initViewModel() {
         model.getSelectedItem().observe(getViewLifecycleOwner(), liveItem -> {
-            Intent i = new Intent(getActivity(), RTMPCall.class);
+            Intent i = new Intent(getActivity(), RTMPCallActivity.class);
             i.putExtra(ACTION, LIVE_USER_TYPE_AUDIENCE);
             i.putExtra("data",liveItem.getContent());
             i.putExtra(LIVE_TYPE, LIVE_TYPE_VIDEO);

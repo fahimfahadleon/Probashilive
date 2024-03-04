@@ -70,6 +70,8 @@ public class RTMPCallViewModel extends ViewModel {
         cm.setName(CM.getProfile().getContent().get("name"));
         cm.setPp(CM.getProfile().getContent().get("profile_picture"));
         cm.setVip(CM.getProfile().getContent().get("vip"));
+        cm.setId(myJid);
+        cm.setContent(new HashMap<>());
         Log.e("action",action);
         if(action.equals(LIVE_USER_TYPE_HOST)){
             adapter.addData(cm);
@@ -86,7 +88,7 @@ public class RTMPCallViewModel extends ViewModel {
     }
 
 
-    HeadlineMessageListener headlineMessageListener = stanza -> {
+    HeadlineMessageListener listener = stanza -> {
         Message message = (Message) stanza;
         switch (message.getSubject()){
             case SUBJECT_TYPE_JOINED_LIVE:{
@@ -136,16 +138,19 @@ public class RTMPCallViewModel extends ViewModel {
             }
 
         }
-        CM.setHeadlineMessageListener(headlineMessageListener);
+        CM.setHeadlineMessageListener(listener);
         adapter.setOnItemClickListener(this::setSelectedItem);
 
 
 
     }
+
+
+
     void setUpForHost(Context context,FrameLayout vi) {
 
         int width= context.getResources().getDisplayMetrics().widthPixels;
-        int height = context.getResources().getDisplayMetrics().widthPixels;
+        int height = context.getResources().getDisplayMetrics().heightPixels;
 
         nodePublisher = new NodePublisher(context, "");
         nodePublisher.setAudioCodecParam(NodePublisher.NMC_CODEC_ID_AAC, NodePublisher.NMC_PROFILE_AUTO, 48000, 2, 64_000);
@@ -154,12 +159,11 @@ public class RTMPCallViewModel extends ViewModel {
         nodePublisher.attachView(vi);
         nodePublisher.setCameraFrontMirror(true);
         nodePublisher.setLinearZoom(0.0f);
-
+        nodePublisher.setVolume(100.0f);
         nodePublisher.openCamera(true);
         nodePublisher.start(Configurations.RTMP_URL+CM.getProfile().getName());
-
+        Log.e("streamingat",Configurations.RTMP_URL+CM.getProfile().getName());
         try {
-
             HashMap<String,String>live = new HashMap<>();
             live.put("profile_image",CM.getProfile().getContent().get("profile_picture"));
             live.put("name",CM.getProfile().getContent().get("name"));
@@ -232,7 +236,7 @@ public class RTMPCallViewModel extends ViewModel {
                 CM.sendHLM(SUBJECT_TYPE_LIVE_ACTION,new Gson().toJson(liveAction),myJid,s);
             }
             Functions.deleteFromNode(CM.NODE_LIVE_USERS,CM.getProfile().getContent().get("name"));
-            CM.removeListener(headlineMessageListener);
+            CM.removeListener(listener);
         }else {
             LiveAction liveAction = new LiveAction();
             liveAction.setActionType(ACTION_TYPE_LIVE_LEFT);
@@ -246,7 +250,7 @@ public class RTMPCallViewModel extends ViewModel {
             for(String s: viewers){
                 CM.sendHLM(SUBJECT_TYPE_LIVE_ACTION,new Gson().toJson(liveAction),myJid,s);
             }
-            CM.removeListener(headlineMessageListener);
+            CM.removeListener(listener);
         }
 
     }
