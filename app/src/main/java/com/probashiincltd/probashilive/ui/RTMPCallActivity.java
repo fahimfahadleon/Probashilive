@@ -18,7 +18,6 @@ import androidx.lifecycle.ViewModelProvider;
 import com.permissionx.guolindev.PermissionX;
 import com.permissionx.guolindev.callback.RequestCallback;
 import com.probashiincltd.probashilive.R;
-import com.probashiincltd.probashilive.adapter.CommentAdapter;
 import com.probashiincltd.probashilive.databinding.ActivityRtmpcallBinding;
 import com.probashiincltd.probashilive.viewmodels.RTMPCallViewModel;
 
@@ -46,8 +45,6 @@ public class RTMPCallActivity extends AppCompatActivity {
             @Override
             public void onResult(boolean allGranted, @NonNull List<String> grantedList, @NonNull List<String> deniedList) {
                 if (allGranted) {
-                    CommentAdapter commentAdapter = new CommentAdapter();
-                    model.setAdapter(commentAdapter);
                     model.initViewModel(RTMPCallActivity.this, getIntent(), binding.cameraView);
                     observeViewModel();
                 } else {
@@ -55,8 +52,6 @@ public class RTMPCallActivity extends AppCompatActivity {
                         @Override
                         public void onResult(boolean allGranted, @NonNull List<String> grantedList, @NonNull List<String> deniedList) {
                             if (allGranted) {
-                                CommentAdapter commentAdapter = new CommentAdapter();
-                                model.setAdapter(commentAdapter);
                                 model.initViewModel(RTMPCallActivity.this, getIntent(), binding.cameraView);
                                 observeViewModel();
                             } else {

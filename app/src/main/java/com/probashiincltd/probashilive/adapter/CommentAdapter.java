@@ -1,7 +1,6 @@
 package com.probashiincltd.probashilive.adapter;
 
 
-
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -20,13 +19,17 @@ import java.util.ArrayList;
 
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder> {
     ArrayList<CommentModel> models;
+    public static final int COMMENT_ADAPTER_TYPE_HOST = 0;
+    public static final int COMMENT_ADAPTER_TYPE_AUDIENCE = 1;
+    public static final int COMMENT_ADAPTER_TYPE_COMPETITOR = 2;
+    int type;
 
-    public CommentAdapter(){
+    public CommentAdapter(int cat){
+        this.type = cat;
         this.models = new ArrayList<>();
     }
 
     public void addData(CommentModel commentModel){
-
         Log.e("addData","called");
         if(!models.contains(commentModel)){
             this.models.add(0,commentModel);

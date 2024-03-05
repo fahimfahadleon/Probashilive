@@ -123,15 +123,18 @@ public class RTMPCallViewModel extends ViewModel {
 
         switch (action) {
             case LIVE_USER_TYPE_HOST: {
+                adapter = new CommentAdapter(CommentAdapter.COMMENT_ADAPTER_TYPE_HOST);
                 setUpForHost(context,surface);
                 break;
             }
             case LIVE_USER_TYPE_AUDIENCE: {
+                adapter = new CommentAdapter(CommentAdapter.COMMENT_ADAPTER_TYPE_AUDIENCE);
                 this.data = (HashMap<String, String>) i.getSerializableExtra("data");
                 setUpForAudience(context,surface);
                 break;
             }
             case LIVE_USER_TYPE_COMPETITOR: {
+                adapter = new CommentAdapter(CommentAdapter.COMMENT_ADAPTER_TYPE_COMPETITOR);
                 this.data = (HashMap<String, String>) i.getSerializableExtra("data");
                 setUpForCompetitor();
                 break;

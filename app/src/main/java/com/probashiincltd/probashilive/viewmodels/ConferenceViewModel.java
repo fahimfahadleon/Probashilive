@@ -15,12 +15,14 @@ import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.view.View;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.google.gson.Gson;
+import com.probashiincltd.probashilive.R;
 import com.probashiincltd.probashilive.adapter.CommentAdapter;
 import com.probashiincltd.probashilive.adapter.ConferenceAdapter;
 import com.probashiincltd.probashilive.callbacks.HeadlineMessageListener;
@@ -86,6 +88,7 @@ public class ConferenceViewModel extends ViewModel {
     };
 
     private final MutableLiveData<ConferenceModel> conferenceModelItemClick = new MutableLiveData<>();
+    private final MutableLiveData<String> onSendButtonClick = new MutableLiveData<>();
     private final MutableLiveData<LiveAction> liveActiondata = new MutableLiveData<>();
     private final MutableLiveData<CommentModel> commentModelItemClick = new MutableLiveData<>();
     public ConferenceAdapter getConferenceAdapter(){
@@ -96,20 +99,27 @@ public class ConferenceViewModel extends ViewModel {
         return liveActiondata;
     }
 
-    public void setCommentAdapter(CommentAdapter commentAdapter){
-        this.commentAdapter = commentAdapter;
-    }
+
     public CommentAdapter getCommentAdapter(){
         return commentAdapter;
     }
-    public void setConferenceAdapter(ConferenceAdapter adapter){
-        this.conferenceAdapter = adapter;
-    }
-    public LiveData<ConferenceModel> getConferenceModelItemClick(){
+
+    public LiveData<ConferenceModel> getConferenceAdapterlItemClick(){
         return conferenceModelItemClick;
     }
-    public LiveData<CommentModel> getCommentModelItemClick(){
+    public LiveData<CommentModel> getCommentAdapterItemClick(){
         return commentModelItemClick;
+    }
+
+    public void onClickSend(View vi){
+        int id = vi.getId();
+        if(id == R.id.send){
+            onSendButtonClick.setValue(SUBJECT_TYPE_COMMENT);
+        }
+    }
+
+    public LiveData<String>getSendComment(){
+        return onSendButtonClick;
     }
 
 
@@ -119,17 +129,24 @@ public class ConferenceViewModel extends ViewModel {
         users = new ArrayList<>();
         viewers = new ArrayList<>();
         myJid = CM.getConnection().getUser().asFullJidOrThrow().toString();
+
         switch (action) {
             case LIVE_USER_TYPE_HOST: {
+                commentAdapter = new CommentAdapter(CommentAdapter.COMMENT_ADAPTER_TYPE_HOST);
+                conferenceAdapter = new ConferenceAdapter(ConferenceAdapter.CONFERENCE_ADAPTER_TYPE_HOST);
                 setUpForHost(context);
                 break;
             }
             case LIVE_USER_TYPE_AUDIENCE: {
+                commentAdapter = new CommentAdapter(CommentAdapter.COMMENT_ADAPTER_TYPE_AUDIENCE);
+                conferenceAdapter = new ConferenceAdapter(ConferenceAdapter.CONFERENCE_ADAPTER_TYPE_AUDIENCE);
                 this.data = (HashMap<String, String>) i.getSerializableExtra("data");
                 setUpForAudience(context);
                 break;
             }
             case LIVE_USER_TYPE_COMPETITOR: {
+                commentAdapter = new CommentAdapter(CommentAdapter.COMMENT_ADAPTER_TYPE_COMPETITOR);
+                conferenceAdapter = new ConferenceAdapter(ConferenceAdapter.CONFERENCE_ADAPTER_TYPE_COMPETITOR);
                 this.data = (HashMap<String, String>) i.getSerializableExtra("data");
                 setUpForCompetitor(context);
                 break;
@@ -138,7 +155,6 @@ public class ConferenceViewModel extends ViewModel {
         }
 
         CM.setHeadlineMessageListener(listener);
-
         conferenceAdapter.setOnConferenceClickListener(conferenceModelItemClick::setValue);
         commentAdapter.setOnItemClickListener(commentModelItemClick::setValue);
     }
@@ -178,6 +194,7 @@ public class ConferenceViewModel extends ViewModel {
     }
 
     private void setUpForCompetitor(Context context) {
+
     }
 
 
@@ -206,31 +223,39 @@ public class ConferenceViewModel extends ViewModel {
     }
 
     public void onDestroy() {
-        if(action.equals(LIVE_USER_TYPE_HOST)){
-            nodePublisher.stop();
+        switch (action) {
+            case LIVE_USER_TYPE_HOST: {
+                nodePublisher.stop();
 
-            LiveAction liveAction = new LiveAction();
-            liveAction.setActionType(ACTION_TYPE_LIVE_ENDED);
-            liveAction.setActionContent(ACTION_TYPE_LIVE_ENDED);
-            liveAction.setContentMap(new HashMap<>());
-            for(String s:viewers){
-                CM.sendHLM(SUBJECT_TYPE_LIVE_ACTION,new Gson().toJson(liveAction),myJid,s);
+                LiveAction liveAction = new LiveAction();
+                liveAction.setActionType(ACTION_TYPE_LIVE_ENDED);
+                liveAction.setActionContent(ACTION_TYPE_LIVE_ENDED);
+                liveAction.setContentMap(new HashMap<>());
+                for (String s : viewers) {
+                    CM.sendHLM(SUBJECT_TYPE_LIVE_ACTION, new Gson().toJson(liveAction), myJid, s);
+                }
+                Functions.deleteFromNode(CM.NODE_LIVE_USERS, CM.getProfile().getContent().get("name"));
+                CM.removeListener(listener);
+                break;
             }
-            Functions.deleteFromNode(CM.NODE_LIVE_USERS,CM.getProfile().getContent().get("name"));
-            CM.removeListener(listener);
-        }else {
-            LiveAction liveAction = new LiveAction();
-            liveAction.setActionType(ACTION_TYPE_LIVE_LEFT);
-            liveAction.setActionContent(ACTION_TYPE_LIVE_LEFT);
-            HashMap<String,String> map = new HashMap<>();
-            map.put("name",CM.getProfile().getName());
-            map.put("jid",CM.getConnection().getUser().asFullJidOrThrow().toString());
-            liveAction.setContentMap(map);
-            nodePlayer.stop();
-            for(String s: viewers){
-                CM.sendHLM(SUBJECT_TYPE_LIVE_ACTION,new Gson().toJson(liveAction),myJid,s);
+            case LIVE_USER_TYPE_AUDIENCE: {
+                LiveAction liveAction = new LiveAction();
+                liveAction.setActionType(ACTION_TYPE_LIVE_LEFT);
+                liveAction.setActionContent(ACTION_TYPE_LIVE_LEFT);
+                HashMap<String, String> map = new HashMap<>();
+                map.put("name", CM.getProfile().getName());
+                map.put("jid", CM.getConnection().getUser().asFullJidOrThrow().toString());
+                liveAction.setContentMap(map);
+                nodePlayer.stop();
+                for (String s : viewers) {
+                    CM.sendHLM(SUBJECT_TYPE_LIVE_ACTION, new Gson().toJson(liveAction), myJid, s);
+                }
+                CM.removeListener(listener);
+                break;
             }
-            CM.removeListener(listener);
+            case LIVE_USER_TYPE_COMPETITOR:
+                //todo do for competitor
+                break;
         }
 
     }

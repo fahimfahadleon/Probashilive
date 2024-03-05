@@ -59,7 +59,7 @@
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             app:spanCount="4"
             android:id="@+id/conferenceRV"
-            android:adapter="@{viewModel.ConferenceAdapter}"/>
+            android:adapter="@{viewModel.getConferenceAdapter}"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="0dp"
@@ -71,7 +71,7 @@
             tools:listitem="@layout/single_comment"
             app:layoutManager=".ui.WrapContentLinearLayoutManager"
             android:id="@+id/commentRV"
-            android:adapter="@{viewModel.CommentAdapter}"/>
+            android:adapter="@{viewModel.getCommentAdapter}"/>
 
 
         <EditText
