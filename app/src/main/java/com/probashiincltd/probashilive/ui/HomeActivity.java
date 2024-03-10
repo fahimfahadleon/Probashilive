@@ -9,7 +9,6 @@ import static com.probashiincltd.probashilive.utils.Configurations.LOGIN_PASSWOR
 import static com.probashiincltd.probashilive.utils.Configurations.LOGIN_STATUS;
 import static com.probashiincltd.probashilive.utils.Configurations.LOGIN_USER;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +16,7 @@ import android.view.Gravity;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;

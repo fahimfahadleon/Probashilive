@@ -174,6 +174,7 @@ public class ConferenceViewModel extends ViewModel {
             live.put("startedAt", ZonedDateTime.now().toString());
             live.put("type",LIVE_TYPE_AUDIO);
             live.put("sdp","");
+            live.put("vip",CM.getProfile().getContent().get("vip"));
 
             LiveItem liveItem = new LiveItem(live);
             Item item = Functions.createRawItem(liveItem);
@@ -261,5 +262,7 @@ public class ConferenceViewModel extends ViewModel {
     }
 
 
-
+    public String getAction() {
+        return action;
+    }
 }

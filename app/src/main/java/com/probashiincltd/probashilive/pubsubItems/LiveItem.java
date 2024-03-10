@@ -23,6 +23,7 @@ public class LiveItem extends UniversalModelMap{
                 "viewers",
                 "startedAt",
                 "type",
+                "vip",
                 "sdp"
         )));
     }
@@ -58,6 +59,7 @@ public class LiveItem extends UniversalModelMap{
         String startedAt = content.getJSONObject("startedAt").optString("content");
         String type = content.getJSONObject("type").optString("content");
         String sdp = content.getJSONObject("sdp").optString("content");
+        String vip = content.getJSONObject("vip").optString("content");
 
         HashMap<String,String> map = new HashMap<>();
         map.put("profile_image", profilePic);
@@ -67,6 +69,7 @@ public class LiveItem extends UniversalModelMap{
         map.put("startedAt",startedAt);
         map.put("type",type);
         map.put("sdp",sdp);
+        map.put("vip",vip);
 
         return new LiveItem(map);
 

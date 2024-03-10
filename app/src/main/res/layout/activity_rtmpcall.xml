@@ -13,11 +13,79 @@
         android:layout_height="match_parent"
         tools:context=".ui.LiveActivity">
 
-
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/camera_view"/>
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="@dimen/_45sdp"
+            android:layout_height="@dimen/_45sdp"
+            android:src="@drawable/person"
+            app:civ_border_color="@color/textColor"
+            app:civ_border_width="@dimen/_1sdp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:layout_marginStart="@dimen/_8sdp"
+            android:onClick="@{viewModel::onClickSend}"
+            android:id="@+id/profile"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/profile"
+            app:layout_constraintTop_toTopOf="@id/profile"
+            android:gravity="start|center"
+            android:text="User Name"
+            android:onClick="@{viewModel::onClickSend}"
+            android:textColor="@color/textColor"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:layout_marginStart="@dimen/_8sdp"
+            android:id="@+id/name"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/profile"
+            app:layout_constraintTop_toBottomOf="@id/name"
+            android:gravity="start|center"
+            android:onClick="@{viewModel::onClickSend}"
+            android:text="Vip"
+            android:textColor="@color/textColor"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:layout_marginStart="@dimen/_8sdp"
+            android:id="@+id/vip"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/closeLive"
+            app:layout_constraintTop_toTopOf="@id/closeLive"
+            app:layout_constraintBottom_toBottomOf="@id/closeLive"
+            android:gravity="start|center"
+            android:text="Viewers: "
+            android:layout_marginEnd="@dimen/_16sdp"
+            android:background="@drawable/simple_item_border"
+            android:paddingTop="@dimen/_4sdp"
+            android:paddingBottom="@dimen/_4sdp"
+            android:paddingStart="@dimen/_8sdp"
+            android:paddingEnd="@dimen/_8sdp"
+            android:textColor="@color/textColor"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:layout_marginStart="@dimen/_8sdp"
+            android:id="@+id/viewers"/>
+
+        <ImageView
+            android:layout_width="@dimen/_24sdp"
+            android:layout_height="@dimen/_24sdp"
+            android:src="@drawable/close"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/profile"
+            app:layout_constraintBottom_toBottomOf="@id/profile"
+            android:layout_marginEnd="@dimen/_12sdp"
+            android:onClick="@{viewModel::onClickSend}"
+            android:id="@+id/closeLive"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="0dp"

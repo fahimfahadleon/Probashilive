@@ -59,7 +59,7 @@ public class HomeFragment extends Fragment {
         binding.refreshLayout.setRefreshHeader(new ClassicsHeader(requireContext()));
         binding.refreshLayout.setRefreshFooter(new ClassicsFooter(requireContext()));
         binding.refreshLayout.setOnRefreshLoadMoreListener(model.onRefreshLoadMoreListener);
-        HomeFragmentRVAdapter adapter = new HomeFragmentRVAdapter();
+        HomeFragmentRVAdapter adapter = new HomeFragmentRVAdapter(getContext());
         model.setAdapter(adapter);
         model.initViewModel();
         binding.refreshLayout.autoRefresh();
@@ -121,7 +121,7 @@ public class HomeFragment extends Fragment {
                 try {
                     models.add(LiveItem.parseLiveItem(i));
                 }catch (Exception e){
-                    e.printStackTrace();
+                    Log.e("error",e.toString());
                 }
             }
             model.getAdapter().addMoreData(models);

@@ -2,6 +2,8 @@ package com.probashiincltd.probashilive.ui;
 
 import static com.probashiincltd.probashilive.utils.Configurations.ACTION_TYPE_LIVE_ENDED;
 import static com.probashiincltd.probashilive.utils.Configurations.ACTION_TYPE_LIVE_LEFT;
+import static com.probashiincltd.probashilive.utils.Configurations.CLOSE_LIVE;
+import static com.probashiincltd.probashilive.utils.Configurations.OPEN_PROFILE;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_COMMENT;
 
 import android.os.Bundle;
@@ -15,9 +17,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
 import com.permissionx.guolindev.PermissionX;
 import com.permissionx.guolindev.callback.RequestCallback;
 import com.probashiincltd.probashilive.R;
+import com.probashiincltd.probashilive.connectionutils.CM;
 import com.probashiincltd.probashilive.databinding.ActivityRtmpcallBinding;
 import com.probashiincltd.probashilive.viewmodels.RTMPCallViewModel;
 
@@ -93,16 +97,40 @@ public class RTMPCallActivity extends AppCompatActivity {
 
     void observeViewModel() {
         model.getSendComment().observe(this, s -> {
-            if (s.equals(SUBJECT_TYPE_COMMENT)) {
-                String cmnt = binding.commentEDT.getText().toString();
-                if (!cmnt.isEmpty()) {
-                    model.sendComment(cmnt);
-                    binding.commentEDT.setText(null);
-                }
+            switch (s) {
+                case SUBJECT_TYPE_COMMENT:
+                    String cmnt = binding.commentEDT.getText().toString();
+                    if (!cmnt.isEmpty()) {
+                        model.sendComment(cmnt);
+                        binding.commentEDT.setText(null);
+                    }
+                    break;
+                case CLOSE_LIVE:
+                    Toast.makeText(this, "CLOSE LIVE", Toast.LENGTH_SHORT).show();
+                    break;
+                case OPEN_PROFILE:
+                    openProfile();
+                    break;
             }
         });
         model.getSelectedItem().observe(this, model -> {
 
+        });
+        model.getLiveViewerCount().observe(this,i->{
+            binding.viewers.setText(getString(R.string.viewers,String.valueOf(model.getViewersCount())));
+        });
+        model.getOnSetUpComplete().observe(this,map->{
+            if(!map.isEmpty()){
+                Glide.with(binding.profile).load(map.get("profile_image")).placeholder(R.drawable.person).into(binding.profile);
+                binding.name.setText(map.get("name"));
+                binding.vip.setText(map.get("vip"));
+                binding.viewers.setText(getString(R.string.viewers,map.get("viewers")));
+            }else {
+                Glide.with(binding.profile).load(CM.getProfile().getContent().get("profile_picture")).placeholder(R.drawable.person).into(binding.profile);
+                binding.name.setText(CM.getProfile().getContent().get("name"));
+                binding.vip.setText(CM.getProfile().getContent().get("vip"));
+                binding.viewers.setText(getString(R.string.viewers,String.valueOf(model.getViewersCount())));
+            }
         });
 
         model.getLiveAction().observe(this, liveAction -> {
@@ -118,6 +146,10 @@ public class RTMPCallActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void openProfile() {
+        Toast.makeText(this, "Open Profile", Toast.LENGTH_SHORT).show();
     }
 }
 

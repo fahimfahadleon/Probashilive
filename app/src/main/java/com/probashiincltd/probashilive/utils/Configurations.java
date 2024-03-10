@@ -14,6 +14,9 @@ public class Configurations {
     public static final String USER_PHONE = "userPhone";
     public static final String USER_PROFILE = "userProfile";
     public static final String SUBJECT_TYPE_COMMENT = "comment";
+    public static final String SUBJECT_TYPE_VIEWERS_LIST = "viewers_list";
+    public static final String CLOSE_LIVE = "close_live";
+    public static final String OPEN_PROFILE = "open_profile";
     public static final String SUBJECT_TYPE_JOINED_LIVE= "joined_live";
     public static final String SUBJECT_TYPE_LIVE_ACTION= "live_action";
     public static final String LIVE_ACTION = "action_title";
