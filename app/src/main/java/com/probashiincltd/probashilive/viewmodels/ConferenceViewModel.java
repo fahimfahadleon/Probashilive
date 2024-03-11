@@ -166,6 +166,21 @@ public class ConferenceViewModel extends ViewModel {
         nodePublisher.start(Configurations.RTMP_URL+CM.getProfile().getName());
         Log.e("streamingat",Configurations.RTMP_URL+CM.getProfile().getName());
         try {
+
+            //                "profile_image",
+            //                "name",
+            //                "room_id",
+            //                "viewers",
+            //                "startedAt",
+            //                "type",
+            //                "vip",
+            //                "sdp",
+            //                "country",
+            //                "ip",
+            //                "country_code",
+            //                "city",
+            //                "timezone",
+            //                "regionName"
             HashMap<String,String>live = new HashMap<>();
             live.put("profile_image",CM.getProfile().getContent().get("profile_picture"));
             live.put("name",CM.getProfile().getContent().get("name"));
@@ -175,6 +190,12 @@ public class ConferenceViewModel extends ViewModel {
             live.put("type",LIVE_TYPE_AUDIO);
             live.put("sdp","");
             live.put("vip",CM.getProfile().getContent().get("vip"));
+            live.put("country",CM.getIPModel().getCountry());
+            live.put("ip",CM.getIPModel().getQuery());
+            live.put("country_code",CM.getIPModel().getCountryCode());
+            live.put("city",CM.getIPModel().getCity());
+            live.put("timezone",CM.getIPModel().getTimezone());
+            live.put("regionName",CM.getIPModel().getRegionName());
 
             LiveItem liveItem = new LiveItem(live);
             Item item = Functions.createRawItem(liveItem);

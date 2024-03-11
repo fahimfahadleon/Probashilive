@@ -31,12 +31,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.gson.Gson;
 import com.probashiincltd.probashilive.R;
 import com.probashiincltd.probashilive.callbacks.RegisterCallback;
 import com.probashiincltd.probashilive.connectionutils.CM;
 import com.probashiincltd.probashilive.databinding.ActivityMainBinding;
 import com.probashiincltd.probashilive.databinding.RegistrationLayoutBinding;
 import com.probashiincltd.probashilive.functions.Functions;
+import com.probashiincltd.probashilive.models.IpModel;
 import com.probashiincltd.probashilive.viewmodels.ActivityMainViewModel;
 
 import java.util.Objects;
@@ -64,12 +66,14 @@ public class MainActivity extends AppCompatActivity {
 
     void startRegisterOrLogin(String user,String password,String action){
         openProgress = new OpenProgress(this).showProgress();
+        Functions.requestHttp("http://checkip.amazonaws.com/", response -> {
+            if(response!=null){
+                Functions.requestHttp("http://ip-api.com/json/"+response, response1 -> CM.setIPModel(new Gson().fromJson(response1, IpModel.class)));
+            }
+        });
         new CM(MainActivity.this, user,password, action, new RegisterCallback() {
             @Override
             public void registerSuccessful() {
-
-                Log.e("registerCallback","called");
-
                 openProgress.dismissProgress();
                 startActivity(new Intent(MainActivity.this,HomeActivity.class));
                 finish();
@@ -120,11 +124,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void initViewModel() {
-
-
-        viewModel.getLoginAction().observe(this,newText ->{
-            performLogin();
-        });
+        viewModel.getLoginAction().observe(this,newText -> performLogin());
 
         viewModel.getRegisterAction().observe(this, newText -> {
             switch (newText) {
@@ -232,6 +232,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
 
 

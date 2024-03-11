@@ -24,7 +24,14 @@ public class LiveItem extends UniversalModelMap{
                 "startedAt",
                 "type",
                 "vip",
-                "sdp"
+                "sdp",
+                "country",
+                "ip",
+                "country_code",
+                "city",
+                "timezone",
+                "regionName"
+
         )));
     }
 
@@ -60,6 +67,12 @@ public class LiveItem extends UniversalModelMap{
         String type = content.getJSONObject("type").optString("content");
         String sdp = content.getJSONObject("sdp").optString("content");
         String vip = content.getJSONObject("vip").optString("content");
+        String country = content.getJSONObject("country").optString("content");
+        String ip = content.getJSONObject("ip").optString("content");
+        String country_code = content.getJSONObject("country_code").optString("content");
+        String city = content.getJSONObject("city").optString("content");
+        String timezone = content.getJSONObject("timezone").optString("content");
+        String regionName = content.getJSONObject("regionName").optString("content");
 
         HashMap<String,String> map = new HashMap<>();
         map.put("profile_image", profilePic);
@@ -70,6 +83,12 @@ public class LiveItem extends UniversalModelMap{
         map.put("type",type);
         map.put("sdp",sdp);
         map.put("vip",vip);
+        map.put("country", country);
+        map.put("ip",ip);
+        map.put("country_code",country_code);
+        map.put("city",city);
+        map.put("timezone",timezone);
+        map.put("regionName",regionName);
 
         return new LiveItem(map);
 

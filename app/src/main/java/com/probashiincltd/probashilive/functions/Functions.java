@@ -11,6 +11,7 @@ import android.util.Log;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.probashiincltd.probashilive.callbacks.HttpRequestCallback;
 import com.probashiincltd.probashilive.connectionutils.CM;
 import com.probashiincltd.probashilive.pubsubItems.UniversalModelMap;
 import com.probashiincltd.probashilive.utils.Configurations;
@@ -38,11 +39,17 @@ import org.jxmpp.jid.impl.JidCreate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Executors;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -553,6 +560,32 @@ public class Functions {
     //    </configure>
     //  </pubsub>
     //</iq>
+
+
+    public static void requestHttp(String u, HttpRequestCallback callback){
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                URL url = new URL(u);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                InputStream inputStream = urlConnection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder stringBuilder = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+                reader.close();
+                inputStream.close();
+                urlConnection.disconnect();
+                callback.onResponse(stringBuilder.toString());
+            }catch (Exception e){
+                callback.onResponse(null);
+            }
+
+        });
+    }
+
 
 
 }

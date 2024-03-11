@@ -1,11 +1,14 @@
 package com.probashiincltd.probashilive.adapter;
 
+import static com.probashiincltd.probashilive.utils.Configurations.LIVE_TYPE_VIDEO;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -74,9 +77,12 @@ public class HomeFragmentRVAdapter extends RecyclerView.Adapter<HomeFragmentRVAd
                 ZonedDateTime newYorkDateTime = zonedDateTime.withZoneSameInstant(ZoneId.systemDefault());
                 DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("HH:mm a");
                 String formattedDateTime = newYorkDateTime.format(formatter1);
-                binding.startedat.setText(formattedDateTime);
+                binding.country.setText(model.getContent().get("country"));
+                binding.type.setImageDrawable(ContextCompat.getDrawable(context,model.getContent().get("type").equals(LIVE_TYPE_VIDEO)?R.drawable.video_camera:R.drawable.microphone));
+                binding.startedat.setText(context.getString(R.string.from,formattedDateTime));
                 binding.watching.setText(context.getString(R.string.viewers,model.getContent().get("viewers")));
                 Glide.with(binding.profile).load(model.getContent().get("profile_image")).into(binding.profile);
+                binding.profile.setClipToOutline(true);
                 binding.getRoot().setOnClickListener(v -> onItemClickListener.onItemClick(model));
             }
 

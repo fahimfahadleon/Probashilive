@@ -12,6 +12,7 @@ import android.util.Log;
 import com.probashiincltd.probashilive.callbacks.HeadlineMessageListener;
 import com.probashiincltd.probashilive.callbacks.RegisterCallback;
 import com.probashiincltd.probashilive.functions.Functions;
+import com.probashiincltd.probashilive.models.IpModel;
 import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
 import com.probashiincltd.probashilive.utils.Configurations;
 
@@ -52,6 +53,13 @@ public class CM extends XmppConnection {
     String passwrod;
     String action;
     static AbstractXMPPConnection connection;
+    static IpModel model;
+    public static void setIPModel(IpModel ipModel){
+        model = ipModel;
+    }
+    public static IpModel getIPModel(){
+        return model;
+    }
 
 
     final String tag = "connection";

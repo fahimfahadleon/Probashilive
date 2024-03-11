@@ -30,8 +30,7 @@
                 android:layout_height="match_parent"
                 android:id="@+id/recyclerview"
                 android:overScrollMode="never"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                app:spanCount="2"
+                app:layoutManager=".ui.WrapContentLinearLayoutManager"
                 android:adapter="@{viewModel.adapter}"
                 tools:listitem="@layout/single_home_item"/>
             <com.scwang.smart.refresh.footer.ClassicsFooter

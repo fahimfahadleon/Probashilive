@@ -176,6 +176,12 @@ public class RTMPCallViewModel extends ViewModel {
                 live.put("sdp","");
                 live.put("type",LIVE_TYPE_VIDEO);
                 live.put("vip",CM.getProfile().getContent().get("vip"));
+                live.put("country",CM.getIPModel().getCountry());
+                live.put("ip",CM.getIPModel().getQuery());
+                live.put("country_code",CM.getIPModel().getCountryCode());
+                live.put("city",CM.getIPModel().getCity());
+                live.put("timezone",CM.getIPModel().getTimezone());
+                live.put("regionName",CM.getIPModel().getRegionName());
 
                 ZonedDateTime currentTime = ZonedDateTime.now();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX'['VV']'");
