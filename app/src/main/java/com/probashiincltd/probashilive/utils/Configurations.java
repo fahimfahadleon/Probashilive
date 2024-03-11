@@ -17,6 +17,12 @@ public class Configurations {
     public static final String SUBJECT_TYPE_VIEWERS_LIST = "viewers_list";
     public static final String CLOSE_LIVE = "close_live";
     public static final String OPEN_PROFILE = "open_profile";
+    public static final String GIFT = "gift";
+    public static final String HIDE_COMMENT = "hide_comment";
+    public static final String ADD_PERSON = "add_person";
+    public static final String SWITCH_CAMERA = "switch_camera";
+    public static final String JOIN_REQUEST = "join_request";
+
     public static final String SUBJECT_TYPE_JOINED_LIVE= "joined_live";
     public static final String SUBJECT_TYPE_LIVE_ACTION= "live_action";
     public static final String LIVE_ACTION = "action_title";

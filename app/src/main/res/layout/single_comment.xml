@@ -20,14 +20,14 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toEndOf="@id/profile"
         app:layout_constraintTop_toTopOf="@id/profile"
-        android:textColor="@color/textColor"
+        android:textColor="#fff"
         android:layout_marginStart="@dimen/_8sdp"
         android:text="Name"
         android:id="@+id/name"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/textColor"
+        android:textColor="#fff"
         app:layout_constraintStart_toEndOf="@id/name"
         app:layout_constraintTop_toTopOf="@id/name"
         android:layout_marginStart="@dimen/_8sdp"
@@ -43,7 +43,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginStart="@dimen/_8sdp"
         android:layout_marginEnd="@dimen/_8sdp"
-        android:textColor="@color/textColor"
+        android:textColor="#fff"
         android:layout_marginTop="@dimen/_2sdp"
         android:id="@+id/comment"
         android:text="Comment"/>

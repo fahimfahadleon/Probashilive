@@ -10,17 +10,169 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#FF0000"
         tools:context=".ui.ProfileFragment">
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_45sdp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:text="Profile"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            android:textStyle="bold"
+            android:id="@+id/title"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:textColor="@color/textColor"
+            android:gravity="center"
+            />
+
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="@dimen/_100sdp"
+            android:layout_height="@dimen/_100sdp"
+            android:src="@drawable/person"
+            app:civ_border_width="@dimen/_2sdp"
+            app:civ_border_color="#fff"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            android:id="@+id/profile"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/_12sdp"
+            android:paddingVertical="@dimen/_4sdp"
+            android:text="Following"
+            android:textColor="@color/textColor"
+            android:background="@drawable/simple_item_border"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profile"
+            app:layout_constraintEnd_toStartOf="@id/followers"
+            android:layout_marginTop="@dimen/_16sdp"
+            android:backgroundTint="#60ffffff"
+            android:id="@+id/following"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/_12sdp"
+            android:paddingVertical="@dimen/_4sdp"
+            android:text="Followers"
+            android:textColor="@color/textColor"
+            android:background="@drawable/simple_item_border"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="@dimen/_16sdp"
+            app:layout_constraintTop_toBottomOf="@id/profile"
+            app:layout_constraintStart_toEndOf="@id/following"
+            android:backgroundTint="#60ffffff"
+            android:id="@+id/followers"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/_8sdp"
+            android:text="Name"
+            android:background="@drawable/simple_item_border"
+            android:paddingVertical="@dimen/_8sdp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/followers"
+            android:layout_marginHorizontal="@dimen/_16sdp"
+            android:layout_marginTop="@dimen/_16sdp"
+            android:textColor="@color/textColor"
+            android:id="@+id/userName"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/_8sdp"
+            android:text="Email"
+            android:background="@drawable/simple_item_border"
+            android:paddingVertical="@dimen/_8sdp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/userName"
+            android:layout_marginHorizontal="@dimen/_16sdp"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:textColor="@color/textColor"
+            android:id="@+id/email"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/_8sdp"
+            android:text="Phone"
+            android:background="@drawable/simple_item_border"
+            android:paddingVertical="@dimen/_8sdp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/email"
+            android:layout_marginHorizontal="@dimen/_16sdp"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:textColor="@color/textColor"
+            android:id="@+id/phone"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/_8sdp"
+            android:text="Diamond"
+            android:background="@drawable/simple_item_border"
+            android:paddingVertical="@dimen/_8sdp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/phone"
+            android:layout_marginHorizontal="@dimen/_16sdp"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:textColor="@color/textColor"
+            android:id="@+id/coin"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/_8sdp"
+            android:text="Status"
+            android:background="@drawable/simple_item_border"
+            android:paddingVertical="@dimen/_8sdp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/coin"
+            android:layout_marginHorizontal="@dimen/_16sdp"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:textColor="@color/textColor"
+            android:id="@+id/status"/>
+
+
+        <ImageView
+            android:layout_width="@dimen/_45sdp"
+            android:layout_height="@dimen/_45sdp"
+            android:src="@drawable/edit"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/status"
+            android:background="@drawable/simple_item_border"
+            android:padding="@dimen/_8sdp"
+            android:layout_marginEnd="@dimen/_16sdp"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:id="@+id/enableEdit"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="@dimen/_45sdp"
+            android:background="@drawable/simple_item_border"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/enableEdit"
+            app:layout_constraintTop_toBottomOf="@id/status"
+            android:layout_marginStart="@dimen/_16sdp"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:layout_marginEnd="@dimen/_16sdp"
+            android:text="Save"
+            android:gravity="center"
+            android:textColor="@color/textColor"
+            android:backgroundTint="#60ffffff"
+            android:id="@+id/save"/>
+
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

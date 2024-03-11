@@ -1,19 +1,7 @@
 package com.probashiincltd.probashilive.viewmodels;
 
-import static com.probashiincltd.probashilive.utils.Configurations.ACTION;
-import static com.probashiincltd.probashilive.utils.Configurations.ACTION_TYPE_LIVE_ENDED;
-import static com.probashiincltd.probashilive.utils.Configurations.ACTION_TYPE_LIVE_LEFT;
-import static com.probashiincltd.probashilive.utils.Configurations.CLOSE_LIVE;
-import static com.probashiincltd.probashilive.utils.Configurations.INITIAL_COMMENT;
-import static com.probashiincltd.probashilive.utils.Configurations.LIVE_TYPE_VIDEO;
-import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_AUDIENCE;
-import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_COMPETITOR;
-import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_HOST;
-import static com.probashiincltd.probashilive.utils.Configurations.OPEN_PROFILE;
-import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_COMMENT;
-import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_JOINED_LIVE;
-import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_LIVE_ACTION;
-import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIEWERS_LIST;
+import static com.probashiincltd.probashilive.utils.Configurations.*;
+
 
 import android.content.Context;
 import android.content.Intent;
@@ -71,15 +59,21 @@ public class RTMPCallViewModel extends ViewModel {
     private final MutableLiveData<LiveAction> liveActiondata = new MutableLiveData<>();
     private final MutableLiveData<Integer> getLiveViewerCount = new MutableLiveData<>();
     private final MutableLiveData<HashMap<String,String>> setUpComplete = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> optionsMenu = new MutableLiveData<>();
 
     public LiveData<Integer>getLiveViewerCount(){
         return getLiveViewerCount;
     }
     String myJid;
     ArrayList<String>users;
+    boolean isOptionsOpen = false;
+
 
     public LiveData<LiveAction>getLiveAction(){
         return liveActiondata;
+    }
+    public LiveData<Boolean>getOptionsMenuVisibility(){
+        return optionsMenu;
     }
     public LiveData<HashMap<String,String>>getOnSetUpComplete(){
         return setUpComplete;
@@ -93,6 +87,19 @@ public class RTMPCallViewModel extends ViewModel {
             onSendButtonClick.setValue(CLOSE_LIVE);
         }else if(id == R.id.profile || id == R.id.name || id == R.id.vip){
             onSendButtonClick.setValue(OPEN_PROFILE);
+        }else if(id == R.id.options){
+            isOptionsOpen = !isOptionsOpen;
+            optionsMenu.setValue(isOptionsOpen);
+        }else if(id == R.id.option1){
+            onSendButtonClick.setValue(JOIN_REQUEST);
+        }else if(id == R.id.option2){
+            onSendButtonClick.setValue(SWITCH_CAMERA);
+        }else if(id == R.id.option3){
+            onSendButtonClick.setValue(HIDE_COMMENT);
+        }else if(id == R.id.option4){
+            onSendButtonClick.setValue(GIFT);
+        }else if(id == R.id.addPeople){
+            onSendButtonClick.setValue(ADD_PERSON);
         }
     }
 
@@ -237,6 +244,11 @@ public class RTMPCallViewModel extends ViewModel {
 
     }
 
+    public void switchCamera(){
+        nodePublisher.switchCamera();
+    }
+
+
 
 
     void setUpForHost(Context context,FrameLayout vi) {
@@ -249,6 +261,7 @@ public class RTMPCallViewModel extends ViewModel {
         nodePublisher.setVideoOrientation(NodePublisher.VIDEO_ORIENTATION_PORTRAIT);
         nodePublisher.setVideoCodecParam(NodePublisher.NMC_CODEC_ID_H264, NodePublisher.NMC_PROFILE_AUTO, width, height, 30, 1_000_000);
         nodePublisher.attachView(vi);
+        nodePublisher.setHWAccelEnable(true);
         nodePublisher.setCameraFrontMirror(true);
         nodePublisher.setLinearZoom(0.0f);
         nodePublisher.setVolume(100.0f);

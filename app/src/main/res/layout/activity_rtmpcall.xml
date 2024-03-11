@@ -13,10 +13,46 @@
         android:layout_height="match_parent"
         tools:context=".ui.LiveActivity">
 
-        <FrameLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/camera_view"/>
+            android:id="@+id/frameContainer"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:id="@+id/camera_view"/>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:visibility="gone"
+                android:id="@+id/camera_view2"/>
+
+
+            <ImageView
+                android:layout_width="@dimen/_45sdp"
+                android:layout_height="@dimen/_45sdp"
+                android:src="@drawable/person_add"
+                android:visibility="gone"
+                android:id="@+id/addPeople"
+                android:onClick="@{viewModel::onClickSend}"
+                app:layout_constraintStart_toStartOf="@id/camera_view2"
+                app:layout_constraintEnd_toEndOf="@id/camera_view2"
+                app:layout_constraintTop_toTopOf="@id/camera_view2"
+                app:layout_constraintBottom_toBottomOf="@id/camera_view2"
+                />
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:layout_width="@dimen/_45sdp"
@@ -39,7 +75,7 @@
             android:gravity="start|center"
             android:text="User Name"
             android:onClick="@{viewModel::onClickSend}"
-            android:textColor="@color/textColor"
+            android:textColor="#fff"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:layout_marginStart="@dimen/_8sdp"
             android:id="@+id/name"/>
@@ -52,7 +88,7 @@
             android:gravity="start|center"
             android:onClick="@{viewModel::onClickSend}"
             android:text="Vip"
-            android:textColor="@color/textColor"
+            android:textColor="#fff"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
             android:layout_marginStart="@dimen/_8sdp"
             android:id="@+id/vip"/>
@@ -141,41 +177,49 @@
 
         <LinearLayout
             android:layout_width="@dimen/_35sdp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="bottom"
+            android:visibility="gone"
+            android:id="@+id/optionsLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toTopOf="@id/options"
-            app:layout_constraintTop_toTopOf="@id/commentLayout">
+
+            >
 
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_35sdp"
-                android:src="@drawable/uparrow"
+                android:src="@drawable/join_request"
+                android:padding="@dimen/_4sdp"
                 android:onClick="@{viewModel::onClickSend}"
                 android:id="@+id/option1"/>
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_35sdp"
-                android:src="@drawable/uparrow"
+                android:src="@drawable/switch_camera"
+                android:padding="@dimen/_4sdp"
                 android:onClick="@{viewModel::onClickSend}"
                 android:id="@+id/option2"/>
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_35sdp"
-                android:src="@drawable/uparrow"
+                android:src="@drawable/remove_comment"
+                android:padding="@dimen/_4sdp"
                 android:onClick="@{viewModel::onClickSend}"
                 android:id="@+id/option3"/>
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_35sdp"
-                android:src="@drawable/uparrow"
+                android:src="@drawable/gift"
+                android:padding="@dimen/_4sdp"
                 android:onClick="@{viewModel::onClickSend}"
                 android:id="@+id/option4"/>
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_35sdp"
                 android:src="@drawable/uparrow"
+                android:visibility="gone"
                 android:onClick="@{viewModel::onClickSend}"
                 android:id="@+id/option5"/>
 

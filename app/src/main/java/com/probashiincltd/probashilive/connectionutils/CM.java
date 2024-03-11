@@ -192,7 +192,6 @@ public class CM extends XmppConnection {
                 registerCallback.registerSuccessful();
                 connection = mConnection;
                 setUpStanzaListener();
-
 //                createProfile();
 
                 if (action.equals("register")) {
@@ -204,6 +203,14 @@ public class CM extends XmppConnection {
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
+                }
+
+
+                try {
+                    new RosterHandler(context);
+                }catch (Exception e){
+                    e.printStackTrace();
+                    Log.e("CM",e.toString());
                 }
 
 

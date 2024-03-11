@@ -147,6 +147,7 @@ public class HomeActivity extends AppCompatActivity {
             i.putExtra(ACTION,LIVE_USER_TYPE_HOST);
             i.putExtra(LIVE_TYPE,LIVE_TYPE_VIDEO);
             startActivity(i);
+            cd.dismiss();
         });
 
         b.joinAudio.setOnClickListener(v->{
@@ -154,6 +155,7 @@ public class HomeActivity extends AppCompatActivity {
             i.putExtra(ACTION,LIVE_USER_TYPE_HOST);
             i.putExtra(LIVE_TYPE,LIVE_TYPE_AUDIO);
             startActivity(i);
+            cd.dismiss();
         });
     }
 
