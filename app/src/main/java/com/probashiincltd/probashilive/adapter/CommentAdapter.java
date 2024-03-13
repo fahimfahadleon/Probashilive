@@ -68,10 +68,10 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         return models.size();
     }
 
-    protected class CommentViewHolder extends RecyclerView.ViewHolder {
+    public class CommentViewHolder extends RecyclerView.ViewHolder {
         SingleCommentBinding binding;
 
-        protected void setUpData(CommentModel cm){
+        public void setUpData(CommentModel cm){
 
             Log.e("comment",cm.toString());
             binding.vip.setText(cm.getVip().isEmpty()?"":cm.getVip());

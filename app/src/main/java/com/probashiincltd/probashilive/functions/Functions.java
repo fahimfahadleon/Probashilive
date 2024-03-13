@@ -446,7 +446,7 @@ public class Functions {
                     "</iq>";
             IQ stanza = PacketParserUtils.parseStanza(s);
             if(!CM.isConnected()){
-                return null;
+                return new ArrayList<>();
             }
             PubSub result = CM.getConnection().createStanzaCollectorAndSend(new StanzaIdFilter(stanza.getStanzaId()), stanza).nextResultOrThrow();
             ItemsExtension itemsElem = result.getExtension(PubSubElementType.ITEMS);
@@ -457,7 +457,7 @@ public class Functions {
 
             return items;
         } catch (Exception e) {
-            e.printStackTrace();
+            e.fillInStackTrace();
             return items;
         }
     }

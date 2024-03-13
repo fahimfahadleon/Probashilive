@@ -1,16 +1,10 @@
 package com.probashiincltd.probashilive.viewmodels;
 
-import static com.probashiincltd.probashilive.utils.Configurations.ACTION;
-import static com.probashiincltd.probashilive.utils.Configurations.ACTION_TYPE_LIVE_ENDED;
-import static com.probashiincltd.probashilive.utils.Configurations.ACTION_TYPE_LIVE_LEFT;
-import static com.probashiincltd.probashilive.utils.Configurations.INITIAL_COMMENT;
-import static com.probashiincltd.probashilive.utils.Configurations.LIVE_TYPE_AUDIO;
-import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_AUDIENCE;
-import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_COMPETITOR;
-import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_HOST;
-import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_COMMENT;
-import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_JOINED_LIVE;
-import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_LIVE_ACTION;
+import static com.probashiincltd.probashilive.pubsubItems.LiveItem.*;
+
+
+import static com.probashiincltd.probashilive.utils.Configurations.*;
+
 
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +26,7 @@ import com.probashiincltd.probashilive.models.CommentModel;
 import com.probashiincltd.probashilive.models.ConferenceModel;
 import com.probashiincltd.probashilive.models.LiveAction;
 import com.probashiincltd.probashilive.pubsubItems.LiveItem;
+import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
 import com.probashiincltd.probashilive.utils.Configurations;
 
 import org.jivesoftware.smack.packet.Message;
@@ -166,36 +161,21 @@ public class ConferenceViewModel extends ViewModel {
         nodePublisher.start(Configurations.RTMP_URL+CM.getProfile().getName());
         Log.e("streamingat",Configurations.RTMP_URL+CM.getProfile().getName());
         try {
-
-            //                "profile_image",
-            //                "name",
-            //                "room_id",
-            //                "viewers",
-            //                "startedAt",
-            //                "type",
-            //                "vip",
-            //                "sdp",
-            //                "country",
-            //                "ip",
-            //                "country_code",
-            //                "city",
-            //                "timezone",
-            //                "regionName"
             HashMap<String,String>live = new HashMap<>();
-            live.put("profile_image",CM.getProfile().getContent().get("profile_picture"));
-            live.put("name",CM.getProfile().getContent().get("name"));
-            live.put("room_id",CM.getConnection().getUser().asFullJidOrThrow().toString());
-            live.put("viewers","0");
-            live.put("startedAt", ZonedDateTime.now().toString());
-            live.put("type",LIVE_TYPE_AUDIO);
-            live.put("sdp","");
-            live.put("vip",CM.getProfile().getContent().get("vip"));
-            live.put("country",CM.getIPModel().getCountry());
-            live.put("ip",CM.getIPModel().getQuery());
-            live.put("country_code",CM.getIPModel().getCountryCode());
-            live.put("city",CM.getIPModel().getCity());
-            live.put("timezone",CM.getIPModel().getTimezone());
-            live.put("regionName",CM.getIPModel().getRegionName());
+            live.put(PROFILE_IMAGE,CM.getProfile().getContent().get(ProfileItem.PROFILE_PICTURE));
+            live.put(NAME,CM.getProfile().getContent().get(ProfileItem.NAME));
+            live.put(ROOM_ID,CM.getConnection().getUser().asFullJidOrThrow().toString());
+            live.put(VIEWERS,"0");
+            live.put(STARTED_AT, ZonedDateTime.now().toString());
+            live.put(TYPE,LIVE_TYPE_AUDIO);
+            live.put(SDP,"");
+            live.put(VIP,CM.getProfile().getContent().get(ProfileItem.VIP));
+            live.put(COUNTRY,CM.getIPModel().getCountry());
+            live.put(IP,CM.getIPModel().getQuery());
+            live.put(COUNTRY_CODE,CM.getIPModel().getCountryCode());
+            live.put(CITY,CM.getIPModel().getCity());
+            live.put(TIME_ZONE,CM.getIPModel().getTimezone());
+            live.put(REGION_NAME,CM.getIPModel().getRegionName());
 
             LiveItem liveItem = new LiveItem(live);
             Item item = Functions.createRawItem(liveItem);

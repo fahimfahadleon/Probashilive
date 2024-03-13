@@ -3,11 +3,14 @@ package com.probashiincltd.probashilive.connectionutils;
 import static com.probashiincltd.probashilive.utils.Configurations.LOGIN_TYPE;
 import static com.probashiincltd.probashilive.utils.Configurations.LOGIN_TYPE_GOOGLE;
 import static com.probashiincltd.probashilive.utils.Configurations.LOGIN_USER;
+import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIDEO_INVITATION;
 import static com.probashiincltd.probashilive.utils.Configurations.USER_EMAIL;
 import static com.probashiincltd.probashilive.utils.Configurations.USER_PROFILE;
 
 import android.content.Context;
 import android.util.Log;
+
+import androidx.lifecycle.MutableLiveData;
 
 import com.probashiincltd.probashilive.callbacks.HeadlineMessageListener;
 import com.probashiincltd.probashilive.callbacks.RegisterCallback;
@@ -99,6 +102,9 @@ public class CM extends XmppConnection {
             listener.onHeadlineMessage(packet);
         }
     }
+
+    public static MutableLiveData<Message> headlineObserver = new MutableLiveData<>();
+
 
 
     public CM(Context context, String userid, String pass, String action, RegisterCallback registerCallback) {
@@ -209,7 +215,7 @@ public class CM extends XmppConnection {
                 try {
                     new RosterHandler(context);
                 }catch (Exception e){
-                    e.printStackTrace();
+                    e.fillInStackTrace();
                     Log.e("CM",e.toString());
                 }
 
@@ -273,7 +279,9 @@ public class CM extends XmppConnection {
         connection.addAsyncStanzaListener(packet -> {
             if (packet instanceof Message) {
                 Message message = (Message) packet;
-                if (message.getType() == Message.Type.headline) {
+                if(message.getType() == Message.Type.headline && message.getSubject().equals(SUBJECT_TYPE_VIDEO_INVITATION)){
+                    headlineObserver.postValue(message);
+                }else if (message.getType() == Message.Type.headline) {
                     publishHeadlineMessage(packet);
                 }
             }
@@ -302,7 +310,7 @@ public class CM extends XmppConnection {
                 HashMap<String, String> attributes = new HashMap<>();
                 attributes.put("username", Localpart.from(loginuser).toString());
                 attributes.put("password", passwordUser);
-                if (map.size() != 0) {
+                if (!map.isEmpty()) {
 
                     attributes.putAll(map);
 
@@ -402,24 +410,24 @@ public class CM extends XmppConnection {
             createAccount(loginuser, passwordUser, new HashMap<>());
         } catch (Exception e) {
             Log.e("ertr", e.toString());
-            e.printStackTrace();
+            e.fillInStackTrace();
         }
     }
 
 
     private ProfileItem createProfile() {
         HashMap<String, String> profileMap = new HashMap<>();
-        profileMap.put("name", Functions.getSP(LOGIN_USER, ""));
+        profileMap.put(ProfileItem.NAME, Functions.getSP(LOGIN_USER, ""));
         if (Functions.getSP(LOGIN_TYPE, "").equals(LOGIN_TYPE_GOOGLE)) {
-            profileMap.put("profile_picture", Functions.getSP(USER_PROFILE, ""));
-            profileMap.put("email", Functions.getSP(USER_EMAIL, ""));
+            profileMap.put(ProfileItem.PROFILE_PICTURE, Functions.getSP(USER_PROFILE, ""));
+            profileMap.put(ProfileItem.EMAIL, Functions.getSP(USER_EMAIL, ""));
         } else {
-            profileMap.put("profile_picture", "");
-            profileMap.put("email", "");
+            profileMap.put(ProfileItem.PROFILE_PICTURE, "");
+            profileMap.put(ProfileItem.EMAIL, "");
         }
-        profileMap.put("phone", Functions.getSP("", ""));
-        profileMap.put("coin", Functions.getSP("0", ""));
-        profileMap.put("vip", Functions.getSP("false", ""));
+        profileMap.put(ProfileItem.PHONE, Functions.getSP("", ""));
+        profileMap.put(ProfileItem.COIN, Functions.getSP("0", ""));
+        profileMap.put(ProfileItem.VIP, Functions.getSP("false", ""));
         ProfileItem profileItem = new ProfileItem(profileMap);
         try {
             Item i = Functions.createRawItem(profileItem);

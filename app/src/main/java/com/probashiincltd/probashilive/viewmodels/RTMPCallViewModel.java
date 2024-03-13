@@ -1,7 +1,38 @@
 package com.probashiincltd.probashilive.viewmodels;
 
-import static com.probashiincltd.probashilive.utils.Configurations.*;
-
+import static com.probashiincltd.probashilive.pubsubItems.LiveItem.CITY;
+import static com.probashiincltd.probashilive.pubsubItems.LiveItem.COUNTRY;
+import static com.probashiincltd.probashilive.pubsubItems.LiveItem.COUNTRY_CODE;
+import static com.probashiincltd.probashilive.pubsubItems.LiveItem.IP;
+import static com.probashiincltd.probashilive.pubsubItems.LiveItem.NAME;
+import static com.probashiincltd.probashilive.pubsubItems.LiveItem.PROFILE_IMAGE;
+import static com.probashiincltd.probashilive.pubsubItems.LiveItem.REGION_NAME;
+import static com.probashiincltd.probashilive.pubsubItems.LiveItem.ROOM_ID;
+import static com.probashiincltd.probashilive.pubsubItems.LiveItem.SDP;
+import static com.probashiincltd.probashilive.pubsubItems.LiveItem.STARTED_AT;
+import static com.probashiincltd.probashilive.pubsubItems.LiveItem.TIME_ZONE;
+import static com.probashiincltd.probashilive.pubsubItems.LiveItem.TYPE;
+import static com.probashiincltd.probashilive.pubsubItems.LiveItem.VIEWERS;
+import static com.probashiincltd.probashilive.pubsubItems.LiveItem.VIP;
+import static com.probashiincltd.probashilive.utils.Configurations.ACTION;
+import static com.probashiincltd.probashilive.utils.Configurations.ACTION_TYPE_LIVE_ENDED;
+import static com.probashiincltd.probashilive.utils.Configurations.ACTION_TYPE_LIVE_LEFT;
+import static com.probashiincltd.probashilive.utils.Configurations.ADD_PERSON;
+import static com.probashiincltd.probashilive.utils.Configurations.CLOSE_LIVE;
+import static com.probashiincltd.probashilive.utils.Configurations.GIFT;
+import static com.probashiincltd.probashilive.utils.Configurations.HIDE_COMMENT;
+import static com.probashiincltd.probashilive.utils.Configurations.INITIAL_COMMENT;
+import static com.probashiincltd.probashilive.utils.Configurations.JOIN_REQUEST;
+import static com.probashiincltd.probashilive.utils.Configurations.LIVE_TYPE_VIDEO;
+import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_AUDIENCE;
+import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_COMPETITOR;
+import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_HOST;
+import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_COMMENT;
+import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_JOINED_LIVE;
+import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_LIVE_ACTION;
+import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIDEO_INVITATION;
+import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIEWERS_LIST;
+import static com.probashiincltd.probashilive.utils.Configurations.SWITCH_CAMERA;
 
 import android.content.Context;
 import android.content.Intent;
@@ -23,10 +54,12 @@ import com.probashiincltd.probashilive.functions.Functions;
 import com.probashiincltd.probashilive.models.CommentModel;
 import com.probashiincltd.probashilive.models.LiveAction;
 import com.probashiincltd.probashilive.pubsubItems.LiveItem;
+import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
 import com.probashiincltd.probashilive.utils.Configurations;
 
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smackx.pubsub.Item;
+import org.jxmpp.jid.FullJid;
 
 import java.lang.reflect.Type;
 import java.time.ZonedDateTime;
@@ -61,6 +94,16 @@ public class RTMPCallViewModel extends ViewModel {
     private final MutableLiveData<HashMap<String,String>> setUpComplete = new MutableLiveData<>();
     private final MutableLiveData<Boolean> optionsMenu = new MutableLiveData<>();
 
+    private final MutableLiveData<String> openProfile = new MutableLiveData<>();
+    void setOpenProfile(String profile){
+        openProfile.setValue(profile);
+    }
+    public LiveData<String>getOpenProfile(){
+        return openProfile;
+    }
+
+
+
     public LiveData<Integer>getLiveViewerCount(){
         return getLiveViewerCount;
     }
@@ -79,6 +122,8 @@ public class RTMPCallViewModel extends ViewModel {
         return setUpComplete;
     }
 
+
+
     public void onClickSend(View vi){
         int id = vi.getId();
         if(id == R.id.send){
@@ -86,7 +131,13 @@ public class RTMPCallViewModel extends ViewModel {
         }else if(id == R.id.closeLive){
             onSendButtonClick.setValue(CLOSE_LIVE);
         }else if(id == R.id.profile || id == R.id.name || id == R.id.vip){
-            onSendButtonClick.setValue(OPEN_PROFILE);
+            switch (action){
+                case LIVE_USER_TYPE_AUDIENCE:
+                case LIVE_USER_TYPE_COMPETITOR: {
+                    setOpenProfile(data.get(ROOM_ID));
+                    break;
+                }
+            }
         }else if(id == R.id.options){
             isOptionsOpen = !isOptionsOpen;
             optionsMenu.setValue(isOptionsOpen);
@@ -175,27 +226,27 @@ public class RTMPCallViewModel extends ViewModel {
     void updateLiveItem(){
         try {
             if(!live.isEmpty()){
-                live.put("viewers",String.valueOf(viewers.size()));
+                live.put(VIEWERS,String.valueOf(viewers.size()));
             }else {
-                live.put("profile_image",CM.getProfile().getContent().get("profile_picture"));
-                live.put("name",CM.getProfile().getContent().get("name"));
-                live.put("room_id",CM.getConnection().getUser().asFullJidOrThrow().toString());
-                live.put("sdp","");
-                live.put("type",LIVE_TYPE_VIDEO);
-                live.put("vip",CM.getProfile().getContent().get("vip"));
-                live.put("country",CM.getIPModel().getCountry());
-                live.put("ip",CM.getIPModel().getQuery());
-                live.put("country_code",CM.getIPModel().getCountryCode());
-                live.put("city",CM.getIPModel().getCity());
-                live.put("timezone",CM.getIPModel().getTimezone());
-                live.put("regionName",CM.getIPModel().getRegionName());
+                live.put(PROFILE_IMAGE,CM.getProfile().getContent().get(ProfileItem.PROFILE_PICTURE));
+                live.put(NAME,CM.getProfile().getContent().get(ProfileItem.NAME));
+                live.put(ROOM_ID,CM.getConnection().getUser().asFullJidOrThrow().toString());
+                live.put(SDP,"");
+                live.put(TYPE,LIVE_TYPE_VIDEO);
+                live.put(VIP,CM.getProfile().getContent().get("vip"));
+                live.put(COUNTRY,CM.getIPModel().getCountry());
+                live.put(IP,CM.getIPModel().getQuery());
+                live.put(COUNTRY_CODE,CM.getIPModel().getCountryCode());
+                live.put(CITY,CM.getIPModel().getCity());
+                live.put(TIME_ZONE,CM.getIPModel().getTimezone());
+                live.put(REGION_NAME,CM.getIPModel().getRegionName());
 
                 ZonedDateTime currentTime = ZonedDateTime.now();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX'['VV']'");
                 String currentTimeString = currentTime.format(formatter);
 
-                live.put("startedAt", currentTimeString);
-                live.put("viewers","0");
+                live.put(STARTED_AT, currentTimeString);
+                live.put(VIEWERS,"0");
             }
 
             LiveItem liveItem = new LiveItem(live);
@@ -249,6 +300,9 @@ public class RTMPCallViewModel extends ViewModel {
     }
 
 
+    public void inviteFriend(FullJid id){
+        CM.sendHLM(SUBJECT_TYPE_VIDEO_INVITATION,new Gson().toJson(CM.getProfile()),CM.getConnection().getUser().asFullJidOrThrow().toString(),id.toString());
+    }
 
 
     void setUpForHost(Context context,FrameLayout vi) {
@@ -280,6 +334,10 @@ public class RTMPCallViewModel extends ViewModel {
 
     public CommentAdapter getAdapter(){
         return adapter;
+    }
+
+    public String getAction(){
+        return action;
     }
 
     public void setAdapter(CommentAdapter adapter){

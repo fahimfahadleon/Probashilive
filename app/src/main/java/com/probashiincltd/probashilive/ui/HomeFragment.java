@@ -64,6 +64,7 @@ public class HomeFragment extends Fragment {
         model.initViewModel();
         binding.refreshLayout.autoRefresh();
         initViewModel();
+
         return binding.getRoot();
     }
 

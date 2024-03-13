@@ -9,11 +9,13 @@ public class Configurations {
     public static final String LOGIN_TYPE = "loginType";
     public static final String LOGIN_TYPE_GOOGLE = "google";
     public static final String LOGIN_TYPE_FACEBOOK = "facebook";
+    public static final String CONTENT = "content";
     public static final String LOGIN_TYPE_RAW = "raw";
     public static final String USER_EMAIL = "userEmail";
     public static final String USER_PHONE = "userPhone";
     public static final String USER_PROFILE = "userProfile";
     public static final String SUBJECT_TYPE_COMMENT = "comment";
+    public static final String SUBJECT_TYPE_VIDEO_INVITATION = "video_invitation";
     public static final String SUBJECT_TYPE_VIEWERS_LIST = "viewers_list";
     public static final String CLOSE_LIVE = "close_live";
     public static final String OPEN_PROFILE = "open_profile";
@@ -28,6 +30,7 @@ public class Configurations {
     public static final String LIVE_ACTION = "action_title";
     public static final String ACTION_TYPE_LIVE_ENDED = "live_ended";
     public static final String ACTION_TYPE_LIVE_LEFT = "left";
+    public static final String DATA = "data";
     public static final String RTMP_URL = "rtmp://server.probashilive.xyz/live/";
     public static final String INITIAL_COMMENT = "Joined the live";
 
