@@ -7,13 +7,13 @@ plugins {
 android {
     signingConfigs {
         getByName("debug") {
-            storeFile = file("/home/fahim/Projects/ProbashiLive/probashiliverelease.jks")
+            storeFile = file("/home/fahim/StudioProjects/Probashilive/probashilive.jks")
             storePassword = "64742812"
             keyAlias = "key0"
             keyPassword = "64742812"
         }
         create("release") {
-            storeFile = file("/home/fahim/Projects/ProbashiLive/probashiliverelease.jks")
+            storeFile = file("/home/fahim/StudioProjects/Probashilive/probashilive.jks")
             storePassword = "64742812"
             keyAlias = "key0"
             keyPassword = "64742812"
@@ -130,7 +130,7 @@ dependencies {
     implementation("androidx.camera:camera-mlkit-vision:${camerax_version}")
     implementation("androidx.camera:camera-extensions:${camerax_version}")
 
-    implementation ("com.github.NodeMedia:NodeMediaClient-Android:3.2.5")
+    implementation ("com.github.NodeMedia:NodeMediaClient-Android:3.2.7")
 
 
 //    implementation ("com.arthenica:mobile-ffmpeg-full:4.4")

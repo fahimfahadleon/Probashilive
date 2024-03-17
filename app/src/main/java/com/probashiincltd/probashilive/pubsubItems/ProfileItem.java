@@ -3,6 +3,10 @@ package com.probashiincltd.probashilive.pubsubItems;
 import static com.probashiincltd.probashilive.utils.Configurations.CONTENT;
 import static com.probashiincltd.probashilive.utils.Configurations.LOGIN_USER;
 
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
 import com.probashiincltd.probashilive.functions.Functions;
 
 import org.jivesoftware.smackx.pubsub.Item;
@@ -13,8 +17,9 @@ import org.json.XML;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 
-public class ProfileItem extends UniversalModelMap {
+public class ProfileItem extends UniversalModelMap{
 
     public static final String NAME = "name";
     public static final String PROFILE_PICTURE = "profile_picture";
@@ -74,11 +79,28 @@ public class ProfileItem extends UniversalModelMap {
     }
 
 
+    @NonNull
     @Override
     public String toString() {
-        return "ProfileItem{" +
-                "requiredFields=" + requiredFields +
-                ", content=" + content +
-                '}';
+        return "content=" + content;
     }
+    @Override
+    public boolean equals(Object obj) {
+        Log.e("checking","1");
+        if (this == obj) return true;
+        Log.e("checking","2");
+
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Log.e("checking","3");
+
+        if (!super.equals(obj)) return false; // Check equality in UniversalModelMap
+        Log.e("checking","4");
+
+        ProfileItem that = (ProfileItem) obj;
+        Log.e("checking","5");
+
+        return content.get(NAME).equals(that.content.get(NAME));
+    }
+
+
 }

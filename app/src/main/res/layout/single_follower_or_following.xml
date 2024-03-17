@@ -2,24 +2,21 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/simple_item_border"
-    android:padding="@dimen/_4sdp"
-    android:layout_marginTop="@dimen/_2sdp"
-    android:layout_marginBottom="@dimen/_2sdp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <de.hdodenhof.circleimageview.CircleImageView
         android:layout_width="@dimen/_40sdp"
         android:layout_height="@dimen/_40sdp"
-        android:layout_marginTop="@dimen/_4sdp"
-        android:layout_marginBottom="@dimen/_4sdp"
-        android:layout_marginStart="@dimen/_4sdp"
-        app:civ_border_width="@dimen/_2sdp"
+        android:layout_marginHorizontal="@dimen/_8sdp"
+        android:layout_marginVertical="@dimen/_8sdp"
         app:civ_border_color="#fff"
+        app:civ_border_width="@dimen/_2sdp"
         android:src="@drawable/person"
+        android:id="@+id/profile"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:id="@+id/profile"/>
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -45,17 +42,18 @@
         android:id="@+id/vip"/>
 
     <TextView
-        android:background="@drawable/simple_item_border"
-        android:paddingHorizontal="@dimen/_16sdp"
-        android:paddingVertical="@dimen/_8sdp"
-        android:textColor="#fff"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@drawable/simple_item_border"
+        android:paddingHorizontal="@dimen/_16sdp"
+        android:paddingVertical="@dimen/_8sdp"
+        android:textColor="#fff"
         android:layout_marginEnd="@dimen/_8sdp"
-        android:text="Invite"
-        android:id="@+id/inviteButton"/>
+        android:text="unfollow"
+        android:id="@+id/actionbutton"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

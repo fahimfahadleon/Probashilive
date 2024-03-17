@@ -144,6 +144,9 @@ public class RosterHandler implements SubscribeListener, PresenceEventListener, 
     @Override
     public void presenceAvailable(FullJid address, Presence availablePresence) {
         String user = availablePresence.getFrom().asBareJid().toString();
+        if(availablePresence.getFrom().toString().split("@")[0].equals(CM.getConnection().getUser().toString().split("@")[0])){
+            return;
+        }
         Log.e("userOnline", user);
         try {
             onlineFriends.add(ProfileItem.parseProfileItem(Functions.getSingleItemOfNode(CM.NODE_USERS,address.toString().split("@")[0])));

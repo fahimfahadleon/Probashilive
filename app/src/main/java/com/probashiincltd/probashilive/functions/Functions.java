@@ -13,6 +13,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.probashiincltd.probashilive.callbacks.HttpRequestCallback;
 import com.probashiincltd.probashilive.connectionutils.CM;
+import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
 import com.probashiincltd.probashilive.pubsubItems.UniversalModelMap;
 import com.probashiincltd.probashilive.utils.Configurations;
 import com.probashiincltd.probashilive.utils.Pair;
@@ -47,9 +48,13 @@ import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -65,6 +70,18 @@ public class Functions {
     static SharedPreferences preferences;
     private static PowerManager.WakeLock mProximityWakeLock;
     private static final String PROXIMITY_WAKE_LOCK_TAG = "live:in-rtp-session";
+
+
+    public static ArrayList<ProfileItem> removeDuplicateProfiles(ArrayList<ProfileItem> list) {
+        Set<String>set = new HashSet<>();
+        ArrayList<ProfileItem>finalitem = new ArrayList<>();
+        for(ProfileItem i: list){
+            if(set.add(i.getContent().get(ProfileItem.NAME))){
+                finalitem.add(i);
+            }
+        }
+        return finalitem;
+    }
 
     public static void init(Context context){
         preferences = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);

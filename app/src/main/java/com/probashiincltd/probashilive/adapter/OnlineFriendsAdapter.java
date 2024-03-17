@@ -1,6 +1,7 @@
 package com.probashiincltd.probashilive.adapter;
 
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -11,6 +12,7 @@ import com.bumptech.glide.Glide;
 import com.probashiincltd.probashilive.R;
 import com.probashiincltd.probashilive.connectionutils.RosterHandler;
 import com.probashiincltd.probashilive.databinding.SingleInviteFriendBinding;
+import com.probashiincltd.probashilive.functions.Functions;
 import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
 
 import java.util.ArrayList;
@@ -20,7 +22,12 @@ public class OnlineFriendsAdapter extends RecyclerView.Adapter<OnlineFriendsAdap
     OnItemClickListener listener;
     public OnlineFriendsAdapter(OnItemClickListener listener){
         this.listener = listener;
-        models = new ArrayList<>(RosterHandler.getRosterHandler().getOnlineFriends());
+
+
+        Log.e("items",new ArrayList<>(RosterHandler.getRosterHandler().getOnlineFriends()).toString());
+        Log.e("items",Functions.removeDuplicateProfiles(new ArrayList<>(RosterHandler.getRosterHandler().getOnlineFriends())).toString());
+
+        models = Functions.removeDuplicateProfiles(new ArrayList<>(RosterHandler.getRosterHandler().getOnlineFriends()));
     }
     public interface OnItemClickListener{
         void onItemClick(ProfileItem profileItem);

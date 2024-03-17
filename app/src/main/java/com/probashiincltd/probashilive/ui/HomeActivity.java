@@ -1,14 +1,18 @@
 package com.probashiincltd.probashilive.ui;
 
 import static com.probashiincltd.probashilive.utils.Configurations.ACTION;
+import static com.probashiincltd.probashilive.utils.Configurations.DATA;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_TYPE;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_TYPE_AUDIO;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_TYPE_VIDEO;
+import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_COMPETITOR;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_HOST;
 import static com.probashiincltd.probashilive.utils.Configurations.LOGIN_PASSWORD;
 import static com.probashiincltd.probashilive.utils.Configurations.LOGIN_STATUS;
 import static com.probashiincltd.probashilive.utils.Configurations.LOGIN_USER;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIDEO_INVITATION;
+import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIDEO_INVITATION_ACCEPTED;
+import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIDEO_INVITATION_DECLINED;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,12 +24,14 @@ import android.view.WindowManager;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.core.processing.SurfaceProcessorNode;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.gson.Gson;
 import com.probashiincltd.probashilive.R;
@@ -128,24 +134,27 @@ public class HomeActivity extends AppCompatActivity {
         binding1.accept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                CM.sendHLM(SUBJECT_TYPE_VIDEO_INVITATION_ACCEPTED,new Gson().toJson(CM.getProfile()), CM.getConnection().getUser().asFullJidOrThrow().toString(),message.getFrom().asFullJidOrThrow().toString());
+                id.dismiss();
+                Intent i = new Intent(HomeActivity.this,RTMPCallActivity.class);
+                i.putExtra(ACTION,LIVE_USER_TYPE_COMPETITOR);
+                i.putExtra(LIVE_TYPE,LIVE_TYPE_VIDEO);
+                i.putExtra(DATA,new Gson().toJson(profileItem));
+                startActivity(i);
             }
         });
-        binding1.decline.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
+        binding1.decline.setOnClickListener(v -> {
+            CM.sendHLM(SUBJECT_TYPE_VIDEO_INVITATION_DECLINED,"", CM.getConnection().getUser().asFullJidOrThrow().toString(),message.getFrom().asFullJidOrThrow().toString());
+            id.dismiss();
         });
 
         binding1.userName.setText(profileItem.getContent().get(ProfileItem.NAME));
         binding1.vip.setText(profileItem.getContent().get(ProfileItem.VIP));
         String s = profileItem.getContent().get(ProfileItem.NAME)+" invited you to join his "+(message.getSubject().equals(SUBJECT_TYPE_VIDEO_INVITATION)?"Video Live":"Audio Live");
         binding1.content.setText(s);
+
+        Glide.with(binding1.profile).load(profileItem.getContent().get(ProfileItem.PROFILE_PICTURE)).placeholder(R.drawable.person).into(binding1.profile);
         builder.setView(binding1.getRoot());
-        id = builder.create();
-        id.show();
-        id = builder.create();
         id = builder.create();
         id.show();
         Objects.requireNonNull(id.getWindow()).setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);

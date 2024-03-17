@@ -13,15 +13,14 @@ public class ProfileFragmentViewModel extends ViewModel {
 
     public static final int PROFILE_ACTION_EDIT = 0;
     public static final int PROFILE_ACTION_SAVE = 1;
+    public static final int PROFILE_ACTION_FOLLOWERS = 2;
+    public static final int PROFILE_ACTION_FOLLOWING = 3  ;
 
-    private final MutableLiveData<Integer> insetDrawable = new MutableLiveData<>();
-    public void setInsetDrawable(Integer d){
-        insetDrawable.setValue(d);
-    }
 
-    public LiveData<Integer> getInsetDrawable(){
-        return insetDrawable;
-    }
+
+
+
+
 
 
     private final ObservableBoolean isEnabled = new ObservableBoolean(false);
@@ -39,6 +38,10 @@ public class ProfileFragmentViewModel extends ViewModel {
             onButtonclick.setValue(PROFILE_ACTION_EDIT);
         }else if(id == R.id.save){
             onButtonclick.setValue(PROFILE_ACTION_SAVE);
+        }else if(id == R.id.followers){
+            onButtonclick.setValue(PROFILE_ACTION_FOLLOWERS);
+        }else if(id == R.id.following){
+            onButtonclick.setValue(PROFILE_ACTION_FOLLOWING);
         }
 
         
