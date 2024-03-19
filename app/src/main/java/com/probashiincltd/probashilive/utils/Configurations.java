@@ -38,6 +38,7 @@ public class Configurations {
 
     public static final String SUBJECT_TYPE_JOINED_LIVE= "joined_live";
     public static final String SUBJECT_TYPE_LIVE_ACTION= "live_action";
+    public static final String SUBJECT_TYPE_COMPETITOR_LEFT= "competitor_left";
     public static final String LIVE_ACTION = "action_title";
     public static final String ACTION_TYPE_LIVE_ENDED = "live_ended";
     public static final String ACTION_TYPE_LIVE_LEFT = "left";

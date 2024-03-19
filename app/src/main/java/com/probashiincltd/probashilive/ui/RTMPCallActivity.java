@@ -49,6 +49,7 @@ import org.json.JSONException;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -207,14 +208,14 @@ public class RTMPCallActivity extends AppCompatActivity {
         });
         model.getOnSetUpComplete().observe(this, map -> {
             if (!map.isEmpty()) {
-                Glide.with(binding.profile).load(map.get("profile_image")).placeholder(R.drawable.person).into(binding.profile);
-                binding.name.setText(map.get("name"));
-                binding.vip.setText(map.get("vip"));
+                Glide.with(binding.profile).load(map.get(PROFILE_IMAGE)).placeholder(R.drawable.person).into(binding.profile);
+                binding.name.setText(map.get(NAME));
+                binding.vip.setText(map.get(LiveItem.VIP));
                 binding.viewers.setText(getString(R.string.viewers, map.get("viewers")));
             } else {
-                Glide.with(binding.profile).load(CM.getProfile().getContent().get("profile_picture")).placeholder(R.drawable.person).into(binding.profile);
-                binding.name.setText(CM.getProfile().getContent().get("name"));
-                binding.vip.setText(CM.getProfile().getContent().get("vip"));
+                Glide.with(binding.profile).load(CM.getProfile().getContent().get(ProfileItem.PROFILE_PICTURE)).placeholder(R.drawable.person).into(binding.profile);
+                binding.name.setText(CM.getProfile().getContent().get(ProfileItem.NAME));
+                binding.vip.setText(CM.getProfile().getContent().get(ProfileItem.VIP));
                 binding.viewers.setText(getString(R.string.viewers, String.valueOf(model.getViewersCount())));
             }
         });
@@ -230,18 +231,33 @@ public class RTMPCallActivity extends AppCompatActivity {
                     model.viewerLeft(liveAction.getContentMap().get("jid"));
                     break;
                 }
-            }
+                 }
         });
         model.getOptionsMenuVisibility().observe(this, b -> binding.optionsLayout.setVisibility(b ? View.VISIBLE : View.GONE));
     }
-
-    private void updateCompetitor(@NonNull LiveItem liveItem) {
+    NodePlayer nodePlayer = null;
+    private void updateCompetitor(ArrayList<LiveItem>liveItems) {
         Log.e("called","updateView");
+
+        if(liveItems.isEmpty()){
+            closeSpliter();
+            binding.addPeople.setVisibility(View.VISIBLE);
+           if(nodePlayer!=null){
+               nodePlayer.stop();
+           }
+            binding.profileInfo1.setVisibility(View.GONE);
+            binding.profileInfo2.setVisibility(View.GONE);
+            binding.endCall1.setVisibility(View.GONE);
+            binding.endCall2.setVisibility(View.GONE);
+            return;
+        }
+        LiveItem liveItem = liveItems.get(0);
+
         openSpliter();
         binding.addPeople.setVisibility(View.GONE);
 
         if(model.getAction().equals(LIVE_USER_TYPE_AUDIENCE)){
-            NodePlayer nodePlayer = new NodePlayer(this,"");
+            nodePlayer = new NodePlayer(this,"");
             nodePlayer.attachView(binding.cameraView2);
             nodePlayer.start(Configurations.RTMP_URL+liveItem.getContent().get(NAME));
             return;
@@ -256,7 +272,7 @@ public class RTMPCallActivity extends AppCompatActivity {
         }else {
             binding.endCall1.setVisibility(View.VISIBLE);
             binding.endCall2.setVisibility(View.VISIBLE);
-            NodePlayer nodePlayer = new NodePlayer(this,"");
+            nodePlayer = new NodePlayer(this,"");
             nodePlayer.attachView(binding.cameraView2);
             nodePlayer.start(Configurations.RTMP_URL+liveItem.getContent().get(NAME));
         }
@@ -443,8 +459,8 @@ public class RTMPCallActivity extends AppCompatActivity {
     void closeSpliter() {
         isSpliterOpen = false;
         ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) binding.cameraView.getLayoutParams();
-        layoutParams.height = getResources().getDisplayMetrics().heightPixels;
-        layoutParams.width = getResources().getDisplayMetrics().widthPixels;
+        layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
         binding.cameraView.setLayoutParams(layoutParams);
         binding.cameraView2.setVisibility(View.GONE);
         binding.addPeople.setVisibility(View.GONE);
