@@ -1,25 +1,48 @@
 package com.probashiincltd.probashilive.ui;
 
-import static com.probashiincltd.probashilive.connectionutils.RosterHandler.getRosterHandler;
 import static com.probashiincltd.probashilive.pubsubItems.LiveItem.NAME;
 import static com.probashiincltd.probashilive.pubsubItems.LiveItem.PROFILE_IMAGE;
-import static com.probashiincltd.probashilive.utils.Configurations.*;
+import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_FRIEND_LIST;
+import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_PROFILE;
+import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_BLOCK;
+import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_INVITE;
+import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_INVITE_FRIEND;
+import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_MESSAGE;
+import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_VISIT;
+import static com.probashiincltd.probashilive.utils.Configurations.ACTION;
+import static com.probashiincltd.probashilive.utils.Configurations.ACTION_TYPE_LIVE_ENDED;
+import static com.probashiincltd.probashilive.utils.Configurations.ACTION_TYPE_LIVE_LEFT;
+import static com.probashiincltd.probashilive.utils.Configurations.ADD_PERSON;
+import static com.probashiincltd.probashilive.utils.Configurations.CLOSE_LIVE;
+import static com.probashiincltd.probashilive.utils.Configurations.DATA;
+import static com.probashiincltd.probashilive.utils.Configurations.END_CALL_1;
+import static com.probashiincltd.probashilive.utils.Configurations.END_CALL_2;
+import static com.probashiincltd.probashilive.utils.Configurations.GIFT;
+import static com.probashiincltd.probashilive.utils.Configurations.HIDE_COMMENT;
+import static com.probashiincltd.probashilive.utils.Configurations.JOIN_REQUEST;
+import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_AUDIENCE;
+import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_COMPETITOR;
+import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_HOST;
+import static com.probashiincltd.probashilive.utils.Configurations.OPEN_PROFILE_1;
+import static com.probashiincltd.probashilive.utils.Configurations.OPEN_PROFILE_2;
+import static com.probashiincltd.probashilive.utils.Configurations.SHOW_VIEWERS;
+import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_COMMENT;
+import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_HOST_REMOVED_COMPETITOR;
+import static com.probashiincltd.probashilive.utils.Configurations.SWITCH_CAMERA;
+import static com.probashiincltd.probashilive.utils.Configurations.isOccupied;
 
-
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.databinding.DataBindingUtil;
@@ -30,21 +53,15 @@ import com.google.gson.Gson;
 import com.permissionx.guolindev.PermissionX;
 import com.permissionx.guolindev.callback.RequestCallback;
 import com.probashiincltd.probashilive.R;
-import com.probashiincltd.probashilive.adapter.OnlineFriendsAdapter;
+import com.probashiincltd.probashilive.adapter.CommentAdapter;
 import com.probashiincltd.probashilive.connectionutils.CM;
 import com.probashiincltd.probashilive.databinding.ActivityRtmpcallBinding;
-import com.probashiincltd.probashilive.databinding.CommentOptionsBinding;
-import com.probashiincltd.probashilive.databinding.OpenInviteFriendBinding;
-import com.probashiincltd.probashilive.databinding.ProfileDialogBinding;
-import com.probashiincltd.probashilive.functions.Functions;
 import com.probashiincltd.probashilive.models.CommentModel;
 import com.probashiincltd.probashilive.pubsubItems.LiveItem;
 import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
 import com.probashiincltd.probashilive.utils.Configurations;
 import com.probashiincltd.probashilive.viewmodels.RTMPCallViewModel;
 
-import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smackx.pubsub.Item;
 import org.json.JSONException;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
@@ -54,6 +71,7 @@ import java.util.List;
 import java.util.Objects;
 
 import cn.nodemedia.NodePlayer;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class RTMPCallActivity extends AppCompatActivity {
     ActivityRtmpcallBinding binding;
@@ -69,6 +87,19 @@ public class RTMPCallActivity extends AppCompatActivity {
         model = new ViewModelProvider(this).get(RTMPCallViewModel.class);
         binding.setViewModel(model);
         binding.setLifecycleOwner(this);
+        String action = getIntent().getStringExtra(ACTION);
+        switch (Objects.requireNonNull(action)){
+            case LIVE_USER_TYPE_AUDIENCE:{
+                model.setAdapter(new CommentAdapter(CommentAdapter.COMMENT_ADAPTER_TYPE_AUDIENCE));
+                break;
+            }case LIVE_USER_TYPE_COMPETITOR:{
+                model.setAdapter(new CommentAdapter(CommentAdapter.COMMENT_ADAPTER_TYPE_COMPETITOR));
+                break;
+            }case LIVE_USER_TYPE_HOST:{
+                model.setAdapter(new CommentAdapter(CommentAdapter.COMMENT_ADAPTER_TYPE_HOST));
+                break;
+            }
+        }
 
         PermissionX.init(this).permissions("android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE", "android.permission.CAMERA", "android.permission.RECORD_AUDIO").request(new RequestCallback() {
             @Override
@@ -108,6 +139,9 @@ public class RTMPCallActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         if (!isDestroyed) {
+            if(nodePlayer!=null){
+                nodePlayer.stop();
+            }
             model.onDestroy();
         }
         isOccupied = false;
@@ -118,6 +152,9 @@ public class RTMPCallActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
             isDestroyed = true;
+            if(nodePlayer!=null){
+                nodePlayer.stop();
+            }
             model.onDestroy();
             super.onBackPressed();
             return;
@@ -129,11 +166,7 @@ public class RTMPCallActivity extends AppCompatActivity {
 
 
     void observeViewModel() {
-
         model.getViewUpdate().observe(this, this::updateCompetitor);
-
-
-
         model.getOpenProfile().observe(this, this::openProfile);
         model.getSendComment().observe(this, s -> {
             switch (s) {
@@ -175,12 +208,14 @@ public class RTMPCallActivity extends AppCompatActivity {
                 }
                 case OPEN_PROFILE_1: {
                     try {
-                        if(model.getAction().equals(LIVE_USER_TYPE_HOST)){
-                            openProfileDialog(CM.getProfile().getContent().get(ProfileItem.NAME));
-                        }else if(model.getAction().equals(LIVE_USER_TYPE_COMPETITOR)){
-                            openProfileDialog(model.getData().get(ProfileItem.NAME));
-                        }else if(model.getAction().equals(LIVE_USER_TYPE_AUDIENCE)){
-
+                        switch (model.getAction()) {
+                            case LIVE_USER_TYPE_HOST:
+                                openProfileDialog(CM.getProfile().getContent().get(ProfileItem.NAME));
+                                break;
+                            case LIVE_USER_TYPE_COMPETITOR:
+                            case LIVE_USER_TYPE_AUDIENCE:
+                                openProfileDialog(model.getData().get(ProfileItem.NAME));
+                                break;
                         }
                     }catch (Exception e){
                         e.fillInStackTrace();
@@ -188,15 +223,27 @@ public class RTMPCallActivity extends AppCompatActivity {
                     break;
                 }
                 case OPEN_PROFILE_2: {
-                    openFriendList();
+                    try {
+                        openProfileDialog(model.getCompetitorList().get(0).getContent().get(NAME));
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
                     break;
                 }
                 case END_CALL_1: {
-                    openFriendList();
+                    onBackPressed();
                     break;
                 }
                 case END_CALL_2: {
-                    openFriendList();
+                    openRemoveCompetitorConfirmation();
+                    break;
+                }case SHOW_VIEWERS:{
+                    showViewers();
+                    break;
+                } case SUBJECT_TYPE_HOST_REMOVED_COMPETITOR:{
+                    Toast.makeText(this, "Host removed you from live!", Toast.LENGTH_SHORT).show();
+                    model.onDestroy();
+                    finish();
                     break;
                 }
 
@@ -235,10 +282,24 @@ public class RTMPCallActivity extends AppCompatActivity {
         });
         model.getOptionsMenuVisibility().observe(this, b -> binding.optionsLayout.setVisibility(b ? View.VISIBLE : View.GONE));
     }
+
+    private void openRemoveCompetitorConfirmation() {
+        Log.e("competitorList",model.getCompetitorList().toString());
+        SweetAlertDialog sweetAlertDialog = new SweetAlertDialog(this,SweetAlertDialog.WARNING_TYPE);
+        sweetAlertDialog.setCancelButton("Cancel", Dialog::dismiss).setConfirmButton("Confirm", sweetAlertDialog1 -> {
+            CM.sendHLM(SUBJECT_TYPE_HOST_REMOVED_COMPETITOR,"",CM.getConnection().getUser().asFullJidOrThrow().toString(),model.getCompetitorList().get(0).getContent().get(LiveItem.ROOM_ID));
+            model.removeCompetitor(0);
+            sweetAlertDialog.dismiss();
+        }).setContentText("Are you sure you want to remove "+model.getCompetitorList().get(0).getContent().get(NAME)).setTitle("Warning");
+        sweetAlertDialog.show();
+    }
+
+    private void showViewers() {
+
+    }
+
     NodePlayer nodePlayer = null;
     private void updateCompetitor(ArrayList<LiveItem>liveItems) {
-        Log.e("called","updateView");
-
         if(liveItems.isEmpty()){
             closeSpliter();
             binding.addPeople.setVisibility(View.VISIBLE);
@@ -252,6 +313,13 @@ public class RTMPCallActivity extends AppCompatActivity {
             return;
         }
         LiveItem liveItem = liveItems.get(0);
+        Glide.with(binding.profile1).load(CM.getProfile().getContent().get(ProfileItem.PROFILE_PICTURE)).placeholder(R.drawable.person).into(binding.profile1);
+        Glide.with(binding.profile2).load(liveItem.getContent().get(PROFILE_IMAGE)).placeholder(R.drawable.person).into(binding.profile2);
+
+        binding.name1.setText(CM.getProfile().getContent().get(ProfileItem.NAME));
+        binding.name2.setText(liveItem.getContent().get(LiveItem.NAME));
+        binding.vip1.setText(CM.getProfile().getContent().get(ProfileItem.VIP));
+        binding.vip2.setText(liveItem.getContent().get(ProfileItem.VIP));
 
         openSpliter();
         binding.addPeople.setVisibility(View.GONE);
@@ -264,8 +332,6 @@ public class RTMPCallActivity extends AppCompatActivity {
         }
         binding.profileInfo1.setVisibility(View.VISIBLE);
         binding.profileInfo2.setVisibility(View.VISIBLE);
-
-
         if(model.getAction().equals(LIVE_USER_TYPE_COMPETITOR)){
             binding.endCall1.setVisibility(View.GONE);
             binding.endCall2.setVisibility(View.VISIBLE);
@@ -278,156 +344,48 @@ public class RTMPCallActivity extends AppCompatActivity {
         }
     }
 
-    AlertDialog cd;
-    int isFriendStatus = 0;
     private void openCommentDialog(CommentModel cm) {
-        if (cm.getName().equals(CM.getProfile().getName())) {
-            return;
-        }
-        AlertDialog.Builder b = new AlertDialog.Builder(this, R.style.Base_Theme_ProbashiLive);
-        CommentOptionsBinding c = CommentOptionsBinding.inflate(getLayoutInflater());
-        c.userName.setText(cm.getName());
-        Glide.with(c.profile).load(cm.getPp()).placeholder(R.drawable.person).into(c.profile);
-        try {
-            if (getRosterHandler().roster.contains(JidCreate.bareFrom(cm.getId()))) {
-                if (!getRosterHandler().roster.getEntry(JidCreate.bareFrom(cm.getId())).getGroups().isEmpty()) {
-                    isFriendStatus = 1;
-                    c.follow.setText(R.string.unfollow);
-                } else {
-                    isFriendStatus = 2;
+        new AlertDialogViewer(this, event -> {
+            switch (event[0]){
+                case REPLAY_TYPE_VISIT:{
+                    if (model.getAction().equals(LIVE_USER_TYPE_HOST)) {
+                        try {
+                            openProfileDialog(event[1]);
+                        } catch (JSONException e) {
+                            e.fillInStackTrace();
+                        }
+                    } else {
+                        openProfile(event[1]);
+                    }
+                    break;
+                }case REPLAY_TYPE_BLOCK:{
+                    Toast.makeText(this, "Block "+event[1], Toast.LENGTH_SHORT).show();
+                    break;
+                }case REPLAY_TYPE_INVITE:{
+                    Toast.makeText(this, "Invite "+event[1], Toast.LENGTH_SHORT).show();
+                    break;
                 }
             }
-        } catch (Exception e) {
-            //ingored
-        }
-
-
-        c.block.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(RTMPCallActivity.this, "block", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        c.follow.setOnClickListener(v -> {
-            try {
-                if (isFriendStatus == 1) {
-                    getRosterHandler().removeEntry(cm.getId());
-                    isFriendStatus = 0;
-                    c.follow.setText(R.string.follow);
-                } else if (isFriendStatus == 0) {
-                    getRosterHandler().createEntry(cm.getId(), cm.getName());
-                    isFriendStatus = 1;
-                    c.follow.setText(R.string.unfollow);
-                } else {
-                    getRosterHandler().addGroup(cm.getId());
-                    isFriendStatus = 1;
-                    c.follow.setText(R.string.unfollow);
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        c.invite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(RTMPCallActivity.this, "invite", Toast.LENGTH_SHORT).show();
-            }
-        });
-        c.visit.setOnClickListener(v -> {
-            if (model.getAction().equals(LIVE_USER_TYPE_HOST)) {
-                try {
-                    openProfileDialog(cm.getName());
-                } catch (JSONException e) {
-                    e.fillInStackTrace();
-                }
-            } else {
-                openProfile(cm.getName());
-            }
-        });
-
-
-        b.setView(c.getRoot());
-        cd = b.create();
-        cd.show();
-        Objects.requireNonNull(cd.getWindow()).setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        cd.getWindow().setGravity(Gravity.CENTER);
-        cd.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        cd.getWindow().setDimAmount(0.5f);
+        },AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_COMMENT,new Gson().toJson(cm));
     }
-    AlertDialog pd;
+
     private void openProfileDialog(String name) throws JSONException {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Base_Theme_ProbashiLive);
-        ProfileDialogBinding binding1 = ProfileDialogBinding.inflate(getLayoutInflater());
-        Item item = Functions.getSingleItemOfNode(CM.NODE_USERS, name);
-        ProfileItem profileItem = ProfileItem.parseProfileItem(item);
-        Log.e("profileItem", profileItem.toString());
-        binding1.coin.setVisibility(View.GONE);
-        binding1.email.setText(profileItem.getContent().get(ProfileItem.EMAIL));
-        binding1.userName.setText(profileItem.getContent().get(ProfileItem.NAME));
-        binding1.phone.setText(profileItem.getContent().get(ProfileItem.PHONE));
-        binding1.status.setText(profileItem.getContent().get(ProfileItem.VIP));
-        Glide.with(binding1.profile).load(profileItem.getContent().get(ProfileItem.PROFILE_PICTURE)).placeholder(R.drawable.person).into(binding1.profile);
-
-        if (isFriendStatus == 1) {
-            binding1.follow.setText(R.string.unfollow);
-        }
-        binding1.message.setOnClickListener(v -> Toast.makeText(RTMPCallActivity.this, "Coming Soon!", Toast.LENGTH_SHORT).show());
-
-        binding1.follow.setOnClickListener(v -> {
-            try {
-                if (isFriendStatus == 1) {
-                    getRosterHandler().removeEntry(profileItem.getContent().get(ProfileItem.NAME + "@" + Configurations.getHostName()));
-                    isFriendStatus = 0;
-                    binding1.follow.setText(R.string.follow);
-                } else if (isFriendStatus == 0) {
-                    getRosterHandler().createEntry(profileItem.getContent().get(ProfileItem.NAME + "@" + Configurations.getHostName()), profileItem.getName());
-                    isFriendStatus = 1;
-                    binding1.follow.setText(R.string.unfollow);
-                } else {
-                    getRosterHandler().addGroup(profileItem.getContent().get(ProfileItem.NAME + "@" + Configurations.getHostName()));
-                    isFriendStatus = 1;
-                    binding1.follow.setText(R.string.unfollow);
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+        new AlertDialogViewer(this, event -> {
+            if (event[0].equals(REPLAY_TYPE_MESSAGE)) {
+                Toast.makeText(RTMPCallActivity.this, "Coming Soon!", Toast.LENGTH_SHORT).show();
             }
-        });
-
-        builder.setView(binding1.getRoot());
-        pd = builder.create();
-        pd.show();
-        Objects.requireNonNull(pd.getWindow()).setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        pd.getWindow().setGravity(Gravity.CENTER);
-        pd.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        pd.getWindow().setDimAmount(0.5f);
+        },ALERTDIALOG_TYPE_OPEN_PROFILE,name);
     }
-    AlertDialog iFD;
     private void openFriendList() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Base_Theme_ProbashiLive);
-        OpenInviteFriendBinding binding1 = OpenInviteFriendBinding.inflate(getLayoutInflater());
-        OnlineFriendsAdapter adapter = new OnlineFriendsAdapter(profileItem -> {
-            try {
-                for (Presence presence : getRosterHandler().roster.getAvailablePresences(JidCreate.bareFrom(profileItem.getContent().get(ProfileItem.NAME) + "@" + Configurations.getHostName()))) {
-                    model.inviteFriend(presence.getFrom().asFullJidOrThrow());
-                    iFD.dismiss();
+        new AlertDialogViewer(this, event -> {
+            if (event[0].equals(REPLAY_TYPE_INVITE_FRIEND)) {
+                try {
+                    model.inviteFriend(JidCreate.fullFrom(event[1]));
+                } catch (XmppStringprepException e) {
+                    throw new RuntimeException(e);
                 }
-
-            } catch (XmppStringprepException e) {
-                throw new RuntimeException(e);
             }
-        });
-        binding1.inviteFriendRV.setAdapter(adapter);
-
-        builder.setView(binding1.getRoot());
-        iFD = builder.create();
-        iFD = builder.create();
-        iFD.show();
-        Objects.requireNonNull(iFD.getWindow()).setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        iFD.getWindow().setGravity(Gravity.CENTER);
-        iFD.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        iFD.getWindow().setDimAmount(0.5f);
+        },ALERTDIALOG_TYPE_OPEN_FRIEND_LIST);
     }
 
     private void openGift() {

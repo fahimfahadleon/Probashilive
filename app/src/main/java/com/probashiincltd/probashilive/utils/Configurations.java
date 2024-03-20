@@ -21,6 +21,7 @@ public class Configurations {
     public static final String SUBJECT_TYPE_COMPETITOR_LIST = "competitor_list";
     public static final String SUBJECT_TYPE_VIDEO_INVITATION_DECLINED = "video_invitation_declined";
     public static final String SUBJECT_TYPE_VIDEO_STREAM_JOINED = "video_stream_joined";
+    public static final String SUBJECT_TYPE_HOST_REMOVED_COMPETITOR = "host_removed_competitor";
     public static final String UPDATE_TYPE_COMPETITOR = "update_competitor";
     public static final String SUBJECT_TYPE_VIEWERS_LIST = "viewers_list";
     public static final String CLOSE_LIVE = "close_live";
@@ -33,6 +34,7 @@ public class Configurations {
     public static final String OPEN_PROFILE_2 = "open_profile_2";
     public static final String END_CALL_1 = "end_call_1";
     public static final String END_CALL_2 = "end_call_2";
+    public static final String SHOW_VIEWERS = "show_viewers";
     public static final String SWITCH_CAMERA = "switch_camera";
     public static final String JOIN_REQUEST = "join_request";
 

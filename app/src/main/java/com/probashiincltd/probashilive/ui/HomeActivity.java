@@ -126,6 +126,8 @@ public class HomeActivity extends AppCompatActivity {
 
     }
 
+
+
     AlertDialog id;
     private void openInvitationDialog(Message message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.Base_Theme_ProbashiLive);

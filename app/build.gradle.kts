@@ -130,6 +130,7 @@ dependencies {
     implementation("androidx.camera:camera-mlkit-vision:${camerax_version}")
     implementation("androidx.camera:camera-extensions:${camerax_version}")
 
+    implementation ("com.github.f0ris.sweetalert:library:1.6.2")
     implementation ("com.github.NodeMedia:NodeMediaClient-Android:3.2.7")
 
 

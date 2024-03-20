@@ -109,8 +109,12 @@ public class LiveItem extends UniversalModelMap{
         map.put(REGION_NAME,regionName);
 
         return new LiveItem(map);
-
-
     }
 
+    @Override
+    public String toString() {
+        return "LiveItem{" +
+                "content=" + content +
+                '}';
+    }
 }

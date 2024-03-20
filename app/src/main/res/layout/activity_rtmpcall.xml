@@ -83,9 +83,10 @@
                     android:gravity="start|center"
                     android:text="User Name"
                     android:textColor="#fff"
+                    android:textSize="12sp"
                     android:onClick="@{viewModel::onClickSend}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:layout_marginStart="@dimen/_8sdp"
+                    android:layout_marginStart="@dimen/_4sdp"
                     android:id="@+id/name1"/>
                 <TextView
                     android:layout_width="wrap_content"
@@ -95,10 +96,11 @@
                     app:layout_constraintBottom_toBottomOf="@id/profile1"
                     android:gravity="start|center"
                     android:text="Vip"
+                    android:textSize="8sp"
                     android:onClick="@{viewModel::onClickSend}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="#fff"
-                    android:layout_marginStart="@dimen/_8sdp"
+                    android:layout_marginStart="@dimen/_4sdp"
                     android:id="@+id/vip1"/>
 
 
@@ -136,7 +138,7 @@
                     app:civ_border_color="#fff"
                     android:onClick="@{viewModel::onClickSend}"
                     android:layout_marginHorizontal="@dimen/_4sdp"
-                    android:layout_marginVertical="@dimen/_8sdp"
+                    android:layout_marginVertical="@dimen/_4sdp"
                     app:civ_border_width="1dp"
                     android:id="@+id/profile2"/>
 
@@ -148,13 +150,14 @@
                     android:gravity="start|center"
                     android:text="User Name"
                     android:textColor="#fff"
+                    android:textSize="12sp"
                     android:onClick="@{viewModel::onClickSend}"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:layout_marginStart="@dimen/_8sdp"
+                    android:layout_marginStart="@dimen/_4sdp"
                     android:id="@+id/name2"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textSize="8sp"
                     app:layout_constraintStart_toEndOf="@id/profile2"
                     app:layout_constraintTop_toBottomOf="@id/name2"
                     app:layout_constraintBottom_toBottomOf="@id/profile2"
@@ -233,6 +236,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/closeLive"
                 android:gravity="start|center"
                 android:text="Viewers: "
+                android:onClick="@{viewModel::onClickSend}"
                 android:backgroundTint="#80ffffff"
                 android:layout_marginEnd="@dimen/_16sdp"
                 android:background="@drawable/simple_item_border"
