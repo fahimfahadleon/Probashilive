@@ -20,6 +20,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class HomeFragmentRVAdapter extends RecyclerView.Adapter<HomeFragmentRVAdapter.HomeFragmentViewHolder> {
     ArrayList<LiveItem> models;
@@ -53,8 +54,7 @@ public class HomeFragmentRVAdapter extends RecyclerView.Adapter<HomeFragmentRVAd
     @NonNull
     @Override
     public HomeFragmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        SingleHomeItemBinding binding = SingleHomeItemBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false);
-        return new HomeFragmentViewHolder(binding);
+        return new HomeFragmentViewHolder(SingleHomeItemBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false));
     }
 
     @Override
@@ -71,17 +71,17 @@ public class HomeFragmentRVAdapter extends RecyclerView.Adapter<HomeFragmentRVAd
         SingleHomeItemBinding binding;
         public void setUpData(LiveItem model){
             if(model!=null){
-                binding.name.setText(model.getContent().get("name"));
+                binding.name.setText(model.getContent().get(LiveItem.NAME));
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX'['VV']'");
-                ZonedDateTime zonedDateTime = ZonedDateTime.parse(model.getContent().get("startedAt"), formatter);
+                ZonedDateTime zonedDateTime = ZonedDateTime.parse(model.getContent().get(LiveItem.STARTED_AT), formatter);
                 ZonedDateTime newYorkDateTime = zonedDateTime.withZoneSameInstant(ZoneId.systemDefault());
                 DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("HH:mm a");
                 String formattedDateTime = newYorkDateTime.format(formatter1);
-                binding.country.setText(model.getContent().get("country"));
-                binding.type.setImageDrawable(ContextCompat.getDrawable(context,model.getContent().get("type").equals(LIVE_TYPE_VIDEO)?R.drawable.video_camera:R.drawable.microphone));
+                binding.country.setText(model.getContent().get(LiveItem.COUNTRY));
+                binding.type.setImageDrawable(ContextCompat.getDrawable(context, Objects.equals(model.getContent().get(LiveItem.TYPE), LIVE_TYPE_VIDEO) ?R.drawable.video_camera:R.drawable.microphone));
                 binding.startedat.setText(context.getString(R.string.from,formattedDateTime));
                 binding.watching.setText(context.getString(R.string.viewers,model.getContent().get("viewers")));
-                Glide.with(binding.profile).load(model.getContent().get("profile_image")).into(binding.profile);
+                Glide.with(binding.profile).load(model.getContent().get(LiveItem.PROFILE_IMAGE)).into(binding.profile);
                 binding.profile.setClipToOutline(true);
                 binding.getRoot().setOnClickListener(v -> onItemClickListener.onItemClick(model));
             }

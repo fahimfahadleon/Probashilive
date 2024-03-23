@@ -30,6 +30,7 @@ import static com.probashiincltd.probashilive.utils.Configurations.LIVE_TYPE_VID
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_AUDIENCE;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_COMPETITOR;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_HOST;
+import static com.probashiincltd.probashilive.utils.Configurations.OPEN_JOIN_REQUEST;
 import static com.probashiincltd.probashilive.utils.Configurations.OPEN_PROFILE_1;
 import static com.probashiincltd.probashilive.utils.Configurations.OPEN_PROFILE_2;
 import static com.probashiincltd.probashilive.utils.Configurations.SHOW_VIEWERS;
@@ -38,7 +39,9 @@ import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_COMPETITOR_LIST;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_HOST_REMOVED_COMPETITOR;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_JOINED_LIVE;
+import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_JOIN_REQUEST;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_LIVE_ACTION;
+import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_REQUEST_ACCEPTED;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIDEO_INVITATION;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIDEO_INVITATION_ACCEPTED;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIDEO_STREAM_JOINED;
@@ -65,6 +68,7 @@ import com.probashiincltd.probashilive.connectionutils.CM;
 import com.probashiincltd.probashilive.functions.Functions;
 import com.probashiincltd.probashilive.models.CommentModel;
 import com.probashiincltd.probashilive.models.LiveAction;
+import com.probashiincltd.probashilive.models.MessageProfileModel;
 import com.probashiincltd.probashilive.pubsubItems.LiveItem;
 import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
 import com.probashiincltd.probashilive.utils.Configurations;
@@ -107,10 +111,20 @@ public class RTMPCallViewModel extends ViewModel {
     public ArrayList<LiveItem> getCompetitorList() {
         return competitorList;
     }
+    private final ArrayList<MessageProfileModel> joinRequests = new ArrayList<>();
+
+    public ArrayList<MessageProfileModel>getRequests(){
+        return joinRequests;
+    }
 
 
     private final MutableLiveData<String> onSendButtonClick = new MutableLiveData<>();
+    private final MutableLiveData<ProfileItem> onCompetitorAccepted = new MutableLiveData<>();
+    public LiveData<ProfileItem>getOnCompetitorAccepted(){
+        return onCompetitorAccepted;
+    }
     private final MutableLiveData<ArrayList<LiveItem>> onViewUpdate = new MutableLiveData<>();
+    private final MutableLiveData<ProfileItem>onCompetitorJoined = new MutableLiveData<>();
     CommentAdapter adapter;
     private final MutableLiveData<CommentModel> selectedItem = new MutableLiveData<>();
     private final MutableLiveData<LiveAction> liveActiondata = new MutableLiveData<>();
@@ -134,6 +148,10 @@ public class RTMPCallViewModel extends ViewModel {
 
     public LiveData<Integer> getLiveViewerCount() {
         return getLiveViewerCount;
+    }
+    private final MutableLiveData<Message>receiveJoinRequest = new MutableLiveData<>();
+    public LiveData<Message>getReceivedJoinRequest(){
+        return receiveJoinRequest;
     }
 
     String myJid;
@@ -193,6 +211,8 @@ public class RTMPCallViewModel extends ViewModel {
             onSendButtonClick.setValue(END_CALL_2);
         } else if (id == R.id.viewers) {
             onSendButtonClick.setValue(SHOW_VIEWERS);
+        }else if(id == R.id.option6){
+            onSendButtonClick.postValue(OPEN_JOIN_REQUEST);
         }
     }
 
@@ -218,11 +238,15 @@ public class RTMPCallViewModel extends ViewModel {
         }
 
     }
+    public LiveData<ProfileItem>getCompetitorJoined(){
+        return onCompetitorJoined;
+    }
 
     public void broadCastEvent(Object cm, String type) {
         for (String s : viewers) {
             CM.sendHLM(type, new Gson().toJson(cm), myJid, s);
         }
+        Log.e("sendingToViewers",viewers.toString());
     }
 
 
@@ -231,12 +255,12 @@ public class RTMPCallViewModel extends ViewModel {
         switch (message.getSubject()) {
             case SUBJECT_TYPE_VIDEO_INVITATION_ACCEPTED: {
 //                for Host only
+                onCompetitorJoined.postValue(new Gson().fromJson(message.getBody(),ProfileItem.class));
                 isOccupied = true;
                 break;
             }
             case SUBJECT_TYPE_VIDEO_STREAM_JOINED: {
 //                for Host only
-
                 LiveItem liveItem = new Gson().fromJson(message.getBody(), LiveItem.class);
                 competitorList.add(liveItem);
                 broadCastEvent(competitorList, SUBJECT_TYPE_COMPETITOR_LIST);
@@ -269,16 +293,13 @@ public class RTMPCallViewModel extends ViewModel {
             case SUBJECT_TYPE_VIEWERS_LIST: {
 
 //                for competitor and audience
-                Type listType = new TypeToken<ArrayList<String>>() {
-                }.getType();
+                Type listType = new TypeToken<ArrayList<String>>() {}.getType();
                 viewers = new ArrayList<>(new Gson().fromJson(message.getBody(), listType));
-
                 updateViewerProfiles();
                 getLiveViewerCount.postValue(viewers.size());
                 break;
             }
             case SUBJECT_TYPE_COMPETITOR_LIST: {
-
 //                for audience and competitor
                 Type listType = new TypeToken<ArrayList<LiveItem>>() {
                 }.getType();
@@ -295,9 +316,39 @@ public class RTMPCallViewModel extends ViewModel {
             case SUBJECT_TYPE_HOST_REMOVED_COMPETITOR: {
                 onSendButtonClick.postValue(SUBJECT_TYPE_HOST_REMOVED_COMPETITOR);
                 break;
+            } case SUBJECT_TYPE_JOIN_REQUEST:{
+                MessageProfileModel messageProfileModel = new Gson().fromJson(message.getBody(), MessageProfileModel.class);
+                boolean shouldAdd = true;
+                for(MessageProfileModel m: joinRequests){
+                    if(m.getId().equals(message.getFrom().asFullJidOrThrow().toString())){
+                        shouldAdd = false;
+                        break;
+                    }
+                }
+                if(shouldAdd){
+                    joinRequests.removeIf(m -> Objects.equals(m.getProfileItem().getContent().get(ProfileItem.NAME), messageProfileModel.getProfileItem().getContent().get(ProfileItem.NAME)));
+                    joinRequests.add(new Gson().fromJson(message.getBody(), MessageProfileModel.class));
+                }
+
+                receiveJoinRequest.postValue(message);
+                break;
+            } case SUBJECT_TYPE_REQUEST_ACCEPTED:{
+                this.action= LIVE_USER_TYPE_COMPETITOR;
+                ProfileItem profileItem = new Gson().fromJson(message.getBody(),ProfileItem.class);
+                onCompetitorAccepted.postValue(profileItem);
+                viewers.remove(CM.getConnection().getUser().asFullJidOrThrow().toString());
+                getLiveViewerCount.postValue(viewers.size());
+                break;
             }
         }
     };
+
+    public void sendJoinRequest(){
+        MessageProfileModel model = new MessageProfileModel();
+        model.setId(CM.getConnection().getUser().asFullJidOrThrow().toString());
+        model.setProfileItem(CM.getProfile());
+        CM.sendHLM(SUBJECT_TYPE_JOIN_REQUEST,new Gson().toJson(model),CM.getConnection().getUser().asFullJidOrThrow().toString(),data.get(ROOM_ID));
+    }
 
     void postActionRemoveCompetitor(ProfileItem profileItem) {
         if (action.equals(LIVE_USER_TYPE_HOST)) {
@@ -530,7 +581,7 @@ public class RTMPCallViewModel extends ViewModel {
         return new LiveItem(live);
     }
 
-    void setUpForCompetitor(Context context, FrameLayout surface1, FrameLayout surface2) {
+    public void setUpForCompetitor(Context context, FrameLayout surface1, FrameLayout surface2) {
         LiveItem liveItem = getLiveItemForCompetitor();
         int width = context.getResources().getDisplayMetrics().widthPixels;
         int height = context.getResources().getDisplayMetrics().heightPixels;
@@ -613,5 +664,10 @@ public class RTMPCallViewModel extends ViewModel {
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void requestAccepted(MessageProfileModel model) {
+        CM.sendHLM(SUBJECT_TYPE_REQUEST_ACCEPTED,new Gson().toJson(CM.getProfile()),CM.getConnection().getUser().asFullJidOrThrow().toString(),model.getId());
+        viewerLeft(model.getId());
     }
 }

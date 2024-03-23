@@ -56,8 +56,7 @@ public class ConferenceAdapter extends RecyclerView.Adapter<ConferenceAdapter.Co
     @NonNull
     @Override
     public ConferenceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        SingleConferenceItemBinding binding = SingleConferenceItemBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false);
-        return new ConferenceViewHolder(binding);
+        return new ConferenceViewHolder(SingleConferenceItemBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false));
     }
 
     @Override
@@ -70,7 +69,7 @@ public class ConferenceAdapter extends RecyclerView.Adapter<ConferenceAdapter.Co
         return models.size();
     }
 
-    class ConferenceViewHolder extends RecyclerView.ViewHolder{
+    public class ConferenceViewHolder extends RecyclerView.ViewHolder{
         SingleConferenceItemBinding binding;
         public void setUpData(ConferenceModel cm){
             binding.name.setText(cm.getName());

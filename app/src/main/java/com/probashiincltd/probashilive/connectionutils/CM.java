@@ -37,6 +37,9 @@ import org.jivesoftware.smack.util.ByteUtils;
 import org.jivesoftware.smack.util.PacketParserUtils;
 import org.jivesoftware.smack.xml.XmlPullParserException;
 import org.jivesoftware.smackx.caps.EntityCapsManager;
+import org.jivesoftware.smackx.ping.PingFailedListener;
+import org.jivesoftware.smackx.ping.PingManager;
+import org.jivesoftware.smackx.ping.android.ServerPingWithAlarmManager;
 import org.jivesoftware.smackx.pubsub.Item;
 import org.json.JSONException;
 import org.jxmpp.jid.impl.JidCreate;
@@ -102,6 +105,9 @@ public class CM extends XmppConnection {
             listener.onHeadlineMessage(packet);
         }
     }
+
+
+
 
     public static MutableLiveData<Message> headlineObserver = new MutableLiveData<>();
 
@@ -198,6 +204,7 @@ public class CM extends XmppConnection {
                 registerCallback.registerSuccessful();
                 connection = mConnection;
                 setUpStanzaListener();
+                setUpPingManager();
 //                createProfile();
 
                 if (action.equals("register")) {
@@ -257,6 +264,15 @@ public class CM extends XmppConnection {
             }
         };
     }
+
+
+    private void setUpPingManager() {
+        ServerPingWithAlarmManager.getInstanceFor(connection).setEnabled(true);
+        PingManager pingManager = PingManager.getInstanceFor(connection);
+        pingManager.setPingInterval(250);
+        pingManager.pingServerIfNecessary();
+    }
+
 
 
     public static void sendHLM(String subject, String body, String from, String to) {

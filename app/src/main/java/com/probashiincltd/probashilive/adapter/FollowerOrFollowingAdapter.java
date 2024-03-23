@@ -12,7 +12,6 @@ import com.probashiincltd.probashilive.databinding.SingleFollowerOrFollowingBind
 import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 public class FollowerOrFollowingAdapter extends RecyclerView.Adapter<FollowerOrFollowingAdapter.FollowerOrFollowingViewHolder>{
     ArrayList<ProfileItem>models;
@@ -33,8 +32,7 @@ public class FollowerOrFollowingAdapter extends RecyclerView.Adapter<FollowerOrF
     @NonNull
     @Override
     public FollowerOrFollowingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        SingleFollowerOrFollowingBinding binding = SingleFollowerOrFollowingBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false);
-        return new FollowerOrFollowingViewHolder(binding);
+        return new FollowerOrFollowingViewHolder(SingleFollowerOrFollowingBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false));
     }
 
     @Override

@@ -35,8 +35,7 @@ public class OnlineFriendsAdapter extends RecyclerView.Adapter<OnlineFriendsAdap
     @NonNull
     @Override
     public OnlineFriendsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        SingleInviteFriendBinding binding = SingleInviteFriendBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false);
-        return new OnlineFriendsViewHolder(binding);
+        return new OnlineFriendsViewHolder(SingleInviteFriendBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false));
     }
 
     @Override

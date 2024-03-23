@@ -53,8 +53,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     @NonNull
     @Override
     public CommentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        SingleCommentBinding binding = SingleCommentBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false);
-        return new CommentViewHolder(binding);
+        return new CommentViewHolder(SingleCommentBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false));
     }
 
     @Override

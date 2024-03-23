@@ -3,8 +3,11 @@ package com.probashiincltd.probashilive.ui;
 import static com.probashiincltd.probashilive.pubsubItems.LiveItem.NAME;
 import static com.probashiincltd.probashilive.pubsubItems.LiveItem.PROFILE_IMAGE;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_FRIEND_LIST;
+import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_JOIN_REQUESTS;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_PROFILE;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_BLOCK;
+import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_INVITATION_ACCEPTED;
+import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_INVITATION_DECLINED;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_INVITE;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_INVITE_FRIEND;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_MESSAGE;
@@ -23,6 +26,7 @@ import static com.probashiincltd.probashilive.utils.Configurations.JOIN_REQUEST;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_AUDIENCE;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_COMPETITOR;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_HOST;
+import static com.probashiincltd.probashilive.utils.Configurations.OPEN_JOIN_REQUEST;
 import static com.probashiincltd.probashilive.utils.Configurations.OPEN_PROFILE_1;
 import static com.probashiincltd.probashilive.utils.Configurations.OPEN_PROFILE_2;
 import static com.probashiincltd.probashilive.utils.Configurations.SHOW_VIEWERS;
@@ -42,7 +46,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.databinding.DataBindingUtil;
@@ -51,12 +54,12 @@ import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.permissionx.guolindev.PermissionX;
-import com.permissionx.guolindev.callback.RequestCallback;
 import com.probashiincltd.probashilive.R;
 import com.probashiincltd.probashilive.adapter.CommentAdapter;
 import com.probashiincltd.probashilive.connectionutils.CM;
 import com.probashiincltd.probashilive.databinding.ActivityRtmpcallBinding;
 import com.probashiincltd.probashilive.models.CommentModel;
+import com.probashiincltd.probashilive.models.MessageProfileModel;
 import com.probashiincltd.probashilive.pubsubItems.LiveItem;
 import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
 import com.probashiincltd.probashilive.utils.Configurations;
@@ -67,7 +70,6 @@ import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import cn.nodemedia.NodePlayer;
@@ -88,47 +90,43 @@ public class RTMPCallActivity extends AppCompatActivity {
         binding.setViewModel(model);
         binding.setLifecycleOwner(this);
         String action = getIntent().getStringExtra(ACTION);
-        switch (Objects.requireNonNull(action)){
-            case LIVE_USER_TYPE_AUDIENCE:{
+        switch (Objects.requireNonNull(action)) {
+            case LIVE_USER_TYPE_AUDIENCE: {
                 model.setAdapter(new CommentAdapter(CommentAdapter.COMMENT_ADAPTER_TYPE_AUDIENCE));
                 break;
-            }case LIVE_USER_TYPE_COMPETITOR:{
+            }
+            case LIVE_USER_TYPE_COMPETITOR: {
                 model.setAdapter(new CommentAdapter(CommentAdapter.COMMENT_ADAPTER_TYPE_COMPETITOR));
                 break;
-            }case LIVE_USER_TYPE_HOST:{
+            }
+            case LIVE_USER_TYPE_HOST: {
                 model.setAdapter(new CommentAdapter(CommentAdapter.COMMENT_ADAPTER_TYPE_HOST));
                 break;
             }
         }
 
-        PermissionX.init(this).permissions("android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE", "android.permission.CAMERA", "android.permission.RECORD_AUDIO").request(new RequestCallback() {
-            @Override
-            public void onResult(boolean allGranted, @NonNull List<String> grantedList, @NonNull List<String> deniedList) {
-                if (allGranted) {
-                    try {
-                        model.initViewModel(RTMPCallActivity.this, getIntent(), binding.cameraView,binding.cameraView2);
-                    } catch (JSONException e) {
-                        //ignored
-                    }
-                    observeViewModel();
-                } else {
-                    PermissionX.init(RTMPCallActivity.this).permissions("android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE", "android.permission.CAMERA", "android.permission.RECORD_AUDIO").explainReasonBeforeRequest().request(new RequestCallback() {
-                        @Override
-                        public void onResult(boolean allGranted, @NonNull List<String> grantedList, @NonNull List<String> deniedList) {
-                            if (allGranted) {
-                                try {
-                                    model.initViewModel(RTMPCallActivity.this, getIntent(), binding.cameraView,binding.cameraView2);
-                                } catch (JSONException e) {
-                                    //ignored
-                                }
-                                observeViewModel();
-                            } else {
-                                Toast.makeText(RTMPCallActivity.this, "Permission is needed", Toast.LENGTH_SHORT).show();
-                                finish();
-                            }
-                        }
-                    });
+        PermissionX.init(this).permissions("android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE", "android.permission.CAMERA", "android.permission.RECORD_AUDIO").request((allGranted, grantedList, deniedList) -> {
+            if (allGranted) {
+                try {
+                    model.initViewModel(RTMPCallActivity.this, getIntent(), binding.cameraView, binding.cameraView2);
+                } catch (JSONException e) {
+                    //ignored
                 }
+                observeViewModel();
+            } else {
+                PermissionX.init(RTMPCallActivity.this).permissions("android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE", "android.permission.CAMERA", "android.permission.RECORD_AUDIO").explainReasonBeforeRequest().request((allGranted1, grantedList1, deniedList1) -> {
+                    if (allGranted1) {
+                        try {
+                            model.initViewModel(RTMPCallActivity.this, getIntent(), binding.cameraView, binding.cameraView2);
+                        } catch (JSONException e) {
+                            //ignored
+                        }
+                        observeViewModel();
+                    } else {
+                        Toast.makeText(RTMPCallActivity.this, "Permission is needed", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                });
             }
         });
 
@@ -139,7 +137,7 @@ public class RTMPCallActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         if (!isDestroyed) {
-            if(nodePlayer!=null){
+            if (nodePlayer != null) {
                 nodePlayer.stop();
             }
             model.onDestroy();
@@ -152,7 +150,7 @@ public class RTMPCallActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
             isDestroyed = true;
-            if(nodePlayer!=null){
+            if (nodePlayer != null) {
                 nodePlayer.stop();
             }
             model.onDestroy();
@@ -166,8 +164,15 @@ public class RTMPCallActivity extends AppCompatActivity {
 
 
     void observeViewModel() {
+        model.getCompetitorJoined().observe(this, profileItem -> openSpliter());
         model.getViewUpdate().observe(this, this::updateCompetitor);
         model.getOpenProfile().observe(this, this::openProfile);
+        model.getReceivedJoinRequest().observe(this, message -> {
+            binding.count.setVisibility(View.VISIBLE);
+            Log.e("requestSize",String.valueOf(model.getRequests().size()));
+            Log.e("requestSize",model.getRequests().toString());
+            binding.count.setText(String.valueOf(model.getRequests().size()));
+        });
         model.getSendComment().observe(this, s -> {
             switch (s) {
                 case SUBJECT_TYPE_COMMENT: {
@@ -182,14 +187,7 @@ public class RTMPCallActivity extends AppCompatActivity {
                     Toast.makeText(this, "CLOSE LIVE", Toast.LENGTH_SHORT).show();
                     break;
                 }
-                case JOIN_REQUEST: {
-                    if (isSpliterOpen) {
-                        closeSpliter();
-                    } else {
-                        openSpliter();
-                    }
-                    break;
-                }
+
                 case SWITCH_CAMERA: {
                     model.switchCamera();
                     break;
@@ -202,8 +200,20 @@ public class RTMPCallActivity extends AppCompatActivity {
                     openGift();
                     break;
                 }
+                case JOIN_REQUEST: {
+                    if (model.getAction().equals(LIVE_USER_TYPE_HOST)) {
+                        openFriendList();
+                    } else {
+                        model.sendJoinRequest();
+                        Toast.makeText(this, "Request sent!", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                }
                 case ADD_PERSON: {
-                    openFriendList();
+                    if (model.getAction().equals(LIVE_USER_TYPE_HOST)) {
+                        openFriendList();
+                    }
+
                     break;
                 }
                 case OPEN_PROFILE_1: {
@@ -217,7 +227,7 @@ public class RTMPCallActivity extends AppCompatActivity {
                                 openProfileDialog(model.getData().get(ProfileItem.NAME));
                                 break;
                         }
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.fillInStackTrace();
                     }
                     break;
@@ -235,35 +245,69 @@ public class RTMPCallActivity extends AppCompatActivity {
                     break;
                 }
                 case END_CALL_2: {
-                    openRemoveCompetitorConfirmation();
+                    if(model.getAction().equals(LIVE_USER_TYPE_HOST)){
+                        openRemoveCompetitorConfirmation();
+                    }else {
+                        onBackPressed();
+                    }
                     break;
-                }case SHOW_VIEWERS:{
+                }
+                case SHOW_VIEWERS: {
                     showViewers();
                     break;
-                } case SUBJECT_TYPE_HOST_REMOVED_COMPETITOR:{
+                }
+                case SUBJECT_TYPE_HOST_REMOVED_COMPETITOR: {
                     Toast.makeText(this, "Host removed you from live!", Toast.LENGTH_SHORT).show();
                     model.onDestroy();
                     finish();
+                    break;
+                }case OPEN_JOIN_REQUEST:{
+                    ArrayList<MessageProfileModel> messages = new ArrayList<>(model.getRequests());
+                    new AlertDialogViewer(this, event -> {
+                        switch (event[0]){
+                            case REPLAY_TYPE_INVITATION_ACCEPTED:{
+                                MessageProfileModel message = new Gson().fromJson(event[1],MessageProfileModel.class);
+                                model.getRequests().removeIf(messageProfileModel -> Objects.equals(messageProfileModel.getProfileItem().getContent().get(ProfileItem.NAME), message.getProfileItem().getContent().get(ProfileItem.NAME)));
+                                if(model.getRequests().isEmpty()){
+                                    binding.count.setVisibility(View.GONE);
+                                }
+                                performAudienceToCompetitor(message);
+                                break;
+                            }case REPLAY_TYPE_INVITATION_DECLINED:{
+                                MessageProfileModel message = new Gson().fromJson(event[1],MessageProfileModel.class);
+                                model.getRequests().removeIf(messageProfileModel -> Objects.equals(messageProfileModel.getProfileItem().getContent().get(ProfileItem.NAME), message.getProfileItem().getContent().get(ProfileItem.NAME)));
+                                if(model.getRequests().isEmpty()){
+                                    binding.count.setVisibility(View.GONE);
+                                }
+                                break;
+                            }
+                        }
+                    },ALERTDIALOG_TYPE_OPEN_JOIN_REQUESTS,new Gson().toJson(messages));
                     break;
                 }
 
             }
         });
         model.getSelectedItem().observe(this, this::openCommentDialog);
-        model.getLiveViewerCount().observe(this, i -> {
-            binding.viewers.setText(getString(R.string.viewers, String.valueOf(model.getViewersCount())));
-        });
+        model.getLiveViewerCount().observe(this, i -> binding.viewers.setText(getString(R.string.viewers, String.valueOf(model.getViewersCount()))));
         model.getOnSetUpComplete().observe(this, map -> {
             if (!map.isEmpty()) {
                 Glide.with(binding.profile).load(map.get(PROFILE_IMAGE)).placeholder(R.drawable.person).into(binding.profile);
                 binding.name.setText(map.get(NAME));
                 binding.vip.setText(map.get(LiveItem.VIP));
                 binding.viewers.setText(getString(R.string.viewers, map.get("viewers")));
+                binding.requestHolder.setVisibility(View.GONE);
+                if (model.getAction().equals(LIVE_USER_TYPE_AUDIENCE)) {
+                    binding.options.setVisibility(View.INVISIBLE);
+                } else {
+                    binding.option1.setVisibility(View.GONE);
+                }
             } else {
                 Glide.with(binding.profile).load(CM.getProfile().getContent().get(ProfileItem.PROFILE_PICTURE)).placeholder(R.drawable.person).into(binding.profile);
                 binding.name.setText(CM.getProfile().getContent().get(ProfileItem.NAME));
                 binding.vip.setText(CM.getProfile().getContent().get(ProfileItem.VIP));
                 binding.viewers.setText(getString(R.string.viewers, String.valueOf(model.getViewersCount())));
+
             }
         });
 
@@ -278,19 +322,25 @@ public class RTMPCallActivity extends AppCompatActivity {
                     model.viewerLeft(liveAction.getContentMap().get("jid"));
                     break;
                 }
-                 }
+            }
         });
+        model.getOnCompetitorAccepted().observe(this,s-> model.setUpForCompetitor(this,binding.cameraView,binding.cameraView2));
         model.getOptionsMenuVisibility().observe(this, b -> binding.optionsLayout.setVisibility(b ? View.VISIBLE : View.GONE));
     }
 
+    private void performAudienceToCompetitor(MessageProfileModel profileModel) {
+        isOccupied = true;
+        model.requestAccepted(profileModel);
+    }
+
     private void openRemoveCompetitorConfirmation() {
-        Log.e("competitorList",model.getCompetitorList().toString());
-        SweetAlertDialog sweetAlertDialog = new SweetAlertDialog(this,SweetAlertDialog.WARNING_TYPE);
+        Log.e("competitorList", model.getCompetitorList().toString());
+        SweetAlertDialog sweetAlertDialog = new SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE);
         sweetAlertDialog.setCancelButton("Cancel", Dialog::dismiss).setConfirmButton("Confirm", sweetAlertDialog1 -> {
-            CM.sendHLM(SUBJECT_TYPE_HOST_REMOVED_COMPETITOR,"",CM.getConnection().getUser().asFullJidOrThrow().toString(),model.getCompetitorList().get(0).getContent().get(LiveItem.ROOM_ID));
+            CM.sendHLM(SUBJECT_TYPE_HOST_REMOVED_COMPETITOR, "", CM.getConnection().getUser().asFullJidOrThrow().toString(), model.getCompetitorList().get(0).getContent().get(LiveItem.ROOM_ID));
             model.removeCompetitor(0);
             sweetAlertDialog.dismiss();
-        }).setContentText("Are you sure you want to remove "+model.getCompetitorList().get(0).getContent().get(NAME)).setTitle("Warning");
+        }).setContentText("Are you sure you want to remove " + model.getCompetitorList().get(0).getContent().get(NAME)).setTitle("Warning");
         sweetAlertDialog.show();
     }
 
@@ -299,55 +349,72 @@ public class RTMPCallActivity extends AppCompatActivity {
     }
 
     NodePlayer nodePlayer = null;
-    private void updateCompetitor(ArrayList<LiveItem>liveItems) {
-        if(liveItems.isEmpty()){
+
+    private void updateCompetitor(ArrayList<LiveItem> liveItems) {
+        if (liveItems.isEmpty()) {
             closeSpliter();
-            binding.addPeople.setVisibility(View.VISIBLE);
-           if(nodePlayer!=null){
-               nodePlayer.stop();
-           }
+//            binding.addPeople.setVisibility(View.VISIBLE);
+            if (nodePlayer != null) {
+                nodePlayer.stop();
+            }
             binding.profileInfo1.setVisibility(View.GONE);
             binding.profileInfo2.setVisibility(View.GONE);
             binding.endCall1.setVisibility(View.GONE);
             binding.endCall2.setVisibility(View.GONE);
             return;
         }
+        for(LiveItem liveItem: liveItems){
+            Log.e("liveItems",liveItem.toString());
+        }
         LiveItem liveItem = liveItems.get(0);
-        Glide.with(binding.profile1).load(CM.getProfile().getContent().get(ProfileItem.PROFILE_PICTURE)).placeholder(R.drawable.person).into(binding.profile1);
+        if(Objects.equals(liveItem.getContent().get(NAME), CM.getProfile().getContent().get(ProfileItem.NAME))){
+
+        }
+
+        if(model.getAction().equals(LIVE_USER_TYPE_HOST)){
+            Glide.with(binding.profile1).load(CM.getProfile().getContent().get(ProfileItem.PROFILE_PICTURE)).placeholder(R.drawable.person).into(binding.profile1);
+            binding.name1.setText(CM.getProfile().getContent().get(ProfileItem.NAME));
+            binding.vip1.setText(CM.getProfile().getContent().get(ProfileItem.VIP));
+            binding.profileInfo1.setVisibility(View.VISIBLE);
+        }else {
+            Glide.with(binding.profile1).load(model.getData().get(PROFILE_IMAGE)).placeholder(R.drawable.person).into(binding.profile1);
+            binding.name1.setText(model.getData().get(LiveItem.NAME));
+            binding.vip1.setText(model.getData().get(LiveItem.VIP));
+            binding.profileInfo1.setVisibility(View.VISIBLE);
+        }
+
+        binding.name2.setText(liveItem.getContent().get(LiveItem.NAME));
+        binding.vip2.setText(liveItem.getContent().get(ProfileItem.VIP));
+        binding.profileInfo2.setVisibility(View.VISIBLE);
         Glide.with(binding.profile2).load(liveItem.getContent().get(PROFILE_IMAGE)).placeholder(R.drawable.person).into(binding.profile2);
 
-        binding.name1.setText(CM.getProfile().getContent().get(ProfileItem.NAME));
-        binding.name2.setText(liveItem.getContent().get(LiveItem.NAME));
-        binding.vip1.setText(CM.getProfile().getContent().get(ProfileItem.VIP));
-        binding.vip2.setText(liveItem.getContent().get(ProfileItem.VIP));
-
         openSpliter();
-        binding.addPeople.setVisibility(View.GONE);
+//        binding.addPeople.setVisibility(View.GONE);
 
-        if(model.getAction().equals(LIVE_USER_TYPE_AUDIENCE)){
-            nodePlayer = new NodePlayer(this,"");
+        if (model.getAction().equals(LIVE_USER_TYPE_AUDIENCE)) {
+            nodePlayer = new NodePlayer(this, "");
             nodePlayer.attachView(binding.cameraView2);
-            nodePlayer.start(Configurations.RTMP_URL+liveItem.getContent().get(NAME));
+            nodePlayer.start(Configurations.RTMP_URL + liveItem.getContent().get(NAME));
             return;
         }
-        binding.profileInfo1.setVisibility(View.VISIBLE);
-        binding.profileInfo2.setVisibility(View.VISIBLE);
-        if(model.getAction().equals(LIVE_USER_TYPE_COMPETITOR)){
+
+        if (model.getAction().equals(LIVE_USER_TYPE_COMPETITOR)) {
             binding.endCall1.setVisibility(View.GONE);
             binding.endCall2.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             binding.endCall1.setVisibility(View.VISIBLE);
             binding.endCall2.setVisibility(View.VISIBLE);
-            nodePlayer = new NodePlayer(this,"");
+            nodePlayer = new NodePlayer(this, "");
             nodePlayer.attachView(binding.cameraView2);
-            nodePlayer.start(Configurations.RTMP_URL+liveItem.getContent().get(NAME));
+            nodePlayer.start(Configurations.RTMP_URL + liveItem.getContent().get(NAME));
         }
     }
 
     private void openCommentDialog(CommentModel cm) {
+
         new AlertDialogViewer(this, event -> {
-            switch (event[0]){
-                case REPLAY_TYPE_VISIT:{
+            switch (event[0]) {
+                case REPLAY_TYPE_VISIT: {
                     if (model.getAction().equals(LIVE_USER_TYPE_HOST)) {
                         try {
                             openProfileDialog(event[1]);
@@ -358,15 +425,17 @@ public class RTMPCallActivity extends AppCompatActivity {
                         openProfile(event[1]);
                     }
                     break;
-                }case REPLAY_TYPE_BLOCK:{
-                    Toast.makeText(this, "Block "+event[1], Toast.LENGTH_SHORT).show();
+                }
+                case REPLAY_TYPE_BLOCK: {
+                    Toast.makeText(this, "Block " + event[1], Toast.LENGTH_SHORT).show();
                     break;
-                }case REPLAY_TYPE_INVITE:{
-                    Toast.makeText(this, "Invite "+event[1], Toast.LENGTH_SHORT).show();
+                }
+                case REPLAY_TYPE_INVITE: {
+                    Toast.makeText(this, "Invite " + event[1], Toast.LENGTH_SHORT).show();
                     break;
                 }
             }
-        },AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_COMMENT,new Gson().toJson(cm));
+        }, AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_COMMENT, new Gson().toJson(cm));
     }
 
     private void openProfileDialog(String name) throws JSONException {
@@ -374,8 +443,9 @@ public class RTMPCallActivity extends AppCompatActivity {
             if (event[0].equals(REPLAY_TYPE_MESSAGE)) {
                 Toast.makeText(RTMPCallActivity.this, "Coming Soon!", Toast.LENGTH_SHORT).show();
             }
-        },ALERTDIALOG_TYPE_OPEN_PROFILE,name);
+        }, ALERTDIALOG_TYPE_OPEN_PROFILE, name);
     }
+
     private void openFriendList() {
         new AlertDialogViewer(this, event -> {
             if (event[0].equals(REPLAY_TYPE_INVITE_FRIEND)) {
@@ -385,7 +455,7 @@ public class RTMPCallActivity extends AppCompatActivity {
                     throw new RuntimeException(e);
                 }
             }
-        },ALERTDIALOG_TYPE_OPEN_FRIEND_LIST);
+        }, ALERTDIALOG_TYPE_OPEN_FRIEND_LIST);
     }
 
     private void openGift() {
@@ -411,7 +481,10 @@ public class RTMPCallActivity extends AppCompatActivity {
         layoutParams2.width = layoutParams.width;
         binding.cameraView2.setLayoutParams(layoutParams2);
         binding.cameraView2.setVisibility(View.VISIBLE);
-        binding.addPeople.setVisibility(View.VISIBLE);
+        binding.option1.setVisibility(View.GONE);
+        binding.requestHolder.setVisibility(View.GONE);
+
+//        binding.addPeople.setVisibility(View.VISIBLE);
     }
 
     void closeSpliter() {
@@ -421,7 +494,9 @@ public class RTMPCallActivity extends AppCompatActivity {
         layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
         binding.cameraView.setLayoutParams(layoutParams);
         binding.cameraView2.setVisibility(View.GONE);
-        binding.addPeople.setVisibility(View.GONE);
+        binding.option1.setVisibility(View.VISIBLE);
+        binding.requestHolder.setVisibility(View.VISIBLE);
+//        binding.addPeople.setVisibility(View.GONE);
     }
 
 }

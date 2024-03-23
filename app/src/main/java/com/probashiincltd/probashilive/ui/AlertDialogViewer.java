@@ -9,21 +9,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.probashiincltd.probashilive.R;
+import com.probashiincltd.probashilive.adapter.JoinRequestAdapter;
 import com.probashiincltd.probashilive.adapter.OnlineFriendsAdapter;
 import com.probashiincltd.probashilive.callbacks.OnAlertDialogEventListener;
 import com.probashiincltd.probashilive.connectionutils.CM;
 import com.probashiincltd.probashilive.databinding.CommentOptionsBinding;
+import com.probashiincltd.probashilive.databinding.JoinRequestLayoutBinding;
 import com.probashiincltd.probashilive.databinding.OpenInviteFriendBinding;
 import com.probashiincltd.probashilive.databinding.ProfileDialogBinding;
 import com.probashiincltd.probashilive.functions.Functions;
 import com.probashiincltd.probashilive.models.CommentModel;
+import com.probashiincltd.probashilive.models.MessageProfileModel;
 import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
 import com.probashiincltd.probashilive.utils.Configurations;
 
@@ -33,6 +36,8 @@ import org.json.JSONException;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class AlertDialogViewer {
@@ -41,20 +46,27 @@ public class AlertDialogViewer {
     public static final String ALERTDIALOG_TYPE_OPEN_PROFILE = "open_profile_dialog";
     public static final String ALERTDIALOG_TYPE_OPEN_FRIEND_LIST = "open_friend_list_dialog";
     public static final String ALERTDIALOG_TYPE_OPEN_GIFT = "open_gift_dialog";
+    public static final String ALERTDIALOG_TYPE_OPEN_JOIN_REQUESTS = "open_join_request_dialog";
     public static final String REPLAY_TYPE_BLOCK = "replay_type_block";
     public static final String REPLAY_TYPE_INVITE = "replay_type_invite";
     public static final String REPLAY_TYPE_VISIT = "replay_type_visit";
     public static final String REPLAY_TYPE_MESSAGE = "replay_type_message";
     public static final String REPLAY_TYPE_INVITE_FRIEND = "replay_type_invite_friend";
+    public static final String REPLAY_TYPE_INVITATION_ACCEPTED = "replay_type_invitation_accepted";
+    public static final String REPLAY_TYPE_INVITATION_DECLINED = "replay_type_invitation_declined";
     OnAlertDialogEventListener listener;
     String[]contents;
     Context context;
     int isFriendStatus = 0;
     AlertDialog ad;
+    AlertDialog.Builder builder;
+    LayoutInflater inflater;
     public AlertDialogViewer(Context context, OnAlertDialogEventListener listener, String ... content){
         this.contents = content;
         this.context = context;
         this.listener = listener;
+        builder = new AlertDialog.Builder(context,R.style.Base_Theme_ProbashiLive);
+        inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         try {
             init();
         } catch (JSONException e) {
@@ -74,10 +86,36 @@ public class AlertDialogViewer {
                 break;
             } case ALERTDIALOG_TYPE_OPEN_GIFT:{
                 break;
+            }case ALERTDIALOG_TYPE_OPEN_JOIN_REQUESTS:{
+                openJoinRequests(contents[1]);
+                break;
             }
         }
     }
 
+    private void openJoinRequests(String content) {
+        Type listType = new TypeToken<ArrayList<MessageProfileModel>>() {}.getType();
+        ArrayList<MessageProfileModel> requests = new ArrayList<>(new Gson().fromJson(content, listType));
+        JoinRequestLayoutBinding binding = JoinRequestLayoutBinding.inflate(inflater);
+        JoinRequestAdapter adapter =new JoinRequestAdapter(requests, new JoinRequestAdapter.OnItemEventListener() {
+            @Override
+            public void onAccept(MessageProfileModel message) {
+                listener.onEvent(REPLAY_TYPE_INVITATION_ACCEPTED,new Gson().toJson(message));
+                ad.dismiss();
+            }
+
+            @Override
+            public void onDecline(MessageProfileModel message) {
+                listener.onEvent(REPLAY_TYPE_INVITATION_DECLINED,new Gson().toJson(message));
+            }
+        });
+        binding.rv.setAdapter(adapter);
+        builder.setView(binding.getRoot());
+        ad = builder.create();
+        ad.show();
+        performPostAction();
+
+    }
 
 
     private void openCommentDialog(String cms){
@@ -85,8 +123,7 @@ public class AlertDialogViewer {
         if (cm.getName().equals(CM.getProfile().getName())) {
             return;
         }
-        AlertDialog.Builder b = new AlertDialog.Builder(context, R.style.Base_Theme_ProbashiLive);
-        LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
         CommentOptionsBinding c = CommentOptionsBinding.inflate(inflater);
         c.userName.setText(cm.getName());
         Glide.with(c.profile).load(cm.getPp()).placeholder(R.drawable.person).into(c.profile);
@@ -130,18 +167,13 @@ public class AlertDialogViewer {
         c.visit.setOnClickListener(v -> listener.onEvent(REPLAY_TYPE_VISIT,cm.getName()));
 
 
-        b.setView(c.getRoot());
-        ad = b.create();
+        builder.setView(c.getRoot());
+        ad = builder.create();
         ad.show();
-        Objects.requireNonNull(ad.getWindow()).setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        ad.getWindow().setGravity(Gravity.CENTER);
-        ad.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        ad.getWindow().setDimAmount(0.5f);
+        performPostAction();
     }
 
     private void openProfileDialog(String name) throws JSONException {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Base_Theme_ProbashiLive);
-        LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         ProfileDialogBinding binding1 = ProfileDialogBinding.inflate(inflater);
         Item item = Functions.getSingleItemOfNode(CM.NODE_USERS, name);
         ProfileItem profileItem = ProfileItem.parseProfileItem(item);
@@ -192,15 +224,10 @@ public class AlertDialogViewer {
         builder.setView(binding1.getRoot());
         ad = builder.create();
         ad.show();
-        Objects.requireNonNull(ad.getWindow()).setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        ad.getWindow().setGravity(Gravity.CENTER);
-        ad.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        ad.getWindow().setDimAmount(0.5f);
+        performPostAction();
     }
 
     private void openFriendListDialog(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Base_Theme_ProbashiLive);
-        LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         OpenInviteFriendBinding binding1 = OpenInviteFriendBinding.inflate(inflater);
         OnlineFriendsAdapter adapter = new OnlineFriendsAdapter(profileItem -> {
             try {
@@ -218,11 +245,14 @@ public class AlertDialogViewer {
         ad = builder.create();
         ad = builder.create();
         ad.show();
+        performPostAction();
+    }
+
+    void performPostAction(){
         Objects.requireNonNull(ad.getWindow()).setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         ad.getWindow().setGravity(Gravity.CENTER);
         ad.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         ad.getWindow().setDimAmount(0.5f);
     }
-
 
 }

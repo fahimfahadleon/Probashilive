@@ -301,7 +301,7 @@
             app:layout_constraintStart_toEndOf="@id/commentEDT"
             app:layout_constraintTop_toTopOf="@id/commentEDT"
             app:layout_constraintBottom_toBottomOf="@id/commentEDT"
-            app:layout_constraintEnd_toStartOf="@id/options"
+            app:layout_constraintEnd_toStartOf="@id/option1"
             android:layout_marginStart="@dimen/_8sdp"
             android:id="@+id/send"/>
 
@@ -311,11 +311,75 @@
             app:layout_constraintDimensionRatio="1:1"
             android:src="@drawable/uparrow"
             android:onClick="@{viewModel::onClickSend}"
-            app:layout_constraintStart_toEndOf="@id/send"
+            app:layout_constraintStart_toEndOf="@id/requestHolder"
             app:layout_constraintTop_toTopOf="@id/commentEDT"
             app:layout_constraintBottom_toBottomOf="@id/commentEDT"
             app:layout_constraintEnd_toEndOf="parent"
             android:id="@+id/options"/>
+
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="@dimen/_35sdp"
+            android:src="@drawable/join_request"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintStart_toEndOf="@id/send"
+            android:padding="@dimen/_4sdp"
+            app:layout_constraintTop_toTopOf="@id/send"
+            app:layout_constraintBottom_toBottomOf="@id/send"
+            android:onClick="@{viewModel::onClickSend}"
+            android:id="@+id/option1"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="@dimen/_35sdp"
+            android:src="@drawable/gift"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintStart_toEndOf="@id/option1"
+            app:layout_constraintTop_toTopOf="@id/option1"
+            app:layout_constraintBottom_toBottomOf="@id/option1"
+            android:padding="@dimen/_4sdp"
+            android:onClick="@{viewModel::onClickSend}"
+            android:id="@+id/option4"/>
+
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintStart_toEndOf="@id/option4"
+            app:layout_constraintTop_toTopOf="@id/option4"
+            app:layout_constraintBottom_toBottomOf="@id/option4"
+            android:id="@+id/requestHolder"
+            android:layout_height="@dimen/_35sdp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/requests"
+                android:padding="@dimen/_4sdp"
+                android:onClick="@{viewModel::onClickSend}"
+                android:id="@+id/option6"/>
+
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:layout_width="@dimen/_12sdp"
+            android:layout_height="@dimen/_12sdp"
+            android:background="@drawable/round_image_view"
+            android:backgroundTint="#FF0000"
+            app:layout_constraintEnd_toEndOf="@id/requestHolder"
+            app:layout_constraintTop_toTopOf="@id/requestHolder"
+            android:id="@+id/count"
+            android:visibility="gone"
+            android:gravity="center"
+            android:textColor="#fff"
+            android:textSize="8sp"
+            tools:ignore="SmallSp" />
+
 
         <LinearLayout
             android:layout_width="@dimen/_35sdp"
@@ -325,17 +389,9 @@
             android:visibility="gone"
             android:id="@+id/optionsLayout"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/options"
+            app:layout_constraintBottom_toTopOf="@id/options">
 
-            >
 
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_35sdp"
-                android:src="@drawable/join_request"
-                android:padding="@dimen/_4sdp"
-                android:onClick="@{viewModel::onClickSend}"
-                android:id="@+id/option1"/>
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_35sdp"
@@ -350,13 +406,7 @@
                 android:padding="@dimen/_4sdp"
                 android:onClick="@{viewModel::onClickSend}"
                 android:id="@+id/option3"/>
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_35sdp"
-                android:src="@drawable/gift"
-                android:padding="@dimen/_4sdp"
-                android:onClick="@{viewModel::onClickSend}"
-                android:id="@+id/option4"/>
+
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_35sdp"
