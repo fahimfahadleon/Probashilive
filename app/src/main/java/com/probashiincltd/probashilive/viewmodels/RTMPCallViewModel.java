@@ -42,6 +42,7 @@ import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_JOIN_REQUEST;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_LIVE_ACTION;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_REQUEST_ACCEPTED;
+import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_REQUEST_TO_LEAVE_COMPETITOR;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIDEO_INVITATION;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIDEO_INVITATION_ACCEPTED;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIDEO_STREAM_JOINED;
@@ -74,9 +75,12 @@ import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
 import com.probashiincltd.probashilive.utils.Configurations;
 
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.StanzaBuilder;
 import org.jivesoftware.smackx.pubsub.Item;
 import org.json.JSONException;
 import org.jxmpp.jid.FullJid;
+import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.impl.JidCreate;
 
 import java.lang.reflect.Type;
 import java.time.ZonedDateTime;
@@ -191,6 +195,7 @@ public class RTMPCallViewModel extends ViewModel {
             optionsMenu.setValue(isOptionsOpen);
         } else if (id == R.id.option1) {
             if (!isOccupied) {
+                sendComment("I would like to join the live.","Join Request");
                 onSendButtonClick.setValue(JOIN_REQUEST);
             }
         } else if (id == R.id.option2) {
@@ -220,15 +225,22 @@ public class RTMPCallViewModel extends ViewModel {
         return onSendButtonClick;
     }
 
-    public void sendComment(String comment) {
+    public void sendComment(String ... comment) {
         CommentModel cm = new CommentModel();
-        cm.setComment(comment);
+        cm.setComment(comment[0]);
         cm.setName(CM.getProfile().getContent().get(ProfileItem.NAME));
         cm.setPp(CM.getProfile().getContent().get(ProfileItem.PROFILE_PICTURE));
         cm.setVip(CM.getProfile().getContent().get(ProfileItem.VIP));
         cm.setId(myJid);
-        cm.setContent(new HashMap<>());
-        Log.e("action", action);
+        HashMap<String,String>map = new HashMap<>();
+
+        try {
+            map.put(TYPE,comment[1]);
+        }catch (Exception e){
+            //ignored
+        }
+
+        cm.setContent(map);
         if (action.equals(LIVE_USER_TYPE_HOST)) {
             adapter.addData(cm);
             broadCastEvent(cm, SUBJECT_TYPE_COMMENT);
@@ -314,6 +326,7 @@ public class RTMPCallViewModel extends ViewModel {
                 break;
             }
             case SUBJECT_TYPE_HOST_REMOVED_COMPETITOR: {
+                action = LIVE_USER_TYPE_AUDIENCE;
                 onSendButtonClick.postValue(SUBJECT_TYPE_HOST_REMOVED_COMPETITOR);
                 break;
             } case SUBJECT_TYPE_JOIN_REQUEST:{
@@ -339,9 +352,15 @@ public class RTMPCallViewModel extends ViewModel {
                 viewers.remove(CM.getConnection().getUser().asFullJidOrThrow().toString());
                 getLiveViewerCount.postValue(viewers.size());
                 break;
+            }case SUBJECT_TYPE_REQUEST_TO_LEAVE_COMPETITOR:{
+                removeCompetitor(0);
+                break;
             }
         }
     };
+    public void requestToLeave(){
+        CM.sendHLM(SUBJECT_TYPE_REQUEST_TO_LEAVE_COMPETITOR,"",CM.getConnection().getUser().asFullJidOrThrow().toString(),data.get(ROOM_ID));
+    }
 
     public void sendJoinRequest(){
         MessageProfileModel model = new MessageProfileModel();
@@ -658,10 +677,21 @@ public class RTMPCallViewModel extends ViewModel {
 
     public void removeCompetitor(int i) {
         try {
-            ProfileItem profileItem = ProfileItem.parseProfileItem(Functions.getSingleItemOfNode(CM.NODE_USERS, competitorList.get(i).getContent().get(NAME)));
+            LiveItem liveItem = competitorList.get(i);
+            CM.sendHLM(SUBJECT_TYPE_HOST_REMOVED_COMPETITOR, "", CM.getConnection().getUser().asFullJidOrThrow().toString(), liveItem.getContent().get(LiveItem.ROOM_ID));
+
+            ProfileItem profileItem = ProfileItem.parseProfileItem(Functions.getSingleItemOfNode(CM.NODE_USERS, liveItem.getContent().get(NAME)));
             removeFromCompetitorList(profileItem);
+
+            Message message = StanzaBuilder.buildMessage().build();
+            message.setFrom(JidCreate.fullFrom(liveItem.getContent().get(ROOM_ID)));
+            viewerJoined(message);
+
             postActionRemoveCompetitor(profileItem);
-        } catch (JSONException e) {
+
+
+
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -670,4 +700,10 @@ public class RTMPCallViewModel extends ViewModel {
         CM.sendHLM(SUBJECT_TYPE_REQUEST_ACCEPTED,new Gson().toJson(CM.getProfile()),CM.getConnection().getUser().asFullJidOrThrow().toString(),model.getId());
         viewerLeft(model.getId());
     }
+
+    public void print(){
+        Log.e("viewers",viewers.toString());
+        Log.e("competitors",competitorList.toString());
+    }
+
 }

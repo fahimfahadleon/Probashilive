@@ -17,6 +17,7 @@ public class Configurations {
     public static final String USER_PROFILE = "userProfile";
     public static final String SUBJECT_TYPE_COMMENT = "comment";
     public static final String SUBJECT_TYPE_VIDEO_INVITATION = "video_invitation";
+    public static final String SUBJECT_TYPE_REQUEST_TO_LEAVE_COMPETITOR = "request_to_leave_competitor";
     public static final String SUBJECT_TYPE_VIDEO_INVITATION_ACCEPTED = "video_invitation_accepted";
     public static final String SUBJECT_TYPE_COMPETITOR_LIST = "competitor_list";
     public static final String SUBJECT_TYPE_VIDEO_INVITATION_DECLINED = "video_invitation_declined";

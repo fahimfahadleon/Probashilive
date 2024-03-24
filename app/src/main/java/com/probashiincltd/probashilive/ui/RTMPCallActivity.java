@@ -176,6 +176,7 @@ public class RTMPCallActivity extends AppCompatActivity {
         model.getSendComment().observe(this, s -> {
             switch (s) {
                 case SUBJECT_TYPE_COMMENT: {
+                    model.print();
                     String cmnt = binding.commentEDT.getText().toString();
                     if (!cmnt.isEmpty()) {
                         model.sendComment(cmnt);
@@ -248,7 +249,7 @@ public class RTMPCallActivity extends AppCompatActivity {
                     if(model.getAction().equals(LIVE_USER_TYPE_HOST)){
                         openRemoveCompetitorConfirmation();
                     }else {
-                        onBackPressed();
+                        model.requestToLeave();
                     }
                     break;
                 }
@@ -257,9 +258,9 @@ public class RTMPCallActivity extends AppCompatActivity {
                     break;
                 }
                 case SUBJECT_TYPE_HOST_REMOVED_COMPETITOR: {
-                    Toast.makeText(this, "Host removed you from live!", Toast.LENGTH_SHORT).show();
-                    model.onDestroy();
-                    finish();
+
+//                    model.onDestroy();
+//                    finish();
                     break;
                 }case OPEN_JOIN_REQUEST:{
                     ArrayList<MessageProfileModel> messages = new ArrayList<>(model.getRequests());
@@ -334,10 +335,8 @@ public class RTMPCallActivity extends AppCompatActivity {
     }
 
     private void openRemoveCompetitorConfirmation() {
-        Log.e("competitorList", model.getCompetitorList().toString());
         SweetAlertDialog sweetAlertDialog = new SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE);
         sweetAlertDialog.setCancelButton("Cancel", Dialog::dismiss).setConfirmButton("Confirm", sweetAlertDialog1 -> {
-            CM.sendHLM(SUBJECT_TYPE_HOST_REMOVED_COMPETITOR, "", CM.getConnection().getUser().asFullJidOrThrow().toString(), model.getCompetitorList().get(0).getContent().get(LiveItem.ROOM_ID));
             model.removeCompetitor(0);
             sweetAlertDialog.dismiss();
         }).setContentText("Are you sure you want to remove " + model.getCompetitorList().get(0).getContent().get(NAME)).setTitle("Warning");

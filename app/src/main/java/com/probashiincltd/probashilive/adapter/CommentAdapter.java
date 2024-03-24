@@ -1,6 +1,7 @@
 package com.probashiincltd.probashilive.adapter;
 
 
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -71,8 +72,10 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         SingleCommentBinding binding;
 
         public void setUpData(CommentModel cm){
-
             Log.e("comment",cm.toString());
+            if(!cm.getContent().isEmpty()){
+                binding.getRoot().setBackgroundResource(R.color.iconColor);
+            }
             binding.vip.setText(cm.getVip().isEmpty()?"":cm.getVip());
             binding.comment.setText(cm.getComment());
             binding.name.setText(cm.getName());
