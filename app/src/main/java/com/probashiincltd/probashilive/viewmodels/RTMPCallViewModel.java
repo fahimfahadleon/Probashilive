@@ -137,6 +137,10 @@ public class RTMPCallViewModel extends ViewModel {
     private final MutableLiveData<Boolean> optionsMenu = new MutableLiveData<>();
 
     private final MutableLiveData<String> openProfile = new MutableLiveData<>();
+    private final MutableLiveData<CommentModel> onCommentInserted = new MutableLiveData<>();
+    public LiveData<CommentModel>getOnCommentInserted(){
+        return onCommentInserted;
+    }
 
     void setOpenProfile(String profile) {
         openProfile.setValue(profile);
@@ -512,8 +516,13 @@ public class RTMPCallViewModel extends ViewModel {
         }
         CM.setHeadlineMessageListener(listener);
         adapter.setOnItemClickListener(this::setSelectedItem);
+        adapter.setOnItemInsertedListener(this::onItemInserted);
 
 
+    }
+
+    private void onItemInserted(CommentModel commentModel) {
+        onCommentInserted.postValue(commentModel);
     }
 
     public void switchCamera() {

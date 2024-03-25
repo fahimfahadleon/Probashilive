@@ -35,13 +35,23 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         if(!models.contains(commentModel)){
             this.models.add(0,commentModel);
             new Handler(Looper.getMainLooper()).postDelayed(() -> notifyItemInserted(0),100);
+            onItemInsertedListener.onItemInserted(commentModel);
         }
 
     }
 
+    public interface OnItemInsertedListener{
+        void onItemInserted(CommentModel commentModel);
+    }
 
 
     OnItemClickListener onItemClickListener;
+    OnItemInsertedListener onItemInsertedListener;
+
+    public void setOnItemInsertedListener(OnItemInsertedListener onItemInsertedListener) {
+        this.onItemInsertedListener = onItemInsertedListener;
+    }
+
     public interface OnItemClickListener {
         void onItemClick(CommentModel model);
     }

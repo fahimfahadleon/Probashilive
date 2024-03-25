@@ -164,6 +164,9 @@ public class RTMPCallActivity extends AppCompatActivity {
 
 
     void observeViewModel() {
+        model.getOnCommentInserted().observe(this,commentModel -> {
+            binding.commentLayout.smoothScrollToPosition(0);
+        });
         model.getCompetitorJoined().observe(this, profileItem -> openSpliter());
         model.getViewUpdate().observe(this, this::updateCompetitor);
         model.getOpenProfile().observe(this, this::openProfile);
@@ -292,22 +295,25 @@ public class RTMPCallActivity extends AppCompatActivity {
         model.getSelectedItem().observe(this, this::openCommentDialog);
         model.getLiveViewerCount().observe(this, i -> binding.viewers.setText(getString(R.string.viewers, String.valueOf(model.getViewersCount()))));
         model.getOnSetUpComplete().observe(this, map -> {
+            Log.e("mapChecking",map.toString());
             if (!map.isEmpty()) {
                 Glide.with(binding.profile).load(map.get(PROFILE_IMAGE)).placeholder(R.drawable.person).into(binding.profile);
                 binding.name.setText(map.get(NAME));
                 binding.vip.setText(map.get(LiveItem.VIP));
                 binding.viewers.setText(getString(R.string.viewers, map.get("viewers")));
-                binding.requestHolder.setVisibility(View.GONE);
                 if (model.getAction().equals(LIVE_USER_TYPE_AUDIENCE)) {
                     binding.options.setVisibility(View.INVISIBLE);
                 } else {
                     binding.option1.setVisibility(View.GONE);
                 }
+                binding.requestHolder.setVisibility(View.GONE);
             } else {
+                binding.requestHolder.setVisibility(View.VISIBLE);
                 Glide.with(binding.profile).load(CM.getProfile().getContent().get(ProfileItem.PROFILE_PICTURE)).placeholder(R.drawable.person).into(binding.profile);
                 binding.name.setText(CM.getProfile().getContent().get(ProfileItem.NAME));
                 binding.vip.setText(CM.getProfile().getContent().get(ProfileItem.VIP));
                 binding.viewers.setText(getString(R.string.viewers, String.valueOf(model.getViewersCount())));
+
 
             }
         });
@@ -494,8 +500,11 @@ public class RTMPCallActivity extends AppCompatActivity {
         binding.cameraView.setLayoutParams(layoutParams);
         binding.cameraView2.setVisibility(View.GONE);
         binding.option1.setVisibility(View.VISIBLE);
-        binding.requestHolder.setVisibility(View.VISIBLE);
-//        binding.addPeople.setVisibility(View.GONE);
+        if(model.getAction().equals(LIVE_USER_TYPE_HOST)){
+            binding.requestHolder.setVisibility(View.VISIBLE);
+        }
+
+//
     }
 
 }

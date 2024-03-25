@@ -57,6 +57,9 @@ public class ConferenceActivity extends AppCompatActivity {
         super.onDestroy();
     }
     void initModelObserver(){
+        model.getOnCommentInserted().observe(this,commentModel -> {
+            binding.conferenceRV.smoothScrollToPosition(0);
+        });
         model.getSendComment().observe(this,s->{
             if (s.equals(SUBJECT_TYPE_COMMENT)) {
                 String cmnt = binding.commentEDT.getText().toString();

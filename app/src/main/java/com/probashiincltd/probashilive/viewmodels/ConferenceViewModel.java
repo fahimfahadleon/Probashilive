@@ -86,6 +86,10 @@ public class ConferenceViewModel extends ViewModel {
     private final MutableLiveData<String> onSendButtonClick = new MutableLiveData<>();
     private final MutableLiveData<LiveAction> liveActiondata = new MutableLiveData<>();
     private final MutableLiveData<CommentModel> commentModelItemClick = new MutableLiveData<>();
+    private final MutableLiveData<CommentModel> onCommentInserted = new MutableLiveData<>();
+    public LiveData<CommentModel>getOnCommentInserted(){
+        return onCommentInserted;
+    }
     public ConferenceAdapter getConferenceAdapter(){
         return conferenceAdapter;
     }
@@ -152,6 +156,11 @@ public class ConferenceViewModel extends ViewModel {
         CM.setHeadlineMessageListener(listener);
         conferenceAdapter.setOnConferenceClickListener(conferenceModelItemClick::setValue);
         commentAdapter.setOnItemClickListener(commentModelItemClick::setValue);
+        commentAdapter.setOnItemInsertedListener(this::onCommentInserted);
+    }
+
+    private void onCommentInserted(CommentModel commentModel) {
+        onCommentInserted.postValue(commentModel);
     }
 
     private void setUpForHost(Context context) {

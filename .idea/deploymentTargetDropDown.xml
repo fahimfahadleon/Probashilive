@@ -10,8 +10,8 @@
               <type value="RUNNING_DEVICE_TARGET" />
               <deviceKey>
                 <Key>
-                  <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="$USER_HOME$/.android/avd/Pixel_5_API_28.avd" />
+                  <type value="SERIAL_NUMBER" />
+                  <value value="192.168.0.102:5555" />
                 </Key>
               </deviceKey>
             </Target>
@@ -20,7 +20,7 @@
               <deviceKey>
                 <Key>
                   <type value="SERIAL_NUMBER" />
-                  <value value="192.168.0.108:39129" />
+                  <value value="192.168.0.108:41511" />
                 </Key>
               </deviceKey>
             </Target>
