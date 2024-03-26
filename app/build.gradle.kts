@@ -133,6 +133,9 @@ dependencies {
     implementation ("com.github.f0ris.sweetalert:library:1.6.2")
     implementation ("com.github.NodeMedia:NodeMediaClient-Android:3.2.7")
 
+    implementation ("com.github.yyued:SVGAPlayer-Android:2.5.12")
+    implementation ("com.airbnb.android:lottie:6.4.0")
+
 
 //    implementation ("com.arthenica:mobile-ffmpeg-full:4.4")
 

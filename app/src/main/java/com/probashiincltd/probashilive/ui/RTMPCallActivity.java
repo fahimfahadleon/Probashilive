@@ -3,6 +3,7 @@ package com.probashiincltd.probashilive.ui;
 import static com.probashiincltd.probashilive.pubsubItems.LiveItem.NAME;
 import static com.probashiincltd.probashilive.pubsubItems.LiveItem.PROFILE_IMAGE;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_FRIEND_LIST;
+import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_GIFT;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_JOIN_REQUESTS;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_PROFILE;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_BLOCK;
@@ -56,6 +57,7 @@ import com.google.gson.Gson;
 import com.permissionx.guolindev.PermissionX;
 import com.probashiincltd.probashilive.R;
 import com.probashiincltd.probashilive.adapter.CommentAdapter;
+import com.probashiincltd.probashilive.callbacks.OnAlertDialogEventListener;
 import com.probashiincltd.probashilive.connectionutils.CM;
 import com.probashiincltd.probashilive.databinding.ActivityRtmpcallBinding;
 import com.probashiincltd.probashilive.models.CommentModel;
@@ -302,13 +304,14 @@ public class RTMPCallActivity extends AppCompatActivity {
                 binding.vip.setText(map.get(LiveItem.VIP));
                 binding.viewers.setText(getString(R.string.viewers, map.get("viewers")));
                 if (model.getAction().equals(LIVE_USER_TYPE_AUDIENCE)) {
-                    binding.options.setVisibility(View.INVISIBLE);
+                    binding.options.setVisibility(View.GONE);
                 } else {
                     binding.option1.setVisibility(View.GONE);
                 }
                 binding.requestHolder.setVisibility(View.GONE);
             } else {
                 binding.requestHolder.setVisibility(View.VISIBLE);
+                binding.option4.setVisibility(View.GONE);
                 Glide.with(binding.profile).load(CM.getProfile().getContent().get(ProfileItem.PROFILE_PICTURE)).placeholder(R.drawable.person).into(binding.profile);
                 binding.name.setText(CM.getProfile().getContent().get(ProfileItem.NAME));
                 binding.vip.setText(CM.getProfile().getContent().get(ProfileItem.VIP));
@@ -464,7 +467,12 @@ public class RTMPCallActivity extends AppCompatActivity {
     }
 
     private void openGift() {
-        Toast.makeText(this, "Open Gift", Toast.LENGTH_SHORT).show();
+        new AlertDialogViewer(this, new OnAlertDialogEventListener() {
+            @Override
+            public void onEvent(String... event) {
+                Toast.makeText(RTMPCallActivity.this, event[0], Toast.LENGTH_SHORT).show();
+            }
+        },ALERTDIALOG_TYPE_OPEN_GIFT);
     }
 
     private void openProfile(String s) {

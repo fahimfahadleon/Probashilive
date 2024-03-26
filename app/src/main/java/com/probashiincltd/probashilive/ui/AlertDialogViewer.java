@@ -1,5 +1,11 @@
 package com.probashiincltd.probashilive.ui;
 
+import static com.probashiincltd.probashilive.adapter.GiftAdapter.GIFT_TYPE_IMAGE;
+import static com.probashiincltd.probashilive.adapter.GiftAdapter.GIFT_TYPE_LOTTIE;
+import static com.probashiincltd.probashilive.adapter.GiftAdapter.GIFT_TYPE_SVGA;
+import static com.probashiincltd.probashilive.adapter.GiftTitleAdapter.GIFT_TITLE_IMAGE;
+import static com.probashiincltd.probashilive.adapter.GiftTitleAdapter.GIFT_TITLE_LOTTIE;
+import static com.probashiincltd.probashilive.adapter.GiftTitleAdapter.GIFT_TITLE_SVGA;
 import static com.probashiincltd.probashilive.connectionutils.RosterHandler.getRosterHandler;
 
 import android.content.Context;
@@ -16,16 +22,20 @@ import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.probashiincltd.probashilive.R;
+import com.probashiincltd.probashilive.adapter.GiftAdapter;
+import com.probashiincltd.probashilive.adapter.GiftTitleAdapter;
 import com.probashiincltd.probashilive.adapter.JoinRequestAdapter;
 import com.probashiincltd.probashilive.adapter.OnlineFriendsAdapter;
 import com.probashiincltd.probashilive.callbacks.OnAlertDialogEventListener;
 import com.probashiincltd.probashilive.connectionutils.CM;
 import com.probashiincltd.probashilive.databinding.CommentOptionsBinding;
+import com.probashiincltd.probashilive.databinding.GiftLayoutBinding;
 import com.probashiincltd.probashilive.databinding.JoinRequestLayoutBinding;
 import com.probashiincltd.probashilive.databinding.OpenInviteFriendBinding;
 import com.probashiincltd.probashilive.databinding.ProfileDialogBinding;
 import com.probashiincltd.probashilive.functions.Functions;
 import com.probashiincltd.probashilive.models.CommentModel;
+import com.probashiincltd.probashilive.models.GiftItem;
 import com.probashiincltd.probashilive.models.MessageProfileModel;
 import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
 import com.probashiincltd.probashilive.utils.Configurations;
@@ -54,6 +64,7 @@ public class AlertDialogViewer {
     public static final String REPLAY_TYPE_INVITE_FRIEND = "replay_type_invite_friend";
     public static final String REPLAY_TYPE_INVITATION_ACCEPTED = "replay_type_invitation_accepted";
     public static final String REPLAY_TYPE_INVITATION_DECLINED = "replay_type_invitation_declined";
+    public static final String REPLAY_TYPE_GIFT_SELECTED = "replay_type_gift_selected";
     OnAlertDialogEventListener listener;
     String[]contents;
     Context context;
@@ -85,12 +96,47 @@ public class AlertDialogViewer {
                 openFriendListDialog();
                 break;
             } case ALERTDIALOG_TYPE_OPEN_GIFT:{
+                openGift();
                 break;
             }case ALERTDIALOG_TYPE_OPEN_JOIN_REQUESTS:{
                 openJoinRequests(contents[1]);
                 break;
             }
         }
+    }
+    GiftAdapter adapter;
+
+    private void openGift() {
+        GiftLayoutBinding binding = GiftLayoutBinding.inflate(inflater);
+        adapter = new GiftAdapter(context, GIFT_TYPE_IMAGE, giftItem -> listener.onEvent(REPLAY_TYPE_GIFT_SELECTED,new Gson().toJson(giftItem)));
+
+        binding.giftList.setAdapter(adapter);
+        GiftTitleAdapter giftTitleAdapter = new GiftTitleAdapter(context, s -> {
+            int type;
+            switch (s){
+                case GIFT_TITLE_IMAGE:{
+                   type = GIFT_TYPE_IMAGE;
+                   break;
+                }
+                case GIFT_TITLE_SVGA:{
+                   type = GIFT_TYPE_SVGA;
+                   break;
+                }
+                case GIFT_TITLE_LOTTIE:{
+                   type = GIFT_TYPE_LOTTIE;
+                   break;
+                } default:type = GIFT_TYPE_IMAGE;
+            }
+            adapter = new GiftAdapter(context, type, giftItem -> listener.onEvent(REPLAY_TYPE_GIFT_SELECTED,new Gson().toJson(giftItem)));
+            binding.giftList.setAdapter(adapter);
+        });
+        binding.titleList.setAdapter(giftTitleAdapter);
+        builder.setView(binding.getRoot());
+        ad = builder.create();
+        ad.show();
+        performPostAction();
+
+
     }
 
     private void openJoinRequests(String content) {

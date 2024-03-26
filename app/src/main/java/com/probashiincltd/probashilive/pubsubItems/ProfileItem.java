@@ -24,6 +24,7 @@ public class ProfileItem extends UniversalModelMap{
     public static final String NAME = "name";
     public static final String PROFILE_PICTURE = "profile_picture";
     public static final String EMAIL = "email";
+    public static final String LANDING_ANIMATION = "landing_animation";
     public static final String PHONE = "phone";
     public static final String COIN = "coin";
     public static final String VIP = "vip";
@@ -36,7 +37,9 @@ public class ProfileItem extends UniversalModelMap{
                 , EMAIL
                 , PHONE
                 , COIN
+                , LANDING_ANIMATION
                 , VIP
+
         )));
     }
 
@@ -73,6 +76,7 @@ public class ProfileItem extends UniversalModelMap{
         profileMap.put(PHONE, content.getJSONObject(PHONE).optString(CONTENT));
         profileMap.put(COIN, content.getJSONObject(COIN).optString(CONTENT));
         profileMap.put(VIP, content.getJSONObject(VIP).optString(CONTENT));
+        profileMap.put(LANDING_ANIMATION,content.getJSONObject(LANDING_ANIMATION).optString(CONTENT));
         return new ProfileItem(profileMap);
 
 

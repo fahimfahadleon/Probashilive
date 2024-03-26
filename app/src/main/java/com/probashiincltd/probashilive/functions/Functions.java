@@ -269,6 +269,7 @@ public class Functions {
     static <T extends UniversalModelMap>Element getRoot(Document doc,Element root, T content){
         ArrayList<String>mylist = content.getNewList();
         for(String s: mylist){
+            Log.e("checking",s);
             Element em1 = doc.createElement(s);
             em1.setTextContent(content.getContent().get(s));
             root.appendChild(em1);

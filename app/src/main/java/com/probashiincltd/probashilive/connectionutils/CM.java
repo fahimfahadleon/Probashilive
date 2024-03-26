@@ -37,7 +37,6 @@ import org.jivesoftware.smack.util.ByteUtils;
 import org.jivesoftware.smack.util.PacketParserUtils;
 import org.jivesoftware.smack.xml.XmlPullParserException;
 import org.jivesoftware.smackx.caps.EntityCapsManager;
-import org.jivesoftware.smackx.ping.PingFailedListener;
 import org.jivesoftware.smackx.ping.PingManager;
 import org.jivesoftware.smackx.ping.android.ServerPingWithAlarmManager;
 import org.jivesoftware.smackx.pubsub.Item;
@@ -214,7 +213,7 @@ public class CM extends XmppConnection {
                     try {
                         profileModel = ProfileItem.parseProfileItem(Functions.getSingleItemOfNode(NODE_USERS, Functions.getSP(LOGIN_USER, "")));
                     } catch (JSONException e) {
-                        throw new RuntimeException(e);
+                        CM.profileModel = createProfile();
                     }
                 }
 
@@ -444,6 +443,7 @@ public class CM extends XmppConnection {
         profileMap.put(ProfileItem.PHONE, Functions.getSP("", ""));
         profileMap.put(ProfileItem.COIN, Functions.getSP("0", ""));
         profileMap.put(ProfileItem.VIP, Functions.getSP("false", ""));
+        profileMap.put(ProfileItem.LANDING_ANIMATION,"");
         ProfileItem profileItem = new ProfileItem(profileMap);
         try {
             Item i = Functions.createRawItem(profileItem);
