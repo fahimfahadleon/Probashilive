@@ -7,6 +7,9 @@ import static com.probashiincltd.probashilive.adapter.GiftTitleAdapter.GIFT_TITL
 import static com.probashiincltd.probashilive.adapter.GiftTitleAdapter.GIFT_TITLE_LOTTIE;
 import static com.probashiincltd.probashilive.adapter.GiftTitleAdapter.GIFT_TITLE_SVGA;
 import static com.probashiincltd.probashilive.connectionutils.RosterHandler.getRosterHandler;
+import static com.probashiincltd.probashilive.functions.Functions.loadSVGAAnimation;
+import static com.probashiincltd.probashilive.functions.Functions.setImageView;
+import static com.probashiincltd.probashilive.functions.Functions.setLottieAnimation;
 
 import android.content.Context;
 import android.util.Log;
@@ -32,6 +35,7 @@ import com.probashiincltd.probashilive.databinding.CommentOptionsBinding;
 import com.probashiincltd.probashilive.databinding.GiftLayoutBinding;
 import com.probashiincltd.probashilive.databinding.JoinRequestLayoutBinding;
 import com.probashiincltd.probashilive.databinding.OpenInviteFriendBinding;
+import com.probashiincltd.probashilive.databinding.PreviewGiftBinding;
 import com.probashiincltd.probashilive.databinding.ProfileDialogBinding;
 import com.probashiincltd.probashilive.functions.Functions;
 import com.probashiincltd.probashilive.models.CommentModel;
@@ -57,6 +61,7 @@ public class AlertDialogViewer {
     public static final String ALERTDIALOG_TYPE_OPEN_FRIEND_LIST = "open_friend_list_dialog";
     public static final String ALERTDIALOG_TYPE_OPEN_GIFT = "open_gift_dialog";
     public static final String ALERTDIALOG_TYPE_OPEN_JOIN_REQUESTS = "open_join_request_dialog";
+    public static final String ALERTDIALOG_TYPE_PREVIEW_GIFT = "open_gift_preview";
     public static final String REPLAY_TYPE_BLOCK = "replay_type_block";
     public static final String REPLAY_TYPE_INVITE = "replay_type_invite";
     public static final String REPLAY_TYPE_VISIT = "replay_type_visit";
@@ -65,69 +70,127 @@ public class AlertDialogViewer {
     public static final String REPLAY_TYPE_INVITATION_ACCEPTED = "replay_type_invitation_accepted";
     public static final String REPLAY_TYPE_INVITATION_DECLINED = "replay_type_invitation_declined";
     public static final String REPLAY_TYPE_GIFT_SELECTED = "replay_type_gift_selected";
+    public static final String REPLAY_TYPE_GIFT_PREVIEW = "replay_type_gift_preview";
     OnAlertDialogEventListener listener;
-    String[]contents;
+    String[] contents;
     Context context;
     int isFriendStatus = 0;
     AlertDialog ad;
     AlertDialog.Builder builder;
     LayoutInflater inflater;
-    public AlertDialogViewer(Context context, OnAlertDialogEventListener listener, String ... content){
+
+    public AlertDialogViewer(Context context, OnAlertDialogEventListener listener, String... content) {
         this.contents = content;
         this.context = context;
         this.listener = listener;
-        builder = new AlertDialog.Builder(context,R.style.Base_Theme_ProbashiLive);
-        inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        builder = new AlertDialog.Builder(context, R.style.Base_Theme_ProbashiLive);
+        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         try {
             init();
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
     }
+
     private void init() throws JSONException {
-        switch (contents[0]){
-            case ALERTDIALOG_TYPE_OPEN_COMMENT:{
+        switch (contents[0]) {
+            case ALERTDIALOG_TYPE_OPEN_COMMENT: {
                 openCommentDialog(contents[1]);
                 break;
-            }case ALERTDIALOG_TYPE_OPEN_PROFILE:{
+            }
+            case ALERTDIALOG_TYPE_OPEN_PROFILE: {
                 openProfileDialog(contents[1]);
                 break;
-            }case ALERTDIALOG_TYPE_OPEN_FRIEND_LIST:{
+            }
+            case ALERTDIALOG_TYPE_OPEN_FRIEND_LIST: {
                 openFriendListDialog();
                 break;
-            } case ALERTDIALOG_TYPE_OPEN_GIFT:{
+            }
+            case ALERTDIALOG_TYPE_OPEN_GIFT: {
                 openGift();
                 break;
-            }case ALERTDIALOG_TYPE_OPEN_JOIN_REQUESTS:{
+            }
+            case ALERTDIALOG_TYPE_OPEN_JOIN_REQUESTS: {
                 openJoinRequests(contents[1]);
                 break;
             }
+            case ALERTDIALOG_TYPE_PREVIEW_GIFT: {
+                openGiftPreview(contents[1]);
+            }
         }
     }
+
+
+
+    private void openGiftPreview(String content) {
+        GiftItem giftItem = new Gson().fromJson(content, GiftItem.class);
+        PreviewGiftBinding binding = PreviewGiftBinding.inflate(inflater);
+
+        switch (giftItem.getGiftType()) {
+            case GiftItem.GIFT_TYPE_IMAGE: {
+                binding.imageview.setVisibility(View.VISIBLE);
+                binding.lottie.setVisibility(View.GONE);
+                binding.svgaImageView.setVisibility(View.GONE);
+                setImageView(context,giftItem.getGiftName(), binding.imageview);
+                break;
+            }
+            case GiftItem.GIFT_TYPE_LOTTIE: {
+                binding.imageview.setVisibility(View.GONE);
+                binding.lottie.setVisibility(View.VISIBLE);
+                binding.svgaImageView.setVisibility(View.GONE);
+                setLottieAnimation(giftItem.getGiftName(), binding.lottie);
+                break;
+            }
+            case GiftItem.GIFT_TYPE_SVGA_HALF:
+            case GiftItem.GIFT_TYPE_SVGA_FULL: {
+                binding.imageview.setVisibility(View.GONE);
+                binding.lottie.setVisibility(View.GONE);
+                binding.svgaImageView.setVisibility(View.VISIBLE);
+                loadSVGAAnimation(context,giftItem.getGiftName(),binding.svgaImageView);
+                break;
+            }
+        }
+        binding.name.setText(giftItem.getGiftName().replace(".png",""));
+        binding.price.setText(giftItem.getGiftPrice());
+        builder.setView(binding.getRoot());
+        ad = builder.create();
+        ad.show();
+        performPostAction();
+    }
+
     GiftAdapter adapter;
 
     private void openGift() {
         GiftLayoutBinding binding = GiftLayoutBinding.inflate(inflater);
-        adapter = new GiftAdapter(context, GIFT_TYPE_IMAGE, giftItem -> listener.onEvent(REPLAY_TYPE_GIFT_SELECTED,new Gson().toJson(giftItem)));
+        adapter = new GiftAdapter(context, GIFT_TYPE_IMAGE, giftItem -> {
+            listener.onEvent(REPLAY_TYPE_GIFT_SELECTED, new Gson().toJson(giftItem));
+            ad.dismiss();
+        }, giftItem -> listener.onEvent(REPLAY_TYPE_GIFT_PREVIEW, new Gson().toJson(giftItem)));
 
         binding.giftList.setAdapter(adapter);
         GiftTitleAdapter giftTitleAdapter = new GiftTitleAdapter(context, s -> {
             int type;
-            switch (s){
-                case GIFT_TITLE_IMAGE:{
-                   type = GIFT_TYPE_IMAGE;
-                   break;
+            switch (s) {
+                case GIFT_TITLE_IMAGE: {
+                    type = GIFT_TYPE_IMAGE;
+                    break;
                 }
-                case GIFT_TITLE_SVGA:{
-                   type = GIFT_TYPE_SVGA;
-                   break;
+                case GIFT_TITLE_SVGA: {
+                    type = GIFT_TYPE_SVGA;
+                    break;
                 }
-                case GIFT_TITLE_LOTTIE:{
-                   type = GIFT_TYPE_LOTTIE;
-                   break;
-                } default:type = GIFT_TYPE_IMAGE;
+                case GIFT_TITLE_LOTTIE: {
+                    type = GIFT_TYPE_LOTTIE;
+                    break;
+                }
+                default:
+                    type = GIFT_TYPE_IMAGE;
             }
-            adapter = new GiftAdapter(context, type, giftItem -> listener.onEvent(REPLAY_TYPE_GIFT_SELECTED,new Gson().toJson(giftItem)));
+            adapter = new GiftAdapter(context, type, giftItem -> {
+                listener.onEvent(REPLAY_TYPE_GIFT_SELECTED, new Gson().toJson(giftItem));
+                ad.dismiss();
+            }, giftItem -> listener.onEvent(REPLAY_TYPE_GIFT_PREVIEW, new Gson().toJson(giftItem)));
             binding.giftList.setAdapter(adapter);
         });
         binding.titleList.setAdapter(giftTitleAdapter);
@@ -140,19 +203,20 @@ public class AlertDialogViewer {
     }
 
     private void openJoinRequests(String content) {
-        Type listType = new TypeToken<ArrayList<MessageProfileModel>>() {}.getType();
+        Type listType = new TypeToken<ArrayList<MessageProfileModel>>() {
+        }.getType();
         ArrayList<MessageProfileModel> requests = new ArrayList<>(new Gson().fromJson(content, listType));
         JoinRequestLayoutBinding binding = JoinRequestLayoutBinding.inflate(inflater);
-        JoinRequestAdapter adapter =new JoinRequestAdapter(requests, new JoinRequestAdapter.OnItemEventListener() {
+        JoinRequestAdapter adapter = new JoinRequestAdapter(requests, new JoinRequestAdapter.OnItemEventListener() {
             @Override
             public void onAccept(MessageProfileModel message) {
-                listener.onEvent(REPLAY_TYPE_INVITATION_ACCEPTED,new Gson().toJson(message));
+                listener.onEvent(REPLAY_TYPE_INVITATION_ACCEPTED, new Gson().toJson(message));
                 ad.dismiss();
             }
 
             @Override
             public void onDecline(MessageProfileModel message) {
-                listener.onEvent(REPLAY_TYPE_INVITATION_DECLINED,new Gson().toJson(message));
+                listener.onEvent(REPLAY_TYPE_INVITATION_DECLINED, new Gson().toJson(message));
             }
         });
         binding.rv.setAdapter(adapter);
@@ -164,8 +228,8 @@ public class AlertDialogViewer {
     }
 
 
-    private void openCommentDialog(String cms){
-        CommentModel cm = new Gson().fromJson(cms,CommentModel.class);
+    private void openCommentDialog(String cms) {
+        CommentModel cm = new Gson().fromJson(cms, CommentModel.class);
         if (cm.getName().equals(CM.getProfile().getName())) {
             return;
         }
@@ -187,7 +251,7 @@ public class AlertDialogViewer {
         }
 
 
-        c.block.setOnClickListener(v -> listener.onEvent(REPLAY_TYPE_BLOCK,cm.getName()));
+        c.block.setOnClickListener(v -> listener.onEvent(REPLAY_TYPE_BLOCK, cm.getName()));
 
         c.follow.setOnClickListener(v -> {
             try {
@@ -209,8 +273,8 @@ public class AlertDialogViewer {
             }
         });
 
-        c.invite.setOnClickListener(v -> listener.onEvent(REPLAY_TYPE_INVITE,cm.getName()));
-        c.visit.setOnClickListener(v -> listener.onEvent(REPLAY_TYPE_VISIT,cm.getName()));
+        c.invite.setOnClickListener(v -> listener.onEvent(REPLAY_TYPE_INVITE, cm.getName()));
+        c.visit.setOnClickListener(v -> listener.onEvent(REPLAY_TYPE_VISIT, cm.getName()));
 
 
         builder.setView(c.getRoot());
@@ -231,8 +295,8 @@ public class AlertDialogViewer {
         binding1.status.setText(profileItem.getContent().get(ProfileItem.VIP));
         Glide.with(binding1.profile).load(profileItem.getContent().get(ProfileItem.PROFILE_PICTURE)).placeholder(R.drawable.person).into(binding1.profile);
         try {
-            if (getRosterHandler().roster.contains(JidCreate.bareFrom(name+"@"+Configurations.getHostName()))) {
-                if (!getRosterHandler().roster.getEntry(JidCreate.bareFrom(name+"@"+Configurations.getHostName())).getGroups().isEmpty()) {
+            if (getRosterHandler().roster.contains(JidCreate.bareFrom(name + "@" + Configurations.getHostName()))) {
+                if (!getRosterHandler().roster.getEntry(JidCreate.bareFrom(name + "@" + Configurations.getHostName())).getGroups().isEmpty()) {
                     isFriendStatus = 1;
                 } else {
                     isFriendStatus = 2;
@@ -273,12 +337,12 @@ public class AlertDialogViewer {
         performPostAction();
     }
 
-    private void openFriendListDialog(){
+    private void openFriendListDialog() {
         OpenInviteFriendBinding binding1 = OpenInviteFriendBinding.inflate(inflater);
         OnlineFriendsAdapter adapter = new OnlineFriendsAdapter(profileItem -> {
             try {
                 for (Presence presence : getRosterHandler().roster.getAvailablePresences(JidCreate.bareFrom(profileItem.getContent().get(ProfileItem.NAME) + "@" + Configurations.getHostName()))) {
-                   listener.onEvent(REPLAY_TYPE_INVITE_FRIEND,presence.getFrom().asFullJidOrThrow().toString());
+                    listener.onEvent(REPLAY_TYPE_INVITE_FRIEND, presence.getFrom().asFullJidOrThrow().toString());
                 }
                 ad.dismiss();
             } catch (XmppStringprepException e) {
@@ -294,7 +358,7 @@ public class AlertDialogViewer {
         performPostAction();
     }
 
-    void performPostAction(){
+    void performPostAction() {
         Objects.requireNonNull(ad.getWindow()).setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         ad.getWindow().setGravity(Gravity.CENTER);
         ad.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);

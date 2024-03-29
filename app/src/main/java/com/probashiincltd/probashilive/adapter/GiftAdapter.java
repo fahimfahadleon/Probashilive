@@ -2,29 +2,19 @@ package com.probashiincltd.probashilive.adapter;
 
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.opensource.svgaplayer.SVGADrawable;
-import com.opensource.svgaplayer.SVGAParser;
-import com.opensource.svgaplayer.SVGAVideoEntity;
 import com.probashiincltd.probashilive.databinding.SingleGiftItemBinding;
 import com.probashiincltd.probashilive.models.GiftItem;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 public class GiftAdapter extends RecyclerView.Adapter<GiftAdapter.GiftViewHolder> {
 
@@ -36,43 +26,33 @@ public class GiftAdapter extends RecyclerView.Adapter<GiftAdapter.GiftViewHolder
     int type;
     OnItemClickListener listener;
     Context context;
-    HashMap<String,Drawable>imageDrawableMap;
-    ArrayList<GiftItem>imageMap;
-    ArrayList<GiftItem>svgList;
-    ArrayList<GiftItem>lottie;
+    ArrayList<String> imageMap;
+    ArrayList<String> fullImage;
+    ArrayList<String> halfImage;
+    ArrayList<String> lottieFiles;
 
-    SVGAParser parser;
-    public GiftAdapter(Context context,int giftType,OnItemClickListener listener){
+
+    OnItemLongClickListener longClickListener;
+
+    public GiftAdapter(Context context, int giftType, OnItemClickListener listener, OnItemLongClickListener longClickListener) {
         this.context = context;
         this.type = giftType;
         this.listener = listener;
-        parser = new SVGAParser(context);
-        svgList = getListOfJsonFiles("svga");
-        lottie = getListOfJsonFiles("json");
-        imageMap =new ArrayList<>();
-        imageDrawableMap = new HashMap<>();
-        loadImagesFromAssets();
-
-for(GiftItem g: svgList){
-    Log.e("svga",g.getGiftName());
-}
-for(GiftItem g: lottie){
-    Log.e("lottie",g.getGiftName());
-}
-for(GiftItem g: imageMap){
-    Log.e("imagemap",g.getGiftName());
-}
-
+        this.longClickListener = longClickListener;
+        imageMap = new ArrayList<>();
+        lottieFiles = getListOfFiles("important/previews/lottie");
+        fullImage = getListOfFiles("important/previews/full");
+        halfImage = getListOfFiles("important/previews/half");
+        imageMap = getListOfFiles("important/images");
     }
-
-    private ArrayList<GiftItem> getListOfJsonFiles(String title) {
+    private ArrayList<String> getListOfFiles(String dir) {
         ArrayList<String> jsonFiles = new ArrayList<>();
         AssetManager assetManager = context.getAssets();
         try {
-            String[] files = assetManager.list("");
+            String[] files = assetManager.list(dir);
             if (files != null) {
                 for (String file : files) {
-                    if (file.endsWith("."+title)) {
+                    if (file.endsWith("." + "png")) {
                         jsonFiles.add(file);
                     }
                 }
@@ -80,46 +60,17 @@ for(GiftItem g: imageMap){
         } catch (IOException e) {
             e.fillInStackTrace();
         }
-        ArrayList<GiftItem>items = new ArrayList<>();
-        for(String s: jsonFiles){
-            GiftItem giftItem = new GiftItem();
-            giftItem.setGiftName(s);
-            giftItem.setGiftReference("asdfasdf");
-            giftItem.setGiftPrice("4500");
-            items.add(giftItem);
-        }
-
-
-        return items;
-    }
-    private void loadImagesFromAssets() {
-        try {
-            AssetManager assetManager = context.getAssets();
-            String[] files = assetManager.list("important/images");
-            if(files == null){
-                Log.w("critical Warning","files null");
-                return;
-            }
-            for (String file : files) {
-                InputStream inputStream = assetManager.open("important/images/" + file);
-                Drawable drawable = Drawable.createFromStream(inputStream, null);
-                imageDrawableMap.put(file,drawable);
-
-                GiftItem giftItem = new GiftItem();
-                giftItem.setGiftName(file);
-                giftItem.setGiftReference("");
-                giftItem.setGiftPrice("3500");
-                imageMap.add(giftItem);
-
-            }
-        } catch (IOException e) {
-            e.fillInStackTrace();
-        }
+        return jsonFiles;
     }
 
 
-    public interface OnItemClickListener{
+
+    public interface OnItemClickListener {
         void onItemClick(GiftItem giftItem);
+    }
+
+    public interface OnItemLongClickListener {
+        void onLongClick(GiftItem giftItem);
     }
 
     @NonNull
@@ -130,15 +81,32 @@ for(GiftItem g: imageMap){
 
     @Override
     public void onBindViewHolder(@NonNull GiftViewHolder holder, int position) {
-        switch (type){
-            case GIFT_TYPE_LOTTIE:{
-                holder.setUpData(lottie.get(position));
+        switch (type) {
+            case GIFT_TYPE_LOTTIE: {
+                GiftItem giftItem = new GiftItem();
+                giftItem.setGiftType(GiftItem.GIFT_TYPE_LOTTIE);
+                giftItem.setGiftName(lottieFiles.get(position));
+                giftItem.setGiftReference("");
+                giftItem.setGiftPrice("4512");
+                holder.setUpData(giftItem);
                 break;
-            }case GIFT_TYPE_SVGA:{
-                holder.setUpData(svgList.get(position));
+            }
+            case GIFT_TYPE_SVGA: {
+                GiftItem giftItem = new GiftItem();
+                giftItem.setGiftType(GiftItem.GIFT_TYPE_SVGA_HALF);
+                giftItem.setGiftName(halfImage.get(position));
+                giftItem.setGiftReference("");
+                giftItem.setGiftPrice("4512");
+                holder.setUpData(giftItem);
                 break;
-            } default:{
-                holder.setUpData(imageMap.get(position));
+            }
+            default: {
+                GiftItem giftItem = new GiftItem();
+                giftItem.setGiftType(GiftItem.GIFT_TYPE_IMAGE);
+                giftItem.setGiftName(imageMap.get(position));
+                giftItem.setGiftReference("");
+                giftItem.setGiftPrice("4512");
+                holder.setUpData(giftItem);
                 break;
             }
         }
@@ -147,101 +115,57 @@ for(GiftItem g: imageMap){
 
     @Override
     public int getItemCount() {
-//        switch (type){
-//            case GIFT_TYPE_IMAGE:{
-//               return imageMap.size();
-//            }case GIFT_TYPE_LOTTIE:{
-//                return lottie.size();
-//            }case GIFT_TYPE_SVGA:{
-//                return svgList.size();
-//            } default:return imageMap.size();
-//        }
-        return 1;
+        switch (type) {
+            case GIFT_TYPE_IMAGE: {
+                return imageMap.size();
+            }
+            case GIFT_TYPE_LOTTIE: {
+                return lottieFiles.size();
+            }
+            case GIFT_TYPE_SVGA: {
+                return halfImage.size();
+            }
+            default:
+                return imageMap.size();
+        }
     }
 
     public class GiftViewHolder extends RecyclerView.ViewHolder {
         SingleGiftItemBinding binding;
         GiftItem giftItem;
-        private void loadLottieAnimation(String name){
-            binding.lottie.setAnimation(name); // Replace "your_animation.json" with your animation file
-            binding.lottie.playAnimation();
-        }
-
-        private void loadSVGAAnimation(String fileName) {
+        private void loadPreview(String dir, String name) {
             try {
-                // Load animation from assets
-                parser.parse(fileName, new SVGAParser.ParseCompletion() {
-                    @Override
-                    public void onComplete(@NonNull SVGAVideoEntity videoItem) {
-                        // Set the animation to SVGAPlayer
-//                       binding.svga.setVideoItem(videoItem);
-//                        binding.svga.startAnimation();
-                        binding.imageview.setImageBitmap(extractFirstFrame(videoItem));
-//                        extractFirstFrame(videoItem);
-                    }
-
-                    @Override
-                    public void onError() {
-                        Log.e("error","error loading animation");
-                    }
-                });
-            } catch (Exception e) {
-                Log.e("1fileName",fileName);
-                Log.e("1error",e.toString());
+                InputStream ims = context.getAssets().open(dir + name);
+                Drawable d = Drawable.createFromStream(ims, null);
+                binding.imageview.setImageDrawable(d);
+                ims.close();
+            } catch (IOException ex) {
+                ex.fillInStackTrace();
             }
-        }
-
-
-        private Bitmap extractFirstFrame(SVGAVideoEntity videoEntity) {
-            Bitmap firstFrameBitmap = Bitmap.createBitmap((int)videoEntity.getVideoSize().getWidth(),
-                    (int)videoEntity.getVideoSize().getHeight(), Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(firstFrameBitmap);
-            SVGADrawable drawable = new SVGADrawable(videoEntity);
-            drawable.draw(canvas); // Draw the animation onto the canvas
-            return firstFrameBitmap;
-
-
-
-//            Set<String>keys = videoEntity.getImageMap$com_opensource_svgaplayer().keySet();
-//            for(String s: keys){
-//                Log.e("keys",s);
-//            }
         }
         public void setUpData(GiftItem item) {
             this.giftItem = item;
-            switch (type){
-                case GIFT_TYPE_IMAGE:{
-                    binding.lottie.setVisibility(View.GONE);
-                    binding.svga.setVisibility(View.GONE);
-                    binding.imageview.setVisibility(View.VISIBLE);
-
-                    try {
-                        InputStream inputStream = context.getAssets().open("important/images/"+item.getGiftName()); // Replace "image.jpg" with your image file in assets
-                        Drawable drawable = Drawable.createFromStream(inputStream, null);
-                        binding.imageview.setImageDrawable(drawable);
-                    } catch (IOException e) {
-                        Log.e("2fileName",item.getGiftName());
-                        Log.e("2error",e.toString());
-                    }
-//                    binding.imageview.setImageDrawable(imageDrawableMap.get(item.getGiftName()));
-
+            switch (type) {
+                case GIFT_TYPE_IMAGE: {
+                    loadPreview("important/images/", item.getGiftName());
                     break;
-                }case GIFT_TYPE_LOTTIE:{
-                    binding.lottie.setVisibility(View.VISIBLE);
-                    binding.svga.setVisibility(View.GONE);
-                    binding.imageview.setVisibility(View.GONE);
-                    loadLottieAnimation(giftItem.getGiftName());
-
+                }
+                case GIFT_TYPE_LOTTIE: {
+                    loadPreview("important/previews/lottie/", giftItem.getGiftName());
                     break;
-                }case GIFT_TYPE_SVGA:{
-                    binding.lottie.setVisibility(View.GONE);
-                    binding.svga.setVisibility(View.GONE);
-                    binding.imageview.setVisibility(View.VISIBLE);
-                    loadSVGAAnimation(giftItem.getGiftName());
+                }
+                case GIFT_TYPE_SVGA: {
+                    loadPreview("important/previews/half/", giftItem.getGiftName());
                     break;
                 }
             }
-            binding.giftname.setText(giftItem.getGiftName());
+            binding.giftname.setText(giftItem.getGiftName().replace(".png", ""));
+            binding.giftPrice.setText(giftItem.getGiftPrice());
+            binding.getRoot().setOnClickListener(v -> listener.onItemClick(giftItem));
+            binding.getRoot().setOnLongClickListener(v -> {
+                longClickListener.onLongClick(giftItem);
+                return true;
+            });
         }
 
         public GiftViewHolder(@NonNull SingleGiftItemBinding binding) {

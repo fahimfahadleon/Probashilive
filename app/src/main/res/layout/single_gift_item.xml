@@ -1,70 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/_100sdp"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:text="gift price"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:gravity="center"
         android:textColor="#FFF"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:id="@+id/giftPrice"/>
+        android:id="@+id/giftPrice"
+        app:drawableStartCompat="@drawable/coin" />
 
-
-    <LinearLayout
+    <ImageView
         android:layout_width="@dimen/_65sdp"
         android:layout_height="@dimen/_65sdp"
-        android:id="@+id/imageviewContainer"
+        android:src="@drawable/person"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="@dimen/_4sdp"
         app:layout_constraintTop_toBottomOf="@id/giftPrice"
-        android:orientation="vertical">
-
-        <ImageView
-            android:layout_width="@dimen/_65sdp"
-            android:layout_height="@dimen/_65sdp"
-            android:src="@drawable/person"
-            android:visibility="gone"
-            android:id="@+id/imageview"/>
-
-        <com.opensource.svgaplayer.SVGAImageView
-            android:layout_height="@dimen/_65sdp"
-            android:layout_width="@dimen/_65sdp"
-            app:source="40001071.svga"
-            android:visibility="gone"
-            app:autoPlay="true"
-            android:id="@+id/svga"
-            />
-
-        <com.airbnb.lottie.LottieAnimationView
-            android:layout_width="@dimen/_65sdp"
-            android:layout_height="@dimen/_65sdp"
-            android:id="@+id/lottie"
-            app:lottie_rawRes="@raw/ineedcaffee"
-            app:lottie_autoPlay="true"
-            app:lottie_loop="true"/>
-
-    </LinearLayout>
-
-    
+        android:id="@+id/imageview"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:text="gift name"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
         android:textColor="#FFF"
+        android:gravity="center"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imageviewContainer"
+        app:layout_constraintTop_toBottomOf="@id/imageview"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginTop="@dimen/_8sdp"
         android:id="@+id/giftname"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

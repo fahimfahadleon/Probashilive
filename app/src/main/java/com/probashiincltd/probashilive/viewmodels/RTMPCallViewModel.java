@@ -23,6 +23,7 @@ import static com.probashiincltd.probashilive.utils.Configurations.DATA;
 import static com.probashiincltd.probashilive.utils.Configurations.END_CALL_1;
 import static com.probashiincltd.probashilive.utils.Configurations.END_CALL_2;
 import static com.probashiincltd.probashilive.utils.Configurations.GIFT;
+import static com.probashiincltd.probashilive.utils.Configurations.GIFT1;
 import static com.probashiincltd.probashilive.utils.Configurations.HIDE_COMMENT;
 import static com.probashiincltd.probashilive.utils.Configurations.INITIAL_COMMENT;
 import static com.probashiincltd.probashilive.utils.Configurations.JOIN_REQUEST;
@@ -43,6 +44,7 @@ import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_LIVE_ACTION;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_REQUEST_ACCEPTED;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_REQUEST_TO_LEAVE_COMPETITOR;
+import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_SEND_GIFT;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIDEO_INVITATION;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIDEO_INVITATION_ACCEPTED;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIDEO_STREAM_JOINED;
@@ -68,6 +70,8 @@ import com.probashiincltd.probashilive.callbacks.HeadlineMessageListener;
 import com.probashiincltd.probashilive.connectionutils.CM;
 import com.probashiincltd.probashilive.functions.Functions;
 import com.probashiincltd.probashilive.models.CommentModel;
+import com.probashiincltd.probashilive.models.GiftItem;
+import com.probashiincltd.probashilive.models.GiftModel;
 import com.probashiincltd.probashilive.models.LiveAction;
 import com.probashiincltd.probashilive.models.MessageProfileModel;
 import com.probashiincltd.probashilive.pubsubItems.LiveItem;
@@ -101,6 +105,10 @@ public class RTMPCallViewModel extends ViewModel {
     NodePlayer nodePlayer;
     String action;
     HashMap<String, String> live = new HashMap<>();
+
+    public HashMap<String,String>getLive(){
+        return live;
+    }
     HashMap<String, String> data;
     ArrayList<String> viewers;
 
@@ -131,6 +139,7 @@ public class RTMPCallViewModel extends ViewModel {
     private final MutableLiveData<ProfileItem>onCompetitorJoined = new MutableLiveData<>();
     CommentAdapter adapter;
     private final MutableLiveData<CommentModel> selectedItem = new MutableLiveData<>();
+    private final MutableLiveData<GiftModel> onGiftReceived = new MutableLiveData<>();
     private final MutableLiveData<LiveAction> liveActiondata = new MutableLiveData<>();
     private final MutableLiveData<Integer> getLiveViewerCount = new MutableLiveData<>();
     private final MutableLiveData<HashMap<String, String>> setUpComplete = new MutableLiveData<>();
@@ -148,6 +157,9 @@ public class RTMPCallViewModel extends ViewModel {
 
     public LiveData<String> getOpenProfile() {
         return openProfile;
+    }
+    public LiveData<GiftModel> getGiftReceived() {
+        return onGiftReceived;
     }
 
     public LiveData<ArrayList<LiveItem>> getViewUpdate() {
@@ -206,8 +218,10 @@ public class RTMPCallViewModel extends ViewModel {
             onSendButtonClick.setValue(SWITCH_CAMERA);
         } else if (id == R.id.option3) {
             onSendButtonClick.setValue(HIDE_COMMENT);
-        } else if (id == R.id.option4) {
+        } else if (id == R.id.option4 || id == R.id.gift0) {
             onSendButtonClick.setValue(GIFT);
+        }  else if (id == R.id.gift1) {
+            onSendButtonClick.setValue(GIFT1);
         } else if (id == R.id.addPeople) {
             onSendButtonClick.setValue(ADD_PERSON);
         } else if (id == R.id.profile1 || id == R.id.name1 || id == R.id.vip1) {
@@ -262,13 +276,24 @@ public class RTMPCallViewModel extends ViewModel {
         for (String s : viewers) {
             CM.sendHLM(type, new Gson().toJson(cm), myJid, s);
         }
-        Log.e("sendingToViewers",viewers.toString());
     }
 
+    public ProfileItem getViewerProfile(String id){
+        return viewerProfiles.get(id);
+    }
 
     HeadlineMessageListener listener = stanza -> {
         Message message = (Message) stanza;
         switch (message.getSubject()) {
+            case SUBJECT_TYPE_SEND_GIFT:{
+                GiftModel giftModel = new Gson().fromJson(message.getBody(),GiftModel.class);
+                if(action.equals(LIVE_USER_TYPE_HOST)){
+                    broadCastEvent(giftModel,SUBJECT_TYPE_SEND_GIFT);
+                    broadCastToCompetitor(giftModel,SUBJECT_TYPE_SEND_GIFT);
+                }
+                onGiftReceived.postValue(giftModel);
+                break;
+            }
             case SUBJECT_TYPE_VIDEO_INVITATION_ACCEPTED: {
 //                for Host only
                 onCompetitorJoined.postValue(new Gson().fromJson(message.getBody(),ProfileItem.class));
@@ -400,6 +425,8 @@ public class RTMPCallViewModel extends ViewModel {
                 itemsToBeAdded.add(s.split("@")[0]);
             }
         }
+        Log.e("checkingViewer",viewers.toString());
+        Log.e("checkingViewer",itemsToBeAdded.toString());
         if (itemsToBeAdded.isEmpty()) {
             return;
         }
@@ -411,6 +438,7 @@ public class RTMPCallViewModel extends ViewModel {
         } catch (Exception e) {
             e.fillInStackTrace();
         }
+        Log.e("viewerprofiles",viewerProfiles.toString());
 
     }
 
@@ -715,4 +743,13 @@ public class RTMPCallViewModel extends ViewModel {
         Log.e("competitors",competitorList.toString());
     }
 
+    public void sendGift(int index,String giftItem) {
+        GiftItem giftItem1 = new Gson().fromJson(giftItem,GiftItem.class);
+        GiftModel giftModel = new GiftModel();
+        giftModel.setGiftItem(giftItem1);
+        giftModel.setFrom(CM.getConnection().getUser().asFullJidOrThrow().toString());
+        giftModel.setTo(index == 0?data.get(ROOM_ID):competitorList.get(0).getContent().get(ROOM_ID));
+        giftModel.setIndex(String.valueOf(index));
+        CM.sendHLM(SUBJECT_TYPE_SEND_GIFT,new Gson().toJson(giftModel),CM.getConnection().getUser().asFullJidOrThrow().toString(),data.get(ROOM_ID));
+    }
 }

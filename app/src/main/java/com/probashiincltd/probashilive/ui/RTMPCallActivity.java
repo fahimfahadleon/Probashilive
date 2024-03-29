@@ -6,7 +6,10 @@ import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_T
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_GIFT;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_JOIN_REQUESTS;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_PROFILE;
+import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_PREVIEW_GIFT;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_BLOCK;
+import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_GIFT_PREVIEW;
+import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_GIFT_SELECTED;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_INVITATION_ACCEPTED;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_INVITATION_DECLINED;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_INVITE;
@@ -22,6 +25,7 @@ import static com.probashiincltd.probashilive.utils.Configurations.DATA;
 import static com.probashiincltd.probashilive.utils.Configurations.END_CALL_1;
 import static com.probashiincltd.probashilive.utils.Configurations.END_CALL_2;
 import static com.probashiincltd.probashilive.utils.Configurations.GIFT;
+import static com.probashiincltd.probashilive.utils.Configurations.GIFT1;
 import static com.probashiincltd.probashilive.utils.Configurations.HIDE_COMMENT;
 import static com.probashiincltd.probashilive.utils.Configurations.JOIN_REQUEST;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_AUDIENCE;
@@ -36,6 +40,7 @@ import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_
 import static com.probashiincltd.probashilive.utils.Configurations.SWITCH_CAMERA;
 import static com.probashiincltd.probashilive.utils.Configurations.isOccupied;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -57,10 +62,12 @@ import com.google.gson.Gson;
 import com.permissionx.guolindev.PermissionX;
 import com.probashiincltd.probashilive.R;
 import com.probashiincltd.probashilive.adapter.CommentAdapter;
-import com.probashiincltd.probashilive.callbacks.OnAlertDialogEventListener;
 import com.probashiincltd.probashilive.connectionutils.CM;
 import com.probashiincltd.probashilive.databinding.ActivityRtmpcallBinding;
+import com.probashiincltd.probashilive.functions.Functions;
 import com.probashiincltd.probashilive.models.CommentModel;
+import com.probashiincltd.probashilive.models.GiftItem;
+import com.probashiincltd.probashilive.models.GiftModel;
 import com.probashiincltd.probashilive.models.MessageProfileModel;
 import com.probashiincltd.probashilive.pubsubItems.LiveItem;
 import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
@@ -166,6 +173,8 @@ public class RTMPCallActivity extends AppCompatActivity {
 
 
     void observeViewModel() {
+
+        model.getGiftReceived().observe(this,this::showGift);
         model.getOnCommentInserted().observe(this,commentModel -> {
             binding.commentLayout.smoothScrollToPosition(0);
         });
@@ -203,7 +212,11 @@ public class RTMPCallActivity extends AppCompatActivity {
                     break;
                 }
                 case GIFT: {
-                    openGift();
+                    openGift(0);
+                    break;
+                }
+                case GIFT1: {
+                    openGift(1);
                     break;
                 }
                 case JOIN_REQUEST: {
@@ -338,6 +351,43 @@ public class RTMPCallActivity extends AppCompatActivity {
         model.getOptionsMenuVisibility().observe(this, b -> binding.optionsLayout.setVisibility(b ? View.VISIBLE : View.GONE));
     }
 
+    @SuppressLint("SetTextI18n")
+    private void showGift(GiftModel giftModel) {
+        GiftItem giftItem = giftModel.getGiftItem();
+        binding.showGift.setVisibility(View.VISIBLE);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            binding.showGift.setVisibility(View.GONE);
+            binding.imageview.setVisibility(View.GONE);
+            binding.lottie.setVisibility(View.GONE);
+            binding.svgaImageView.setVisibility(View.GONE);
+        },3000);
+
+        switch (giftItem.getGiftType()){
+            case GiftItem.GIFT_TYPE_IMAGE:{
+                binding.imageview.setVisibility(View.VISIBLE);
+                Functions.setImageView(this,giftItem.getGiftName(),binding.imageview);
+                break;
+            }case GiftItem.GIFT_TYPE_LOTTIE:{
+                binding.lottie.setVisibility(View.VISIBLE);
+                Functions.setLottieAnimation(giftItem.getGiftName(),binding.lottie);
+                break;
+            }case GiftItem.GIFT_TYPE_SVGA_HALF:{
+                binding.svgaImageView.setVisibility(View.VISIBLE);
+                Functions.loadSVGAAnimation(this,giftItem.getGiftName(),binding.svgaImageView);
+                break;
+            }
+        }
+        if(Integer.parseInt(giftModel.getIndex())==0){
+            if(model.getAction().equals(LIVE_USER_TYPE_HOST)){
+                binding.textview.setText( model.getViewerProfile(giftModel.getFrom().split("@")[0]).getContent().get(ProfileItem.NAME)+" sent a gift to "+model.getLive().get(NAME));
+            }else {
+                binding.textview.setText(model.getViewerProfile(giftModel.getFrom().split("@")[0]).getContent().get(ProfileItem.NAME)+" sent a gift to "+model.getData().get(NAME));
+            }
+        }else {
+            binding.textview.setText(model.getViewerProfile(giftModel.getFrom().split("@")[0]).getContent().get(ProfileItem.NAME)+" sent a gift to "+model.getCompetitorList().get(0).getContent().get(NAME));
+        }
+    }
+
     private void performAudienceToCompetitor(MessageProfileModel profileModel) {
         isOccupied = true;
         model.requestAccepted(profileModel);
@@ -375,9 +425,6 @@ public class RTMPCallActivity extends AppCompatActivity {
             Log.e("liveItems",liveItem.toString());
         }
         LiveItem liveItem = liveItems.get(0);
-        if(Objects.equals(liveItem.getContent().get(NAME), CM.getProfile().getContent().get(ProfileItem.NAME))){
-
-        }
 
         if(model.getAction().equals(LIVE_USER_TYPE_HOST)){
             Glide.with(binding.profile1).load(CM.getProfile().getContent().get(ProfileItem.PROFILE_PICTURE)).placeholder(R.drawable.person).into(binding.profile1);
@@ -466,12 +513,18 @@ public class RTMPCallActivity extends AppCompatActivity {
         }, ALERTDIALOG_TYPE_OPEN_FRIEND_LIST);
     }
 
-    private void openGift() {
-        new AlertDialogViewer(this, new OnAlertDialogEventListener() {
-            @Override
-            public void onEvent(String... event) {
-                Toast.makeText(RTMPCallActivity.this, event[0], Toast.LENGTH_SHORT).show();
+    private void openGift(int index) {
+        new AlertDialogViewer(this, event -> {
+            switch (event[0]){
+                case REPLAY_TYPE_GIFT_SELECTED:{
+                    model.sendGift(index,event[1]);
+                    break;
+                }case REPLAY_TYPE_GIFT_PREVIEW:{
+                    new AlertDialogViewer(RTMPCallActivity.this, event1 -> {},ALERTDIALOG_TYPE_PREVIEW_GIFT,event[1]);
+                    break;
+                }
             }
+
         },ALERTDIALOG_TYPE_OPEN_GIFT);
     }
 

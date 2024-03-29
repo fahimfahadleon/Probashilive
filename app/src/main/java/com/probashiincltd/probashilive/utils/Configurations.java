@@ -23,12 +23,14 @@ public class Configurations {
     public static final String SUBJECT_TYPE_VIDEO_INVITATION_DECLINED = "video_invitation_declined";
     public static final String SUBJECT_TYPE_VIDEO_STREAM_JOINED = "video_stream_joined";
     public static final String SUBJECT_TYPE_HOST_REMOVED_COMPETITOR = "host_removed_competitor";
+    public static final String SUBJECT_TYPE_SEND_GIFT = "send_gift";
 
     public static final String SUBJECT_TYPE_VIEWERS_LIST = "viewers_list";
     public static final String CLOSE_LIVE = "close_live";
     public static boolean isOccupied = false;
 
     public static final String GIFT = "gift";
+    public static final String GIFT1 = "gift1";
     public static final String HIDE_COMMENT = "hide_comment";
     public static final String ADD_PERSON = "add_person";
     public static final String OPEN_PROFILE_1 = "open_profile_1";

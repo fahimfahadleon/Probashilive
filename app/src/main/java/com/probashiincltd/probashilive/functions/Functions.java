@@ -5,12 +5,21 @@ import static org.jivesoftware.smackx.pubsub.packet.PubSub.createPubsubPacket;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.PowerManager;
 import android.util.Log;
+import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.opensource.svgaplayer.SVGAParser;
+import com.opensource.svgaplayer.SVGAPlayer;
+import com.opensource.svgaplayer.SVGASoundManager;
+import com.opensource.svgaplayer.SVGAVideoEntity;
 import com.probashiincltd.probashilive.callbacks.HttpRequestCallback;
 import com.probashiincltd.probashilive.connectionutils.CM;
 import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
@@ -73,19 +82,59 @@ public class Functions {
 
 
     public static ArrayList<ProfileItem> removeDuplicateProfiles(ArrayList<ProfileItem> list) {
-        Set<String>set = new HashSet<>();
-        ArrayList<ProfileItem>finalitem = new ArrayList<>();
-        for(ProfileItem i: list){
-            if(set.add(i.getContent().get(ProfileItem.NAME))){
+        Set<String> set = new HashSet<>();
+        ArrayList<ProfileItem> finalitem = new ArrayList<>();
+        for (ProfileItem i : list) {
+            if (set.add(i.getContent().get(ProfileItem.NAME))) {
                 finalitem.add(i);
             }
         }
         return finalitem;
     }
 
-    public static void init(Context context){
+    public static void init(Context context) {
         preferences = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
     }
+
+    public static void setImageView(Context context, String name, ImageView imageView) {
+        try {
+            InputStream inputStream = context.getAssets().open("important/images/" + name);
+            Drawable drawable = Drawable.createFromStream(inputStream, null);
+            imageView.setImageDrawable(drawable);
+        } catch (IOException e) {
+            //ignored
+        }
+    }
+
+    public static void setLottieAnimation(String name, LottieAnimationView animationView) {
+        animationView.setAnimation(name.replace(".png", ".json"));
+        animationView.playAnimation();
+    }
+
+    public static void loadSVGAAnimation(Context context, String fileName, SVGAPlayer svgaPlayer) {
+        SVGAParser parser = new SVGAParser(context);
+        try {
+            parser.parse(fileName.replace(".png", ".svga"), new SVGAParser.ParseCompletion() {
+                @Override
+                public void onComplete(@NonNull SVGAVideoEntity videoItem) {
+                    svgaPlayer.setVideoItem(videoItem);
+                    svgaPlayer.startAnimation();
+                    SVGASoundManager manager = SVGASoundManager.INSTANCE;
+                    manager.init();
+                    manager.setVolume(1f, videoItem);
+
+                }
+
+                @Override
+                public void onError() {
+                    Log.e("error", "error loading animation");
+                }
+            });
+        } catch (Exception e) {
+            //ignored
+        }
+    }
+
 
     public static GoogleSignInClient getGoogleSigninClient(Context context) {
 
@@ -106,8 +155,6 @@ public class Functions {
     }
 
 
-
-
     public static void releaseProximityWakeLock() {
         if (mProximityWakeLock != null && mProximityWakeLock.isHeld()) {
             mProximityWakeLock.release(PowerManager.RELEASE_FLAG_WAIT_FOR_NO_PROXIMITY);
@@ -117,19 +164,19 @@ public class Functions {
 
     public static void deleteNode(String nodename) throws XmlPullParserException, IOException, SmackParsingException, SmackException.NotConnectedException, InterruptedException, XMPPException.XMPPErrorException, SmackException.NoResponseException {
         String s = "<iq type='set'\n" +
-                "    from='"+ CM.getConnection().getUser()+"'\n" +
-                "    to='pubsub."+Configurations.getHostName()+"'\n" +
-                "    id='"+createRandom()+"'>\n" +
+                "    from='" + CM.getConnection().getUser() + "'\n" +
+                "    to='pubsub." + Configurations.getHostName() + "'\n" +
+                "    id='" + createRandom() + "'>\n" +
                 "  <pubsub xmlns='http://jabber.org/protocol/pubsub#owner'>\n" +
-                "    <delete node='"+nodename+"'/>\n" +
+                "    <delete node='" + nodename + "'/>\n" +
                 "  </pubsub>\n" +
                 "</iq>";
 
         IQ stanza = PacketParserUtils.parseStanza(s);
-        if(CM.isConnected()){
+        if (CM.isConnected()) {
             CM.getConnection().createStanzaCollectorAndSend(new StanzaIdFilter(stanza.getStanzaId()), stanza).nextResultOrThrow();
-        }else {
-            Log.e("Functions: ","could not delete node");
+        } else {
+            Log.e("Functions: ", "could not delete node");
         }
 
     }
@@ -145,14 +192,15 @@ public class Functions {
                 "</iq>";
 
         IQ stanza = PacketParserUtils.parseStanza(s);
-        if(CM.isConnected()){
+        if (CM.isConnected()) {
             CM.getConnection().createStanzaCollectorAndSend(new StanzaIdFilter(stanza.getStanzaId()), stanza).nextResultOrThrow();
-        }else {
-            Log.e("Functions: ","could not create node");
+        } else {
+            Log.e("Functions: ", "could not create node");
         }
 
 
     }
+
     public static void createNodeUsersWithSubscriberAccess(String nodename) throws XmlPullParserException, IOException, SmackParsingException, SmackException.NotConnectedException, InterruptedException, XMPPException.XMPPErrorException, SmackException.NoResponseException {
         String s = "<iq type='set'\n" +
                 "    to='" + PubSubManager.getInstanceFor(CM.getConnection()).getServiceJid() + "'\n" +
@@ -167,17 +215,18 @@ public class Functions {
                 "                          <field var='pubsub#publish_model'><value>subscribers</value></field>\n" +
                 "                          <field var='pubsub#max_items'><value>5</value></field>\n" +
                 "                    </x>\n" +
-                "               </configure>"+
+                "               </configure>" +
                 "         </pubsub>\n" +
                 "</iq>";
 
         IQ stanza = PacketParserUtils.parseStanza(s);
-        if(CM.isConnected()){
+        if (CM.isConnected()) {
             CM.getConnection().createStanzaCollectorAndSend(new StanzaIdFilter(stanza.getStanzaId()), stanza).nextResultOrThrow();
-        }else {
-            Log.e("Functions: ","could not create node");
+        } else {
+            Log.e("Functions: ", "could not create node");
         }
     }
+
     public static void createNodeWithPublicAccess(String nodename) throws XmlPullParserException, IOException, SmackParsingException, SmackException.NotConnectedException, InterruptedException, XMPPException.XMPPErrorException, SmackException.NoResponseException {
         String s = "<iq type='set'\n" +
                 "    to='" + PubSubManager.getInstanceFor(CM.getConnection()).getServiceJid() + "'\n" +
@@ -192,16 +241,17 @@ public class Functions {
                 "                          <field var='pubsub#access_model'><value>open</value></field>\n" +
                 "                          <field var='pubsub#publish_model'><value>open</value></field>\n" +
                 "                    </x>\n" +
-                "               </configure>"+
+                "               </configure>" +
                 "         </pubsub>\n" +
                 "</iq>";
 
         IQ stanza = PacketParserUtils.parseStanza(s);
-        if(CM.isConnected()){
+        if (CM.isConnected()) {
             CM.getConnection().createStanzaCollectorAndSend(new StanzaIdFilter(stanza.getStanzaId()), stanza).nextResultOrThrow();
-        }else {
-            Log.e("Functions: ","could not create node");
-        }    }
+        } else {
+            Log.e("Functions: ", "could not create node");
+        }
+    }
 
     public static String createRandom() {
         final int min = 99999;
@@ -209,6 +259,7 @@ public class Functions {
         final int random = new Random().nextInt((max - min) + 1) + min;
         return String.valueOf(random);
     }
+
     public static String getStringFromDocument(Document document) {
         try {
             DOMSource domSource = new DOMSource(document);
@@ -228,9 +279,9 @@ public class Functions {
         return null;
     }
 
-    public static Item createLiveItem(String name,String type, String sdp,String viewers,String startedAt,String profile ) throws ParserConfigurationException {
+    public static Item createLiveItem(String name, String type, String sdp, String viewers, String startedAt, String profile) throws ParserConfigurationException {
 
-        String user = getSP(LOGIN_USER,"");
+        String user = getSP(LOGIN_USER, "");
 
         DocumentBuilderFactory factory =
                 DocumentBuilderFactory.newInstance();
@@ -266,10 +317,10 @@ public class Functions {
         return new PayloadItem<>(name, new SimplePayload(out));
     }
 
-    static <T extends UniversalModelMap>Element getRoot(Document doc,Element root, T content){
-        ArrayList<String>mylist = content.getNewList();
-        for(String s: mylist){
-            Log.e("checking",s);
+    static <T extends UniversalModelMap> Element getRoot(Document doc, Element root, T content) {
+        ArrayList<String> mylist = content.getNewList();
+        for (String s : mylist) {
+            Log.e("checking", s);
             Element em1 = doc.createElement(s);
             em1.setTextContent(content.getContent().get(s));
             root.appendChild(em1);
@@ -280,7 +331,7 @@ public class Functions {
     public static Item getSingleItemOfNode(String nodename, String itemID) {
         Item i = null;
         try {
-            if(CM.isConnected()){
+            if (CM.isConnected()) {
                 String s = "<iq type='get'\n" +
                         "    to='pubsub." + Configurations.getHostName() + "'\n" +
                         "    id='" + createRandom() + "'>\n" +
@@ -311,7 +362,7 @@ public class Functions {
     public static ArrayList<Item> getAllItemsOfNode(String nodename) {
         ArrayList<Item> items = new ArrayList<>();
         try {
-            if(CM.isConnected()){
+            if (CM.isConnected()) {
                 String s = "<iq type='get'\n" +
                         "    to='pubsub." + Configurations.getHostName() + "'\n" +
                         "    id='" + createRandom() + "'>\n" +
@@ -338,7 +389,7 @@ public class Functions {
 
     public static void deleteFromNode(String nodename, String itemID) {
         try {
-            if(CM.isConnected()){
+            if (CM.isConnected()) {
 
                 String s = "<iq type='set'\n" +
                         "    to='pubsub." + Configurations.getHostName() + "'\n" +
@@ -359,7 +410,7 @@ public class Functions {
 
     }
 
-    public static <T extends UniversalModelMap>Item createRawItem(T map) throws ParserConfigurationException {
+    public static <T extends UniversalModelMap> Item createRawItem(T map) throws ParserConfigurationException {
         DocumentBuilderFactory factory =
                 DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(false);
@@ -368,7 +419,7 @@ public class Functions {
         Document doc = parser.newDocument();
         Element root = doc.createElement(map.getName());
         root.setAttribute("xmlns", map.getXmlns());
-        Element r = getRoot(doc,root,map);
+        Element r = getRoot(doc, root, map);
         doc.appendChild(r);
         String out = getStringFromDocument(doc);
 
@@ -379,7 +430,7 @@ public class Functions {
     public static Pair getPagenatedDataStart(String nodeName) {
         try {
             PubSub request = createPubsubPacket(
-                    JidCreate.bareFrom("pubsub."+Configurations.getHostName()),
+                    JidCreate.bareFrom("pubsub." + Configurations.getHostName()),
                     IQ.Type.get,
                     new GetItemsRequest(nodeName, 25)
             );
@@ -387,8 +438,8 @@ public class Functions {
             ItemsExtension itemsElem = result.getExtension(PubSubElementType.ITEMS);
             RSMSet set = RSMSet.from(result);
 
-            return new Pair((List<Item>) itemsElem.getItems(),set.getLast());
-        } catch ( Exception e) {
+            return new Pair((List<Item>) itemsElem.getItems(), set.getLast());
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -397,7 +448,7 @@ public class Functions {
 
     public static Pair getNextPagenatedData(String nodeName, String lastItemId) {
         try {
-            Log.e("lastItemId",lastItemId);
+            Log.e("lastItemId", lastItemId);
             IQ iq = new IQ("query", "http://jabber.org/protocol/disco#items") {
                 @Override
                 protected IQChildElementXmlStringBuilder getIQChildElementBuilder(IQChildElementXmlStringBuilder xml) {
@@ -420,7 +471,7 @@ public class Functions {
                 }
             };
             iq.setType(IQ.Type.get);
-            iq.setTo(JidCreate.bareFrom("pubsub."+Configurations.getHostName()));
+            iq.setTo(JidCreate.bareFrom("pubsub." + Configurations.getHostName()));
             DiscoverItems result = CM.getConnection().createStanzaCollectorAndSend(iq).nextResultOrThrow();
             List<DiscoverItems.Item> disItems = result.getItems();
 
@@ -432,14 +483,13 @@ public class Functions {
             }
 
 
-
-            PubSub request = createPubsubPacket(JidCreate.bareFrom("pubsub."+Configurations.getHostName()), IQ.Type.get, new ItemsExtension(ItemsExtension.ItemsElementType.items, nodeName, items));
+            PubSub request = createPubsubPacket(JidCreate.bareFrom("pubsub." + Configurations.getHostName()), IQ.Type.get, new ItemsExtension(ItemsExtension.ItemsElementType.items, nodeName, items));
             RSMSet rsmSet1 = new RSMSet(25);
             request.addExtension(rsmSet1);
             PubSub resultrequest = CM.getConnection().createStanzaCollectorAndSend(request).nextResultOrThrow();
             rsmSet1 = RSMSet.from(resultrequest);
 
-            return new Pair(getMultipleItemOfNode(nodeName,ids),rsmSet1.getLast());
+            return new Pair(getMultipleItemOfNode(nodeName, ids), rsmSet1.getLast());
         } catch (Exception e) {
             return null;
         }
@@ -463,7 +513,7 @@ public class Functions {
                     "  </pubsub>\n" +
                     "</iq>";
             IQ stanza = PacketParserUtils.parseStanza(s);
-            if(!CM.isConnected()){
+            if (!CM.isConnected()) {
                 return new ArrayList<>();
             }
             PubSub result = CM.getConnection().createStanzaCollectorAndSend(new StanzaIdFilter(stanza.getStanzaId()), stanza).nextResultOrThrow();
@@ -494,6 +544,7 @@ public class Functions {
             return xml;
         }
     }
+
     public static String unEscapeXml(String s) {
         return s.replaceAll("&amp;", "&")
                 .replaceAll("&gt;", ">")
@@ -511,9 +562,7 @@ public class Functions {
     }
 
 
-
-
-    public static void publishToNode(String nodename, Item item,String id) {
+    public static void publishToNode(String nodename, Item item, String id) {
         try {
 
 
@@ -527,18 +576,17 @@ public class Functions {
                     "  </pubsub>\n" +
                     "</iq>";
             IQ stanza = PacketParserUtils.parseStanza(s);
-            if(CM.isConnected()){
+            if (CM.isConnected()) {
                 CM.getConnection().createStanzaCollectorAndSend(new StanzaIdFilter(stanza.getStanzaId()), stanza).nextResultOrThrow();
-            }else {
-                Log.e("Functions: ","could not create node");
+            } else {
+                Log.e("Functions: ", "could not create node");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e("exceptionFound",e.toString());
+            Log.e("exceptionFound", e.toString());
         }
     }
-
 
 
     //configure pubsub
@@ -580,7 +628,7 @@ public class Functions {
     //</iq>
 
 
-    public static void requestHttp(String u, HttpRequestCallback callback){
+    public static void requestHttp(String u, HttpRequestCallback callback) {
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
                 URL url = new URL(u);
@@ -597,13 +645,12 @@ public class Functions {
                 inputStream.close();
                 urlConnection.disconnect();
                 callback.onResponse(stringBuilder.toString());
-            }catch (Exception e){
+            } catch (Exception e) {
                 callback.onResponse(null);
             }
 
         });
     }
-
 
 
 }

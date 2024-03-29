@@ -90,19 +90,10 @@ public class ProfileItem extends UniversalModelMap{
     }
     @Override
     public boolean equals(Object obj) {
-        Log.e("checking","1");
         if (this == obj) return true;
-        Log.e("checking","2");
-
         if (obj == null || getClass() != obj.getClass()) return false;
-        Log.e("checking","3");
-
         if (!super.equals(obj)) return false; // Check equality in UniversalModelMap
-        Log.e("checking","4");
-
         ProfileItem that = (ProfileItem) obj;
-        Log.e("checking","5");
-
         return content.get(NAME).equals(that.content.get(NAME));
     }
 
