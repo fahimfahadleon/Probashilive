@@ -1,5 +1,9 @@
 package com.probashiincltd.probashilive.functions;
 
+import static com.probashiincltd.probashilive.connectionutils.RosterHandler.TYPE_FOLLOWER;
+import static com.probashiincltd.probashilive.connectionutils.RosterHandler.TYPE_FOLLOWING;
+import static com.probashiincltd.probashilive.connectionutils.RosterHandler.TYPE_NO_FRIEND;
+import static com.probashiincltd.probashilive.connectionutils.RosterHandler.getRosterHandler;
 import static com.probashiincltd.probashilive.utils.Configurations.LOGIN_USER;
 import static org.jivesoftware.smackx.pubsub.packet.PubSub.createPubsubPacket;
 
@@ -20,6 +24,7 @@ import com.opensource.svgaplayer.SVGAParser;
 import com.opensource.svgaplayer.SVGAPlayer;
 import com.opensource.svgaplayer.SVGASoundManager;
 import com.opensource.svgaplayer.SVGAVideoEntity;
+import com.probashiincltd.probashilive.R;
 import com.probashiincltd.probashilive.callbacks.HttpRequestCallback;
 import com.probashiincltd.probashilive.connectionutils.CM;
 import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
@@ -111,6 +116,23 @@ public class Functions {
         animationView.playAnimation();
     }
 
+
+    public static int isFollowingOrFollower(String id){
+        int val = TYPE_NO_FRIEND;
+        try {
+            if (getRosterHandler().roster.contains(JidCreate.bareFrom(id))) {
+                if (!getRosterHandler().roster.getEntry(JidCreate.bareFrom(id)).getGroups().isEmpty()) {
+                    val = TYPE_FOLLOWING;
+                } else {
+                    val = TYPE_FOLLOWER;
+                }
+            }
+        }catch (Exception e){
+            //ignored
+        }
+
+        return val;
+    }
     public static void loadSVGAAnimation(Context context, String fileName, SVGAPlayer svgaPlayer) {
         SVGAParser parser = new SVGAParser(context);
         try {
@@ -122,9 +144,7 @@ public class Functions {
                     SVGASoundManager manager = SVGASoundManager.INSTANCE;
                     manager.init();
                     manager.setVolume(1f, videoItem);
-
                 }
-
                 @Override
                 public void onError() {
                     Log.e("error", "error loading animation");

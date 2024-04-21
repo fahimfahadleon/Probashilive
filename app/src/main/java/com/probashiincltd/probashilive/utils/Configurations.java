@@ -16,6 +16,7 @@ public class Configurations {
     public static final String USER_PHONE = "userPhone";
     public static final String USER_PROFILE = "userProfile";
     public static final String SUBJECT_TYPE_COMMENT = "comment";
+    public static final String SUBJECT_TYPE_VIDEO_DISABLE_COMMENT = "disable_comment";
     public static final String SUBJECT_TYPE_VIDEO_INVITATION = "video_invitation";
     public static final String SUBJECT_TYPE_REQUEST_TO_LEAVE_COMPETITOR = "request_to_leave_competitor";
     public static final String SUBJECT_TYPE_VIDEO_INVITATION_ACCEPTED = "video_invitation_accepted";
@@ -39,6 +40,7 @@ public class Configurations {
     public static final String END_CALL_2 = "end_call_2";
     public static final String SHOW_VIEWERS = "show_viewers";
     public static final String OPEN_JOIN_REQUEST = "open_join_request";
+    public static final String FOLLOW = "follow";
     public static final String SWITCH_CAMERA = "switch_camera";
     public static final String JOIN_REQUEST = "join_request";
 

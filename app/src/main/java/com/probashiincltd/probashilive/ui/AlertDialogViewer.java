@@ -6,6 +6,8 @@ import static com.probashiincltd.probashilive.adapter.GiftAdapter.GIFT_TYPE_SVGA
 import static com.probashiincltd.probashilive.adapter.GiftTitleAdapter.GIFT_TITLE_IMAGE;
 import static com.probashiincltd.probashilive.adapter.GiftTitleAdapter.GIFT_TITLE_LOTTIE;
 import static com.probashiincltd.probashilive.adapter.GiftTitleAdapter.GIFT_TITLE_SVGA;
+import static com.probashiincltd.probashilive.connectionutils.RosterHandler.TYPE_FOLLOWING;
+import static com.probashiincltd.probashilive.connectionutils.RosterHandler.TYPE_NO_FRIEND;
 import static com.probashiincltd.probashilive.connectionutils.RosterHandler.getRosterHandler;
 import static com.probashiincltd.probashilive.functions.Functions.loadSVGAAnimation;
 import static com.probashiincltd.probashilive.functions.Functions.setImageView;
@@ -31,6 +33,7 @@ import com.probashiincltd.probashilive.adapter.JoinRequestAdapter;
 import com.probashiincltd.probashilive.adapter.OnlineFriendsAdapter;
 import com.probashiincltd.probashilive.callbacks.OnAlertDialogEventListener;
 import com.probashiincltd.probashilive.connectionutils.CM;
+import com.probashiincltd.probashilive.connectionutils.RosterHandler;
 import com.probashiincltd.probashilive.databinding.CommentOptionsBinding;
 import com.probashiincltd.probashilive.databinding.GiftLayoutBinding;
 import com.probashiincltd.probashilive.databinding.JoinRequestLayoutBinding;
@@ -237,17 +240,9 @@ public class AlertDialogViewer {
         CommentOptionsBinding c = CommentOptionsBinding.inflate(inflater);
         c.userName.setText(cm.getName());
         Glide.with(c.profile).load(cm.getPp()).placeholder(R.drawable.person).into(c.profile);
-        try {
-            if (getRosterHandler().roster.contains(JidCreate.bareFrom(cm.getId()))) {
-                if (!getRosterHandler().roster.getEntry(JidCreate.bareFrom(cm.getId())).getGroups().isEmpty()) {
-                    isFriendStatus = 1;
-                    c.follow.setText(R.string.unfollow);
-                } else {
-                    isFriendStatus = 2;
-                }
-            }
-        } catch (Exception e) {
-            //ingored
+        isFriendStatus = Functions.isFollowingOrFollower(cm.getId());
+        if(isFriendStatus == TYPE_FOLLOWING){
+            c.follow.setText(R.string.unfollow);
         }
 
 
@@ -255,17 +250,17 @@ public class AlertDialogViewer {
 
         c.follow.setOnClickListener(v -> {
             try {
-                if (isFriendStatus == 1) {
+                if (isFriendStatus == TYPE_FOLLOWING) {
                     getRosterHandler().removeEntry(cm.getId());
-                    isFriendStatus = 0;
+                    isFriendStatus = TYPE_NO_FRIEND;
                     c.follow.setText(R.string.follow);
-                } else if (isFriendStatus == 0) {
+                } else if (isFriendStatus == TYPE_NO_FRIEND) {
                     getRosterHandler().createEntry(cm.getId(), cm.getName());
-                    isFriendStatus = 1;
+                    isFriendStatus = TYPE_FOLLOWING;
                     c.follow.setText(R.string.unfollow);
                 } else {
                     getRosterHandler().addGroup(cm.getId());
-                    isFriendStatus = 1;
+                    isFriendStatus = TYPE_FOLLOWING;
                     c.follow.setText(R.string.unfollow);
                 }
             } catch (Exception e) {
@@ -294,36 +289,25 @@ public class AlertDialogViewer {
         binding1.phone.setText(profileItem.getContent().get(ProfileItem.PHONE));
         binding1.status.setText(profileItem.getContent().get(ProfileItem.VIP));
         Glide.with(binding1.profile).load(profileItem.getContent().get(ProfileItem.PROFILE_PICTURE)).placeholder(R.drawable.person).into(binding1.profile);
-        try {
-            if (getRosterHandler().roster.contains(JidCreate.bareFrom(name + "@" + Configurations.getHostName()))) {
-                if (!getRosterHandler().roster.getEntry(JidCreate.bareFrom(name + "@" + Configurations.getHostName())).getGroups().isEmpty()) {
-                    isFriendStatus = 1;
-                } else {
-                    isFriendStatus = 2;
-                }
-            }
-        } catch (Exception e) {
-            //ingored
-        }
-
-        if (isFriendStatus == 1) {
+        isFriendStatus = Functions.isFollowingOrFollower(name + "@" + Configurations.getHostName());
+        if (isFriendStatus == TYPE_FOLLOWING) {
             binding1.follow.setText(R.string.unfollow);
         }
         binding1.message.setOnClickListener(v -> listener.onEvent(REPLAY_TYPE_MESSAGE));
 
         binding1.follow.setOnClickListener(v -> {
             try {
-                if (isFriendStatus == 1) {
-                    getRosterHandler().removeEntry(profileItem.getContent().get(ProfileItem.NAME + "@" + Configurations.getHostName()));
-                    isFriendStatus = 0;
+                if (isFriendStatus == TYPE_FOLLOWING) {
+                    getRosterHandler().removeEntry(profileItem.getContent().get(ProfileItem.NAME)+ "@" + Configurations.getHostName());
+                    isFriendStatus = TYPE_NO_FRIEND;
                     binding1.follow.setText(R.string.follow);
-                } else if (isFriendStatus == 0) {
-                    getRosterHandler().createEntry(profileItem.getContent().get(ProfileItem.NAME + "@" + Configurations.getHostName()), profileItem.getName());
-                    isFriendStatus = 1;
+                } else if (isFriendStatus == TYPE_NO_FRIEND) {
+                    getRosterHandler().createEntry(profileItem.getContent().get(ProfileItem.NAME) + "@" + Configurations.getHostName(), profileItem.getName());
+                    isFriendStatus = TYPE_FOLLOWING;
                     binding1.follow.setText(R.string.unfollow);
                 } else {
-                    getRosterHandler().addGroup(profileItem.getContent().get(ProfileItem.NAME + "@" + Configurations.getHostName()));
-                    isFriendStatus = 1;
+                    getRosterHandler().addGroup(profileItem.getContent().get(ProfileItem.NAME)+ "@" + Configurations.getHostName());
+                    isFriendStatus = TYPE_FOLLOWING;
                     binding1.follow.setText(R.string.unfollow);
                 }
             } catch (Exception e) {

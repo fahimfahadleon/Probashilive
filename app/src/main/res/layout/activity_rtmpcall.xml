@@ -229,6 +229,31 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingHorizontal="@dimen/_8sdp"
+                android:paddingVertical="@dimen/_4sdp"
+                android:text="live Time"
+                android:background="@drawable/pretty_round_for_text"
+                app:layout_constraintTop_toBottomOf="@id/profile"
+                app:layout_constraintStart_toStartOf="@id/profile"
+                android:layout_marginTop="@dimen/_4sdp"/>
+
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:layout_width="@dimen/_15sdp"
+                android:layout_height="@dimen/_15sdp"
+                app:layout_constraintEnd_toEndOf="@id/profile"
+                app:layout_constraintBottom_toBottomOf="@id/profile"
+                android:layout_margin="@dimen/_2sdp"
+                android:src="@drawable/add_blue"
+                app:civ_border_width="1dp"
+                app:civ_border_color="#fff"
+                android:onClick="@{viewModel::onClickSend}"
+                app:civ_circle_background_color="#9DFF00"
+                android:id="@+id/follow"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 app:layout_constraintStart_toEndOf="@id/profile"
                 app:layout_constraintTop_toTopOf="@id/profile"
                 android:gravity="start|center"
@@ -423,6 +448,14 @@
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_35sdp"
+                android:src="@drawable/close_comment"
+                android:padding="@dimen/_4sdp"
+                android:visibility="gone"
+                android:onClick="@{viewModel::onClickSend}"
+                android:id="@+id/option7"/>
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_35sdp"
                 android:src="@drawable/remove_comment"
                 android:padding="@dimen/_4sdp"
                 android:onClick="@{viewModel::onClickSend}"
@@ -431,8 +464,9 @@
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_35sdp"
-                android:src="@drawable/uparrow"
+                android:src="@drawable/timer"
                 android:visibility="gone"
+                android:padding="@dimen/_4sdp"
                 android:onClick="@{viewModel::onClickSend}"
                 android:id="@+id/option5"/>
 

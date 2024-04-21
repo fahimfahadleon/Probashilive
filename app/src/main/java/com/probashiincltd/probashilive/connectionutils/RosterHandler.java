@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.probashiincltd.probashilive.functions.Functions;
 import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
+import com.probashiincltd.probashilive.utils.Configurations;
 import com.probashiincltd.probashilive.utils.CustomRosterStore;
 
 import org.jivesoftware.smack.packet.Presence;
@@ -36,6 +37,9 @@ public class RosterHandler implements SubscribeListener, PresenceEventListener, 
     boolean isRosterLoaded = false;
     static RosterHandler rosterHandler;
     ArrayList<ProfileItem> onlineFriends;
+    public static final int TYPE_NO_FRIEND = 0;
+    public static final int TYPE_FOLLOWING = 1;
+    public static final int TYPE_FOLLOWER = 2;
     public static RosterHandler getRosterHandler(){
         return rosterHandler;
     }
@@ -56,8 +60,10 @@ public class RosterHandler implements SubscribeListener, PresenceEventListener, 
         }catch (Exception e){
             //ignored
         }
-
     }
+//    public static void removeEntry(String name){
+//        getRosterHandler().removeEntry(profileItem.getContent().get(ProfileItem.NAME)+ "@" + Configurations.getHostName());
+//    }
     public void addGroup(String id){
         try {
             RosterGroup rosterGroup = roster.createGroup(CM.getProfile().getName());

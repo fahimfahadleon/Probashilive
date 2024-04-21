@@ -54,7 +54,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
@@ -63,6 +65,7 @@ import com.permissionx.guolindev.PermissionX;
 import com.probashiincltd.probashilive.R;
 import com.probashiincltd.probashilive.adapter.CommentAdapter;
 import com.probashiincltd.probashilive.connectionutils.CM;
+import com.probashiincltd.probashilive.connectionutils.RosterHandler;
 import com.probashiincltd.probashilive.databinding.ActivityRtmpcallBinding;
 import com.probashiincltd.probashilive.functions.Functions;
 import com.probashiincltd.probashilive.models.CommentModel;
@@ -174,8 +177,8 @@ public class RTMPCallActivity extends AppCompatActivity {
 
     void observeViewModel() {
 
-        model.getGiftReceived().observe(this,this::showGift);
-        model.getOnCommentInserted().observe(this,commentModel -> {
+        model.getGiftReceived().observe(this, this::showGift);
+        model.getOnCommentInserted().observe(this, commentModel -> {
             binding.commentLayout.smoothScrollToPosition(0);
         });
         model.getCompetitorJoined().observe(this, profileItem -> openSpliter());
@@ -183,8 +186,8 @@ public class RTMPCallActivity extends AppCompatActivity {
         model.getOpenProfile().observe(this, this::openProfile);
         model.getReceivedJoinRequest().observe(this, message -> {
             binding.count.setVisibility(View.VISIBLE);
-            Log.e("requestSize",String.valueOf(model.getRequests().size()));
-            Log.e("requestSize",model.getRequests().toString());
+            Log.e("requestSize", String.valueOf(model.getRequests().size()));
+            Log.e("requestSize", model.getRequests().toString());
             binding.count.setText(String.valueOf(model.getRequests().size()));
         });
         model.getSendComment().observe(this, s -> {
@@ -264,9 +267,9 @@ public class RTMPCallActivity extends AppCompatActivity {
                     break;
                 }
                 case END_CALL_2: {
-                    if(model.getAction().equals(LIVE_USER_TYPE_HOST)){
+                    if (model.getAction().equals(LIVE_USER_TYPE_HOST)) {
                         openRemoveCompetitorConfirmation();
-                    }else {
+                    } else {
                         model.requestToLeave();
                     }
                     break;
@@ -280,37 +283,51 @@ public class RTMPCallActivity extends AppCompatActivity {
 //                    model.onDestroy();
 //                    finish();
                     break;
-                }case OPEN_JOIN_REQUEST:{
+                }
+                case OPEN_JOIN_REQUEST: {
                     ArrayList<MessageProfileModel> messages = new ArrayList<>(model.getRequests());
                     new AlertDialogViewer(this, event -> {
-                        switch (event[0]){
-                            case REPLAY_TYPE_INVITATION_ACCEPTED:{
-                                MessageProfileModel message = new Gson().fromJson(event[1],MessageProfileModel.class);
+                        switch (event[0]) {
+                            case REPLAY_TYPE_INVITATION_ACCEPTED: {
+                                MessageProfileModel message = new Gson().fromJson(event[1], MessageProfileModel.class);
                                 model.getRequests().removeIf(messageProfileModel -> Objects.equals(messageProfileModel.getProfileItem().getContent().get(ProfileItem.NAME), message.getProfileItem().getContent().get(ProfileItem.NAME)));
-                                if(model.getRequests().isEmpty()){
+                                if (model.getRequests().isEmpty()) {
                                     binding.count.setVisibility(View.GONE);
                                 }
                                 performAudienceToCompetitor(message);
                                 break;
-                            }case REPLAY_TYPE_INVITATION_DECLINED:{
-                                MessageProfileModel message = new Gson().fromJson(event[1],MessageProfileModel.class);
+                            }
+                            case REPLAY_TYPE_INVITATION_DECLINED: {
+                                MessageProfileModel message = new Gson().fromJson(event[1], MessageProfileModel.class);
                                 model.getRequests().removeIf(messageProfileModel -> Objects.equals(messageProfileModel.getProfileItem().getContent().get(ProfileItem.NAME), message.getProfileItem().getContent().get(ProfileItem.NAME)));
-                                if(model.getRequests().isEmpty()){
+                                if (model.getRequests().isEmpty()) {
                                     binding.count.setVisibility(View.GONE);
                                 }
                                 break;
                             }
                         }
-                    },ALERTDIALOG_TYPE_OPEN_JOIN_REQUESTS,new Gson().toJson(messages));
+                    }, ALERTDIALOG_TYPE_OPEN_JOIN_REQUESTS, new Gson().toJson(messages));
                     break;
                 }
 
             }
         });
+        model.getFollowClicked().observe(this, integer -> {
+            switch (integer) {
+                case RosterHandler.TYPE_FOLLOWING: {
+                    binding.follow.setImageDrawable(ContextCompat.getDrawable(RTMPCallActivity.this, R.drawable.close));
+                    break;
+                }
+                case RosterHandler.TYPE_FOLLOWER:
+                case RosterHandler.TYPE_NO_FRIEND: {
+                    binding.follow.setImageDrawable(ContextCompat.getDrawable(RTMPCallActivity.this, R.drawable.add_blue));
+                    break;
+                }
+            }
+        });
         model.getSelectedItem().observe(this, this::openCommentDialog);
         model.getLiveViewerCount().observe(this, i -> binding.viewers.setText(getString(R.string.viewers, String.valueOf(model.getViewersCount()))));
         model.getOnSetUpComplete().observe(this, map -> {
-            Log.e("mapChecking",map.toString());
             if (!map.isEmpty()) {
                 Glide.with(binding.profile).load(map.get(PROFILE_IMAGE)).placeholder(R.drawable.person).into(binding.profile);
                 binding.name.setText(map.get(NAME));
@@ -322,6 +339,10 @@ public class RTMPCallActivity extends AppCompatActivity {
                     binding.option1.setVisibility(View.GONE);
                 }
                 binding.requestHolder.setVisibility(View.GONE);
+                if (Functions.isFollowingOrFollower(model.getData().get(NAME) + "@" + Configurations.getHostName()) == RosterHandler.TYPE_FOLLOWING) {
+                    binding.follow.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.close));
+                }
+
             } else {
                 binding.requestHolder.setVisibility(View.VISIBLE);
                 binding.option4.setVisibility(View.GONE);
@@ -329,10 +350,15 @@ public class RTMPCallActivity extends AppCompatActivity {
                 binding.name.setText(CM.getProfile().getContent().get(ProfileItem.NAME));
                 binding.vip.setText(CM.getProfile().getContent().get(ProfileItem.VIP));
                 binding.viewers.setText(getString(R.string.viewers, String.valueOf(model.getViewersCount())));
+                binding.follow.setVisibility(View.GONE);
+                binding.option7.setVisibility(View.VISIBLE);
+                binding.option5.setVisibility(View.VISIBLE);
 
 
             }
         });
+        model.getShowToast().observe(this,this::showToast);
+        model.getUpdateCommentSection().observe(this,this::updateCommentSection);
 
         model.getLiveAction().observe(this, liveAction -> {
             switch (liveAction.getActionType()) {
@@ -347,8 +373,16 @@ public class RTMPCallActivity extends AppCompatActivity {
                 }
             }
         });
-        model.getOnCompetitorAccepted().observe(this,s-> model.setUpForCompetitor(this,binding.cameraView,binding.cameraView2));
+        model.getOnCompetitorAccepted().observe(this, s -> model.setUpForCompetitor(this, binding.cameraView, binding.cameraView2));
         model.getOptionsMenuVisibility().observe(this, b -> binding.optionsLayout.setVisibility(b ? View.VISIBLE : View.GONE));
+    }
+
+    private void updateCommentSection(Boolean aBoolean) {
+        binding.send.setEnabled(!aBoolean);
+    }
+
+    private void showToast(String s) {
+        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 
     @SuppressLint("SetTextI18n")
@@ -360,31 +394,33 @@ public class RTMPCallActivity extends AppCompatActivity {
             binding.imageview.setVisibility(View.GONE);
             binding.lottie.setVisibility(View.GONE);
             binding.svgaImageView.setVisibility(View.GONE);
-        },3000);
+        }, 3000);
 
-        switch (giftItem.getGiftType()){
-            case GiftItem.GIFT_TYPE_IMAGE:{
+        switch (giftItem.getGiftType()) {
+            case GiftItem.GIFT_TYPE_IMAGE: {
                 binding.imageview.setVisibility(View.VISIBLE);
-                Functions.setImageView(this,giftItem.getGiftName(),binding.imageview);
+                Functions.setImageView(this, giftItem.getGiftName(), binding.imageview);
                 break;
-            }case GiftItem.GIFT_TYPE_LOTTIE:{
+            }
+            case GiftItem.GIFT_TYPE_LOTTIE: {
                 binding.lottie.setVisibility(View.VISIBLE);
-                Functions.setLottieAnimation(giftItem.getGiftName(),binding.lottie);
+                Functions.setLottieAnimation(giftItem.getGiftName(), binding.lottie);
                 break;
-            }case GiftItem.GIFT_TYPE_SVGA_HALF:{
+            }
+            case GiftItem.GIFT_TYPE_SVGA_HALF: {
                 binding.svgaImageView.setVisibility(View.VISIBLE);
-                Functions.loadSVGAAnimation(this,giftItem.getGiftName(),binding.svgaImageView);
+                Functions.loadSVGAAnimation(this, giftItem.getGiftName(), binding.svgaImageView);
                 break;
             }
         }
-        if(Integer.parseInt(giftModel.getIndex())==0){
-            if(model.getAction().equals(LIVE_USER_TYPE_HOST)){
-                binding.textview.setText( model.getViewerProfile(giftModel.getFrom().split("@")[0]).getContent().get(ProfileItem.NAME)+" sent a gift to "+model.getLive().get(NAME));
-            }else {
-                binding.textview.setText(model.getViewerProfile(giftModel.getFrom().split("@")[0]).getContent().get(ProfileItem.NAME)+" sent a gift to "+model.getData().get(NAME));
+        if (Integer.parseInt(giftModel.getIndex()) == 0) {
+            if (model.getAction().equals(LIVE_USER_TYPE_HOST)) {
+                binding.textview.setText(model.getViewerProfile(giftModel.getFrom().split("@")[0]).getContent().get(ProfileItem.NAME) + " sent a gift to " + model.getLive().get(NAME));
+            } else {
+                binding.textview.setText(model.getViewerProfile(giftModel.getFrom().split("@")[0]).getContent().get(ProfileItem.NAME) + " sent a gift to " + model.getData().get(NAME));
             }
-        }else {
-            binding.textview.setText(model.getViewerProfile(giftModel.getFrom().split("@")[0]).getContent().get(ProfileItem.NAME)+" sent a gift to "+model.getCompetitorList().get(0).getContent().get(NAME));
+        } else {
+            binding.textview.setText(model.getViewerProfile(giftModel.getFrom().split("@")[0]).getContent().get(ProfileItem.NAME) + " sent a gift to " + model.getCompetitorList().get(0).getContent().get(NAME));
         }
     }
 
@@ -421,17 +457,17 @@ public class RTMPCallActivity extends AppCompatActivity {
             binding.endCall2.setVisibility(View.GONE);
             return;
         }
-        for(LiveItem liveItem: liveItems){
-            Log.e("liveItems",liveItem.toString());
+        for (LiveItem liveItem : liveItems) {
+            Log.e("liveItems", liveItem.toString());
         }
         LiveItem liveItem = liveItems.get(0);
 
-        if(model.getAction().equals(LIVE_USER_TYPE_HOST)){
+        if (model.getAction().equals(LIVE_USER_TYPE_HOST)) {
             Glide.with(binding.profile1).load(CM.getProfile().getContent().get(ProfileItem.PROFILE_PICTURE)).placeholder(R.drawable.person).into(binding.profile1);
             binding.name1.setText(CM.getProfile().getContent().get(ProfileItem.NAME));
             binding.vip1.setText(CM.getProfile().getContent().get(ProfileItem.VIP));
             binding.profileInfo1.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             Glide.with(binding.profile1).load(model.getData().get(PROFILE_IMAGE)).placeholder(R.drawable.person).into(binding.profile1);
             binding.name1.setText(model.getData().get(LiveItem.NAME));
             binding.vip1.setText(model.getData().get(LiveItem.VIP));
@@ -515,17 +551,19 @@ public class RTMPCallActivity extends AppCompatActivity {
 
     private void openGift(int index) {
         new AlertDialogViewer(this, event -> {
-            switch (event[0]){
-                case REPLAY_TYPE_GIFT_SELECTED:{
-                    model.sendGift(index,event[1]);
+            switch (event[0]) {
+                case REPLAY_TYPE_GIFT_SELECTED: {
+                    model.sendGift(index, event[1]);
                     break;
-                }case REPLAY_TYPE_GIFT_PREVIEW:{
-                    new AlertDialogViewer(RTMPCallActivity.this, event1 -> {},ALERTDIALOG_TYPE_PREVIEW_GIFT,event[1]);
+                }
+                case REPLAY_TYPE_GIFT_PREVIEW: {
+                    new AlertDialogViewer(RTMPCallActivity.this, event1 -> {
+                    }, ALERTDIALOG_TYPE_PREVIEW_GIFT, event[1]);
                     break;
                 }
             }
 
-        },ALERTDIALOG_TYPE_OPEN_GIFT);
+        }, ALERTDIALOG_TYPE_OPEN_GIFT);
     }
 
     private void openProfile(String s) {
@@ -561,7 +599,7 @@ public class RTMPCallActivity extends AppCompatActivity {
         binding.cameraView.setLayoutParams(layoutParams);
         binding.cameraView2.setVisibility(View.GONE);
         binding.option1.setVisibility(View.VISIBLE);
-        if(model.getAction().equals(LIVE_USER_TYPE_HOST)){
+        if (model.getAction().equals(LIVE_USER_TYPE_HOST)) {
             binding.requestHolder.setVisibility(View.VISIBLE);
         }
 

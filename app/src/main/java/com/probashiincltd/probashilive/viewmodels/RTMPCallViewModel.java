@@ -1,5 +1,8 @@
 package com.probashiincltd.probashilive.viewmodels;
 
+import static com.probashiincltd.probashilive.connectionutils.RosterHandler.TYPE_FOLLOWING;
+import static com.probashiincltd.probashilive.connectionutils.RosterHandler.TYPE_NO_FRIEND;
+import static com.probashiincltd.probashilive.connectionutils.RosterHandler.getRosterHandler;
 import static com.probashiincltd.probashilive.pubsubItems.LiveItem.CITY;
 import static com.probashiincltd.probashilive.pubsubItems.LiveItem.COUNTRY;
 import static com.probashiincltd.probashilive.pubsubItems.LiveItem.COUNTRY_CODE;
@@ -22,6 +25,7 @@ import static com.probashiincltd.probashilive.utils.Configurations.CLOSE_LIVE;
 import static com.probashiincltd.probashilive.utils.Configurations.DATA;
 import static com.probashiincltd.probashilive.utils.Configurations.END_CALL_1;
 import static com.probashiincltd.probashilive.utils.Configurations.END_CALL_2;
+import static com.probashiincltd.probashilive.utils.Configurations.FOLLOW;
 import static com.probashiincltd.probashilive.utils.Configurations.GIFT;
 import static com.probashiincltd.probashilive.utils.Configurations.GIFT1;
 import static com.probashiincltd.probashilive.utils.Configurations.HIDE_COMMENT;
@@ -45,6 +49,7 @@ import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_REQUEST_ACCEPTED;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_REQUEST_TO_LEAVE_COMPETITOR;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_SEND_GIFT;
+import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIDEO_DISABLE_COMMENT;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIDEO_INVITATION;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIDEO_INVITATION_ACCEPTED;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_VIDEO_STREAM_JOINED;
@@ -104,6 +109,7 @@ public class RTMPCallViewModel extends ViewModel {
     NodePublisher nodePublisher;
     NodePlayer nodePlayer;
     String action;
+    boolean isCommentDisabled = false;
     HashMap<String, String> live = new HashMap<>();
 
     public HashMap<String,String>getLive(){
@@ -146,6 +152,12 @@ public class RTMPCallViewModel extends ViewModel {
     private final MutableLiveData<Boolean> optionsMenu = new MutableLiveData<>();
 
     private final MutableLiveData<String> openProfile = new MutableLiveData<>();
+    private final MutableLiveData<Integer> followClicked = new MutableLiveData<>();
+    private final MutableLiveData<String> showToast = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> updateCommentSection = new MutableLiveData<>();
+    public LiveData<Integer>getFollowClicked(){
+        return followClicked;
+    }
     private final MutableLiveData<CommentModel> onCommentInserted = new MutableLiveData<>();
     public LiveData<CommentModel>getOnCommentInserted(){
         return onCommentInserted;
@@ -158,8 +170,14 @@ public class RTMPCallViewModel extends ViewModel {
     public LiveData<String> getOpenProfile() {
         return openProfile;
     }
+    public LiveData<String> getShowToast() {
+        return showToast;
+    }
     public LiveData<GiftModel> getGiftReceived() {
         return onGiftReceived;
+    }
+    public LiveData<Boolean> getUpdateCommentSection() {
+        return updateCommentSection;
     }
 
     public LiveData<ArrayList<LiveItem>> getViewUpdate() {
@@ -236,8 +254,40 @@ public class RTMPCallViewModel extends ViewModel {
             onSendButtonClick.setValue(SHOW_VIEWERS);
         }else if(id == R.id.option6){
             onSendButtonClick.postValue(OPEN_JOIN_REQUEST);
+        } else if (id == R.id.follow) {
+            String text = "";
+            String jid = data.get(NAME)+ "@" + Configurations.getHostName();
+            int isFriendStatus = Functions.isFollowingOrFollower(jid);
+            if (isFriendStatus == TYPE_FOLLOWING) {
+                getRosterHandler().removeEntry(jid);
+                isFriendStatus = TYPE_NO_FRIEND;
+                text = "Unfollowed";
+            } else if (isFriendStatus == TYPE_NO_FRIEND) {
+                getRosterHandler().createEntry(jid, data.get(NAME));
+                isFriendStatus = TYPE_FOLLOWING;
+                text = "Following";
+            } else {
+                getRosterHandler().addGroup(jid);
+                isFriendStatus = TYPE_FOLLOWING;
+                text = "Congratulations you become a Fan";
+            }
+            followClicked.setValue(isFriendStatus);
+            showToast.setValue(text);
+        } else if (id == R.id.option7) {
+            isCommentDisabled = !isCommentDisabled;
+            sendCommentDisabled();
+            showToast.setValue(isCommentDisabled?"Comment Disabled":"Comment Enabled");
+        }else if(id == R.id.option5){
+            //todo for setTimer
         }
     }
+
+    void sendCommentDisabled(){
+        broadCastEvent(isCommentDisabled,SUBJECT_TYPE_VIDEO_DISABLE_COMMENT);
+        broadCastToCompetitor(isCommentDisabled,SUBJECT_TYPE_VIDEO_DISABLE_COMMENT);
+    }
+
+
 
     public LiveData<String> getSendComment() {
         return onSendButtonClick;
@@ -290,6 +340,19 @@ public class RTMPCallViewModel extends ViewModel {
                 if(action.equals(LIVE_USER_TYPE_HOST)){
                     broadCastEvent(giftModel,SUBJECT_TYPE_SEND_GIFT);
                     broadCastToCompetitor(giftModel,SUBJECT_TYPE_SEND_GIFT);
+
+                    CommentModel cm = new CommentModel();
+                    cm.setComment(giftModel.getFrom().split("@")[0] +" sent gift "+giftModel.getGiftItem().getGiftName().replace(".png","")+"("+giftModel.getGiftItem().getGiftPrice()+") to "+giftModel.getTo().split("@")[0]);
+                    cm.setName(CM.getProfile().getContent().get(ProfileItem.NAME));
+                    cm.setPp(CM.getProfile().getContent().get(ProfileItem.PROFILE_PICTURE));
+                    cm.setVip(CM.getProfile().getContent().get(ProfileItem.VIP));
+                    cm.setId(myJid);
+                    HashMap<String,String>map = new HashMap<>();
+                    map.put(TYPE,GIFT);
+                    cm.setContent(map);
+                    broadCastEvent(cm, SUBJECT_TYPE_COMMENT);
+                    broadCastToCompetitor(cm, SUBJECT_TYPE_COMMENT);
+
                 }
                 onGiftReceived.postValue(giftModel);
                 break;
@@ -306,6 +369,9 @@ public class RTMPCallViewModel extends ViewModel {
                 competitorList.add(liveItem);
                 broadCastEvent(competitorList, SUBJECT_TYPE_COMPETITOR_LIST);
                 broadCastToCompetitor(competitorList, SUBJECT_TYPE_COMPETITOR_LIST);
+                if(isCommentDisabled){
+                    CM.sendHLM(SUBJECT_TYPE_VIDEO_DISABLE_COMMENT, String.valueOf(true), CM.getConnection().getUser().asFullJidOrThrow().toString(), message.getFrom().asFullJidOrThrow().toString());
+                }
                 onViewUpdate.postValue(competitorList);
                 break;
             }
@@ -384,6 +450,17 @@ public class RTMPCallViewModel extends ViewModel {
             }case SUBJECT_TYPE_REQUEST_TO_LEAVE_COMPETITOR:{
                 removeCompetitor(0);
                 break;
+            } case SUBJECT_TYPE_VIDEO_DISABLE_COMMENT:{
+                isCommentDisabled = new Gson().fromJson(message.getBody(),Boolean.class);
+                if(isCommentDisabled){
+                    showToast.postValue("Comment Disabled by Host!");
+                    updateCommentSection.postValue(true);
+                }else {
+                    showToast.postValue("Comment Enabled by Host!");
+                    updateCommentSection.postValue(false);
+                }
+
+                break;
             }
         }
     };
@@ -425,8 +502,6 @@ public class RTMPCallViewModel extends ViewModel {
                 itemsToBeAdded.add(s.split("@")[0]);
             }
         }
-        Log.e("checkingViewer",viewers.toString());
-        Log.e("checkingViewer",itemsToBeAdded.toString());
         if (itemsToBeAdded.isEmpty()) {
             return;
         }
@@ -438,7 +513,6 @@ public class RTMPCallViewModel extends ViewModel {
         } catch (Exception e) {
             e.fillInStackTrace();
         }
-        Log.e("viewerprofiles",viewerProfiles.toString());
 
     }
 
@@ -459,6 +533,9 @@ public class RTMPCallViewModel extends ViewModel {
         viewers.add(message.getFrom().asFullJidOrThrow().toString());
         if (isOccupied) {
             CM.sendHLM(SUBJECT_TYPE_COMPETITOR_LIST, new Gson().toJson(competitorList), CM.getConnection().getUser().asFullJidOrThrow().toString(), message.getFrom().asFullJidOrThrow().toString());
+        }
+        if(isCommentDisabled){
+            CM.sendHLM(SUBJECT_TYPE_VIDEO_DISABLE_COMMENT, String.valueOf(true), CM.getConnection().getUser().asFullJidOrThrow().toString(), message.getFrom().asFullJidOrThrow().toString());
         }
         getLiveViewerCount.postValue(viewers.size());
         broadCastEvent(viewers, SUBJECT_TYPE_VIEWERS_LIST);
