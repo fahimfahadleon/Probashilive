@@ -32,6 +32,7 @@ import static com.probashiincltd.probashilive.utils.Configurations.HIDE_COMMENT;
 import static com.probashiincltd.probashilive.utils.Configurations.INITIAL_COMMENT;
 import static com.probashiincltd.probashilive.utils.Configurations.JOIN_REQUEST;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_TYPE_VIDEO;
+import static com.probashiincltd.probashilive.utils.Configurations.OPEN_TIMER_DIALOG;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_AUDIENCE;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_COMPETITOR;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_HOST;
@@ -154,6 +155,7 @@ public class RTMPCallViewModel extends ViewModel {
     private final MutableLiveData<String> openProfile = new MutableLiveData<>();
     private final MutableLiveData<Integer> followClicked = new MutableLiveData<>();
     private final MutableLiveData<String> showToast = new MutableLiveData<>();
+
     private final MutableLiveData<Boolean> updateCommentSection = new MutableLiveData<>();
     public LiveData<Integer>getFollowClicked(){
         return followClicked;
@@ -278,7 +280,7 @@ public class RTMPCallViewModel extends ViewModel {
             sendCommentDisabled();
             showToast.setValue(isCommentDisabled?"Comment Disabled":"Comment Enabled");
         }else if(id == R.id.option5){
-            //todo for setTimer
+            onSendButtonClick.setValue(OPEN_TIMER_DIALOG);
         }
     }
 
@@ -301,13 +303,11 @@ public class RTMPCallViewModel extends ViewModel {
         cm.setVip(CM.getProfile().getContent().get(ProfileItem.VIP));
         cm.setId(myJid);
         HashMap<String,String>map = new HashMap<>();
-
         try {
             map.put(TYPE,comment[1]);
         }catch (Exception e){
             //ignored
         }
-
         cm.setContent(map);
         if (action.equals(LIVE_USER_TYPE_HOST)) {
             adapter.addData(cm);
@@ -646,9 +646,9 @@ public class RTMPCallViewModel extends ViewModel {
         int height = context.getResources().getDisplayMetrics().heightPixels;
 
         nodePublisher = new NodePublisher(context, "");
-        nodePublisher.setAudioCodecParam(NodePublisher.NMC_CODEC_ID_AAC, NodePublisher.NMC_PROFILE_AUTO, 48000, 2, 64_000);
+        nodePublisher.setAudioCodecParam(NodePublisher.NMC_CODEC_ID_AAC, NodePublisher.NMC_PROFILE_AUTO, 48000, 1, 64_000);
         nodePublisher.setVideoOrientation(NodePublisher.VIDEO_ORIENTATION_PORTRAIT);
-        nodePublisher.setVideoCodecParam(NodePublisher.NMC_CODEC_ID_H264, NodePublisher.NMC_PROFILE_AUTO, width, height, 30, 1_000_000);
+        nodePublisher.setVideoCodecParam(NodePublisher.NMC_CODEC_ID_H264, NodePublisher.NMC_PROFILE_AUTO, width, height, 30, 2_000_000);
         nodePublisher.attachView(vi);
         //not working in nokia 3
         nodePublisher.setHWAccelEnable(true);

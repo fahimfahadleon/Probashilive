@@ -40,12 +40,14 @@ import com.probashiincltd.probashilive.databinding.JoinRequestLayoutBinding;
 import com.probashiincltd.probashilive.databinding.OpenInviteFriendBinding;
 import com.probashiincltd.probashilive.databinding.PreviewGiftBinding;
 import com.probashiincltd.probashilive.databinding.ProfileDialogBinding;
+import com.probashiincltd.probashilive.databinding.SetCountdownTimerLayoutBinding;
 import com.probashiincltd.probashilive.functions.Functions;
 import com.probashiincltd.probashilive.models.CommentModel;
 import com.probashiincltd.probashilive.models.GiftItem;
 import com.probashiincltd.probashilive.models.MessageProfileModel;
 import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
 import com.probashiincltd.probashilive.utils.Configurations;
+import com.shawnlin.numberpicker.NumberPicker;
 
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.pubsub.Item;
@@ -60,6 +62,7 @@ import java.util.Objects;
 public class AlertDialogViewer {
 
     public static final String ALERTDIALOG_TYPE_OPEN_COMMENT = "open_comment_dialog";
+    public static final String ALERTDIALOG_TYPE_OPEN_TIMER = "open_timer_dialog";
     public static final String ALERTDIALOG_TYPE_OPEN_PROFILE = "open_profile_dialog";
     public static final String ALERTDIALOG_TYPE_OPEN_FRIEND_LIST = "open_friend_list_dialog";
     public static final String ALERTDIALOG_TYPE_OPEN_GIFT = "open_gift_dialog";
@@ -74,6 +77,7 @@ public class AlertDialogViewer {
     public static final String REPLAY_TYPE_INVITATION_DECLINED = "replay_type_invitation_declined";
     public static final String REPLAY_TYPE_GIFT_SELECTED = "replay_type_gift_selected";
     public static final String REPLAY_TYPE_GIFT_PREVIEW = "replay_type_gift_preview";
+    public static final String REPLAY_TYPE_TIMER_SELECTED = "replay_type_timer_selected";
     OnAlertDialogEventListener listener;
     String[] contents;
     Context context;
@@ -120,10 +124,34 @@ public class AlertDialogViewer {
             }
             case ALERTDIALOG_TYPE_PREVIEW_GIFT: {
                 openGiftPreview(contents[1]);
+                break;
+            }
+            case ALERTDIALOG_TYPE_OPEN_TIMER:{
+                openTimer();
+                break;
             }
         }
     }
+    String pickedValue = "1";
+    private void openTimer() {
+        SetCountdownTimerLayoutBinding binding= SetCountdownTimerLayoutBinding.inflate(inflater);
+        binding.numberPicker.setOnScrollListener((picker, scrollState) -> {
+            if (scrollState == NumberPicker.OnScrollListener.SCROLL_STATE_IDLE) {
+                pickedValue = String.valueOf(picker.getValue());
+            }
+        });
 
+        binding.cancel.setOnClickListener(v -> ad.dismiss());
+        binding.start.setOnClickListener(v -> {
+            listener.onEvent(REPLAY_TYPE_TIMER_SELECTED,pickedValue);
+            ad.dismiss();
+        });
+
+        builder.setView(binding.getRoot());
+        ad= builder.create();
+        ad.show();
+        performPostAction();
+    }
 
 
     private void openGiftPreview(String content) {

@@ -40,6 +40,7 @@ public class Configurations {
     public static final String END_CALL_2 = "end_call_2";
     public static final String SHOW_VIEWERS = "show_viewers";
     public static final String OPEN_JOIN_REQUEST = "open_join_request";
+    public static final String OPEN_TIMER_DIALOG = "open_timer_dialog";
     public static final String FOLLOW = "follow";
     public static final String SWITCH_CAMERA = "switch_camera";
     public static final String JOIN_REQUEST = "join_request";

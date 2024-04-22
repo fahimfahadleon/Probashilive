@@ -135,6 +135,7 @@ dependencies {
 
     implementation ("com.github.yyued:SVGAPlayer-Android:2.6.1")
     implementation ("com.airbnb.android:lottie:6.4.0")
+    implementation ("io.github.ShawnLin013:number-picker:2.4.13")
 
 
 //    implementation ("com.arthenica:mobile-ffmpeg-full:4.4")

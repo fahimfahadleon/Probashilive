@@ -6,6 +6,7 @@ import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_T
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_GIFT;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_JOIN_REQUESTS;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_PROFILE;
+import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_TIMER;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_PREVIEW_GIFT;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_BLOCK;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.REPLAY_TYPE_GIFT_PREVIEW;
@@ -34,6 +35,7 @@ import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYP
 import static com.probashiincltd.probashilive.utils.Configurations.OPEN_JOIN_REQUEST;
 import static com.probashiincltd.probashilive.utils.Configurations.OPEN_PROFILE_1;
 import static com.probashiincltd.probashilive.utils.Configurations.OPEN_PROFILE_2;
+import static com.probashiincltd.probashilive.utils.Configurations.OPEN_TIMER_DIALOG;
 import static com.probashiincltd.probashilive.utils.Configurations.SHOW_VIEWERS;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_COMMENT;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_HOST_REMOVED_COMPETITOR;
@@ -50,6 +52,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -64,6 +67,7 @@ import com.google.gson.Gson;
 import com.permissionx.guolindev.PermissionX;
 import com.probashiincltd.probashilive.R;
 import com.probashiincltd.probashilive.adapter.CommentAdapter;
+import com.probashiincltd.probashilive.callbacks.OnAlertDialogEventListener;
 import com.probashiincltd.probashilive.connectionutils.CM;
 import com.probashiincltd.probashilive.connectionutils.RosterHandler;
 import com.probashiincltd.probashilive.databinding.ActivityRtmpcallBinding;
@@ -173,6 +177,7 @@ public class RTMPCallActivity extends AppCompatActivity {
         Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
         new Handler(Looper.getMainLooper()).postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
     }
+
 
 
     void observeViewModel() {
@@ -308,6 +313,14 @@ public class RTMPCallActivity extends AppCompatActivity {
                         }
                     }, ALERTDIALOG_TYPE_OPEN_JOIN_REQUESTS, new Gson().toJson(messages));
                     break;
+                } case OPEN_TIMER_DIALOG:{
+                    new AlertDialogViewer(RTMPCallActivity.this, new OnAlertDialogEventListener() {
+                        @Override
+                        public void onEvent(String... event) {
+                            Toast.makeText(RTMPCallActivity.this, "clicked "+event[1], Toast.LENGTH_SHORT).show();
+                        }
+                    },ALERTDIALOG_TYPE_OPEN_TIMER);
+                    break;
                 }
 
             }
@@ -353,6 +366,7 @@ public class RTMPCallActivity extends AppCompatActivity {
                 binding.follow.setVisibility(View.GONE);
                 binding.option7.setVisibility(View.VISIBLE);
                 binding.option5.setVisibility(View.VISIBLE);
+                binding.option1.setVisibility(View.GONE);
 
 
             }
