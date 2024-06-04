@@ -7,16 +7,27 @@ import static com.probashiincltd.probashilive.connectionutils.RosterHandler.getR
 import static com.probashiincltd.probashilive.utils.Configurations.LOGIN_USER;
 import static org.jivesoftware.smackx.pubsub.packet.PubSub.createPubsubPacket;
 
+import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.PowerManager;
+import android.text.TextUtils;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -25,13 +36,20 @@ import com.opensource.svgaplayer.SVGAPlayer;
 import com.opensource.svgaplayer.SVGASoundManager;
 import com.opensource.svgaplayer.SVGAVideoEntity;
 import com.probashiincltd.probashilive.R;
+import com.probashiincltd.probashilive.cache.CacheManager;
 import com.probashiincltd.probashilive.callbacks.HttpRequestCallback;
+import com.probashiincltd.probashilive.callbacks.ImageLoadCallback;
+import com.probashiincltd.probashilive.callbacks.ImageUploadCallback;
+import com.probashiincltd.probashilive.callbacks.UploadCallback;
 import com.probashiincltd.probashilive.connectionutils.CM;
 import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
 import com.probashiincltd.probashilive.pubsubItems.UniversalModelMap;
 import com.probashiincltd.probashilive.utils.Configurations;
+import com.probashiincltd.probashilive.utils.CountingFileRequestBody;
 import com.probashiincltd.probashilive.utils.Pair;
 
+import org.jetbrains.annotations.NotNull;
+import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.StanzaIdFilter;
@@ -41,6 +59,8 @@ import org.jivesoftware.smack.parsing.SmackParsingException;
 import org.jivesoftware.smack.util.PacketParserUtils;
 import org.jivesoftware.smack.xml.XmlPullParserException;
 import org.jivesoftware.smackx.disco.packet.DiscoverItems;
+import org.jivesoftware.smackx.httpfileupload.HttpFileUploadManager;
+import org.jivesoftware.smackx.httpfileupload.element.Slot;
 import org.jivesoftware.smackx.pubsub.GetItemsRequest;
 import org.jivesoftware.smackx.pubsub.Item;
 import org.jivesoftware.smackx.pubsub.ItemsExtension;
@@ -55,21 +75,26 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -78,6 +103,13 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class Functions {
 
@@ -117,7 +149,7 @@ public class Functions {
     }
 
 
-    public static int isFollowingOrFollower(String id){
+    public static int isFollowingOrFollower(String id) {
         int val = TYPE_NO_FRIEND;
         try {
             if (getRosterHandler().roster.contains(JidCreate.bareFrom(id))) {
@@ -127,12 +159,13 @@ public class Functions {
                     val = TYPE_FOLLOWER;
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             //ignored
         }
 
         return val;
     }
+
     public static void loadSVGAAnimation(Context context, String fileName, SVGAPlayer svgaPlayer) {
         SVGAParser parser = new SVGAParser(context);
         try {
@@ -145,6 +178,7 @@ public class Functions {
                     manager.init();
                     manager.setVolume(1f, videoItem);
                 }
+
                 @Override
                 public void onError() {
                     Log.e("error", "error loading animation");
@@ -603,7 +637,7 @@ public class Functions {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            e.fillInStackTrace();
             Log.e("exceptionFound", e.toString());
         }
     }
@@ -670,6 +704,188 @@ public class Functions {
             }
 
         });
+    }
+
+
+    public static void uploadProtectedFile(AbstractXMPPConnection connection, ArrayList<File> files, Context context, ImageUploadCallback callback) {
+        Runnable r = new Runnable() {
+            public void fun() {
+                synchronized (this) {
+                    notify();
+                }
+            }
+
+
+            @Override
+            public void run() {
+                try {
+                    ArrayList<Slot> originalSlots = new ArrayList<>();
+                    String mimtype = "";
+                    for (int i = 0; i < files.size(); i++) {
+                        File file = files.get(i);
+                        mimtype = getMimeType(context, file);
+                        String finalMimtype1 = mimtype;
+                        uploadFile(context, connection, file, new UploadCallback() {
+                            @Override
+                            public void onSuccess(Slot slot) {
+                                originalSlots.add(slot);
+                                callback.onSuccess(originalSlots, null, finalMimtype1);
+                                fun();
+                            }
+
+                            @Override
+                            public void onFailed() {
+
+                            }
+                        });
+
+                        synchronized (this) {
+                            wait();
+                        }
+                    }
+                } catch (Exception ex) {
+                    ex.fillInStackTrace();
+                    callback.onFailed(ex.toString());
+                }
+            }
+        };
+        Thread thread = new Thread(r);
+        thread.start();
+    }
+
+    static RequestBody getRequestBody(Context context, File file) {
+        String mimeType = getMimeType(context, file);
+        long totalSize = file.length();
+        return new CountingFileRequestBody(file, mimeType, num -> {
+            float progress = (num / (float) totalSize) * 100;
+            Log.e("persendage", String.valueOf(progress));
+            if (progress == 100) {
+//                    dismissLoadingDialog();
+            }
+        });
+    }
+
+    public static void loadImage(Context context, ImageView imageView, String url) {
+        try {
+            if (!TextUtils.isEmpty(url)) {
+                CacheManager.httpCache("profile load iamge", "image", url, new ImageLoadCallback() {
+                    @Override
+                    public void onSuccess(InputStream inputStream) {
+                        Log.e("onSuccess", "called");
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                            Glide.with(imageView).load(bitmap).into(imageView);
+//                            imageView.setImageBitmap(bitmap);
+                        });
+                    }
+
+                    @Override
+                    public void onFailed(String error) {
+                        Log.e("onfailed", error);
+                        new Handler(Looper.getMainLooper()).post(() -> imageView.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.person)));
+                    }
+                });
+            } else {
+                Log.e("onfailed", "empty");
+                imageView.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.person));
+            }
+        } catch (Exception e) {
+            e.fillInStackTrace();
+        }
+    }
+
+    public static String getMimeType(Context context, File file) {
+        Uri uri = Uri.fromFile(file);
+        String mimeType;
+        if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
+            ContentResolver cr = context.getContentResolver();
+            mimeType = cr.getType(uri);
+        } else {
+            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
+                    .toString());
+            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                    fileExtension.toLowerCase());
+        }
+        return mimeType;
+    }
+
+    public static OkHttpClient getUnsafeOkHttpClient() {
+        try {
+
+            // Create a trust manager that does not validate certificate chains
+            @SuppressLint("CustomX509TrustManager") final TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        @SuppressLint("TrustAllX509TrustManager")
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] chain, String authType) {
+                        }
+
+                        @SuppressLint("TrustAllX509TrustManager")
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] chain, String authType) {
+                        }
+
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return new X509Certificate[]{};
+                        }
+                    }
+            };
+
+            // Install the all-trusting trust manager
+            final SSLContext sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+            // Create an ssl socket factory with our all-trusting manager
+            final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+
+            OkHttpClient.Builder builder = new OkHttpClient.Builder();
+            builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
+            builder.connectTimeout(30, TimeUnit.SECONDS);
+            builder.readTimeout(30, TimeUnit.SECONDS);
+            builder.writeTimeout(30, TimeUnit.SECONDS);
+            builder.hostnameVerifier((hostname, session) -> true);
+
+            return builder.build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    static Slot uploadFile(Context context, AbstractXMPPConnection connection, File file, UploadCallback callback) throws Exception {
+        HttpFileUploadManager httpFileUploadManager = HttpFileUploadManager.getInstanceFor(connection);
+        if (httpFileUploadManager.discoverUploadService()) {
+            if (httpFileUploadManager.isUploadServiceDiscovered()) {
+                RequestBody requestBody = getRequestBody(context, file);
+                final Slot slot = httpFileUploadManager.requestSlot(file.getName(), requestBody.contentLength(), getMimeType(context, file));
+                OkHttpClient client = getUnsafeOkHttpClient();
+                Request request = new Request.Builder()
+                        .url(slot.getPutUrl())
+                        .put(requestBody)
+                        .build();
+                client.newCall(request).enqueue(new Callback() {
+
+                    @Override
+                    public void onFailure(@NotNull final Call call, @NotNull final IOException e) {
+                        Log.e("exceptionasdf", e.toString());
+                        callback.onFailed();
+                    }
+
+                    @Override
+                    public void onResponse(@NotNull final Call call, @NotNull final Response response) {
+                        callback.onSuccess(slot);
+                    }
+                });
+
+                return slot;
+
+            } else {
+                Log.e("uploadservice", "false");
+            }
+        } else {
+            Log.e("httpuploadservice", "false");
+        }
+        return null;
     }
 
 

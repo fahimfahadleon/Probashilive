@@ -138,6 +138,16 @@ dependencies {
     implementation ("io.github.ShawnLin013:number-picker:2.4.13")
 
 
+    implementation ("com.squareup.okhttp3:okhttp:4.9.0")
+    implementation ("com.squareup.okhttp3:logging-interceptor:3.14.1")
+    implementation ("com.squareup.okio:okio:2.8.0")
+
+//
+//    implementation("androidx.media3:media3-exoplayer:1.3.1")
+//    implementation("androidx.media3:media3-exoplayer-dash:1.3.1")
+//    implementation("androidx.media3:media3-ui:1.3.1")
+
+
 //    implementation ("com.arthenica:mobile-ffmpeg-full:4.4")
 
 

@@ -14,14 +14,8 @@ public class ProfileFragmentViewModel extends ViewModel {
     public static final int PROFILE_ACTION_EDIT = 0;
     public static final int PROFILE_ACTION_SAVE = 1;
     public static final int PROFILE_ACTION_FOLLOWERS = 2;
-    public static final int PROFILE_ACTION_FOLLOWING = 3  ;
-
-
-
-
-
-
-
+    public static final int PROFILE_ACTION_FOLLOWING = 3;
+    public static final int PROFILE_ACTION_UPLOAD_IMAGE = 4;
 
     private final ObservableBoolean isEnabled = new ObservableBoolean(false);
     public ObservableBoolean getIsEnabled(){
@@ -42,6 +36,8 @@ public class ProfileFragmentViewModel extends ViewModel {
             onButtonclick.setValue(PROFILE_ACTION_FOLLOWERS);
         }else if(id == R.id.following){
             onButtonclick.setValue(PROFILE_ACTION_FOLLOWING);
+        }else if(id == R.id.profileEdit){
+            onButtonclick.setValue(PROFILE_ACTION_UPLOAD_IMAGE);
         }
 
         

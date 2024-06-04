@@ -17,26 +17,22 @@
         tools:context=".ui.MainActivity">
 
         <ImageView
-            android:layout_width="@dimen/_250sdp"
-            android:layout_height="@dimen/_250sdp"
-            android:id="@+id/appicon"
-
-            android:layout_marginTop="@dimen/_16sdp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.8"
+            android:scaleType="fitXY"
+            android:src="@drawable/background_image"/>
 
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:layout_marginBottom="@dimen/_30sdp"
             android:id="@+id/linearlayout"
-            android:layout_marginBottom="@dimen/_120sdp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/appicon">
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -72,22 +68,38 @@
                     android:background="@drawable/edittextbg"/>
 
 
-
-                <Button
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Login"
-                    android:id="@+id/login"
                     android:layout_gravity="center"
-                    android:background="@null"
-                    android:textColor="#000"
-                    android:onClick="@{viewModel::onRegisterClick}"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/appicon"
-                    app:layout_constraintBottom_toTopOf="@id/google"
+                    android:orientation="horizontal">
 
-                    />
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Login"
+                        android:id="@+id/login"
+                        android:layout_gravity="center"
+                        android:background="@null"
+                        android:textColor="#fff"
+                        android:layout_marginHorizontal="@dimen/_4sdp"
+                        android:onClick="@{viewModel::onRegisterClick}"
+
+
+                        />
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="register"
+                        android:textColor="#fff"
+                        android:id="@+id/raw"
+                        android:layout_marginHorizontal="@dimen/_4sdp"
+
+                        android:onClick="@{viewModel::onRegisterClick}"
+                        />
+                </LinearLayout>
+
 
 
             </LinearLayout>
@@ -133,7 +145,6 @@
                         android:textColor="#fff"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/appicon"
                         app:layout_constraintBottom_toTopOf="@id/google"
 
                         />
@@ -150,6 +161,7 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
                     android:layout_weight="3"
+
                     android:background="@drawable/googlestyle"
                     android:clipChildren="true"
                     android:layout_marginStart="@dimen/_4sdp"
@@ -206,17 +218,7 @@
 
         </LinearLayout>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="register"
-            android:id="@+id/raw"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="@dimen/_8sdp"
-            app:layout_constraintTop_toBottomOf="@id/linearlayout"
-            android:onClick="@{viewModel::onRegisterClick}"
-            />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -12,6 +12,7 @@ import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
 
+import com.probashiincltd.probashilive.cache.CacheManager;
 import com.probashiincltd.probashilive.callbacks.HeadlineMessageListener;
 import com.probashiincltd.probashilive.callbacks.RegisterCallback;
 import com.probashiincltd.probashilive.functions.Functions;
@@ -39,7 +40,6 @@ import org.jivesoftware.smack.xml.XmlPullParserException;
 import org.jivesoftware.smackx.caps.EntityCapsManager;
 import org.jivesoftware.smackx.ping.PingManager;
 import org.jivesoftware.smackx.ping.android.ServerPingWithAlarmManager;
-import org.jivesoftware.smackx.pubsub.Item;
 import org.json.JSONException;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
@@ -51,7 +51,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.security.auth.callback.CallbackHandler;
-import javax.xml.parsers.ParserConfigurationException;
 
 public class CM extends XmppConnection {
     String userID;
@@ -204,6 +203,9 @@ public class CM extends XmppConnection {
                 connection = mConnection;
                 setUpStanzaListener();
                 setUpPingManager();
+
+                CacheManager.setCacheDir(context.getCacheDir().toString());
+                CacheManager.load("/", "xml");
 //                createProfile();
 
                 if (action.equals("register")) {
@@ -429,6 +431,9 @@ public class CM extends XmppConnection {
         }
     }
 
+    public static void setProfile(ProfileItem profileItem){
+        profileModel = profileItem;
+    }
 
     private ProfileItem createProfile() {
         HashMap<String, String> profileMap = new HashMap<>();
@@ -445,12 +450,7 @@ public class CM extends XmppConnection {
         profileMap.put(ProfileItem.VIP, Functions.getSP("false", ""));
         profileMap.put(ProfileItem.LANDING_ANIMATION,"");
         ProfileItem profileItem = new ProfileItem(profileMap);
-        try {
-            Item i = Functions.createRawItem(profileItem);
-            Functions.publishToNode(NODE_USERS, i, i.getId());
-        } catch (ParserConfigurationException e) {
-            throw new RuntimeException(e);
-        }
+        ProfileItem.updateProfileItem(profileItem);
         return profileItem;
     }
 

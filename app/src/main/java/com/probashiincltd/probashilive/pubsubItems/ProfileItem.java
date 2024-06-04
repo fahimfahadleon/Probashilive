@@ -1,5 +1,6 @@
 package com.probashiincltd.probashilive.pubsubItems;
 
+import static com.probashiincltd.probashilive.connectionutils.CM.NODE_USERS;
 import static com.probashiincltd.probashilive.utils.Configurations.CONTENT;
 import static com.probashiincltd.probashilive.utils.Configurations.LOGIN_USER;
 
@@ -18,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 public class ProfileItem extends UniversalModelMap{
 
@@ -53,7 +56,6 @@ public class ProfileItem extends UniversalModelMap{
         return "pubsub:live:users:user";
     }
 
-
     @Override
     public String getID() {
         return Functions.getSP(LOGIN_USER, "");
@@ -68,7 +70,6 @@ public class ProfileItem extends UniversalModelMap{
         JSONObject jsonObject = json.getJSONObject("item");
         String id = jsonObject.getString("id");
         JSONObject content = jsonObject.getJSONObject(id);
-
         HashMap<String,String> profileMap = new HashMap<>();
         profileMap.put(NAME, content.getJSONObject(NAME).optString(CONTENT));
         profileMap.put(PROFILE_PICTURE,content.getJSONObject(PROFILE_PICTURE).optString(CONTENT));
@@ -78,8 +79,6 @@ public class ProfileItem extends UniversalModelMap{
         profileMap.put(VIP, content.getJSONObject(VIP).optString(CONTENT));
         profileMap.put(LANDING_ANIMATION,content.getJSONObject(LANDING_ANIMATION).optString(CONTENT));
         return new ProfileItem(profileMap);
-
-
     }
 
 
@@ -96,6 +95,17 @@ public class ProfileItem extends UniversalModelMap{
         ProfileItem that = (ProfileItem) obj;
         return content.get(NAME).equals(that.content.get(NAME));
     }
+
+    public static void updateProfileItem(ProfileItem profileItem){
+        try {
+            Item i = Functions.createRawItem(profileItem);
+            Functions.publishToNode(NODE_USERS, i, i.getId());
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 
 
 }
