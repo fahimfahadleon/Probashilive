@@ -4,11 +4,10 @@ import static com.probashiincltd.probashilive.connectionutils.CM.NODE_USERS;
 import static com.probashiincltd.probashilive.utils.Configurations.CONTENT;
 import static com.probashiincltd.probashilive.utils.Configurations.LOGIN_USER;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.probashiincltd.probashilive.functions.Functions;
+import com.probashiincltd.probashilive.utils.XmppXMLParser;
 
 import org.jivesoftware.smackx.pubsub.Item;
 import org.json.JSONException;
@@ -18,7 +17,6 @@ import org.json.XML;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Objects;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -74,7 +72,9 @@ public class ProfileItem extends UniversalModelMap{
         profileMap.put(NAME, content.getJSONObject(NAME).optString(CONTENT));
         profileMap.put(PROFILE_PICTURE,content.getJSONObject(PROFILE_PICTURE).optString(CONTENT));
         profileMap.put(EMAIL, content.getJSONObject(EMAIL).optString(CONTENT));
-        profileMap.put(PHONE, content.getJSONObject(PHONE).optString(CONTENT));
+        String s = XmppXMLParser.load(item.toXML().toString()).getText("/item/"+item.getId()+"/phone/").get(0);
+        profileMap.put(PHONE, s);
+
         profileMap.put(COIN, content.getJSONObject(COIN).optString(CONTENT));
         profileMap.put(VIP, content.getJSONObject(VIP).optString(CONTENT));
         profileMap.put(LANDING_ANIMATION,content.getJSONObject(LANDING_ANIMATION).optString(CONTENT));

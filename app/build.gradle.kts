@@ -114,7 +114,7 @@ dependencies {
     implementation ("org.igniterealtime.smack:smack-resolver-dnsjava:4.4.7")
 
 
-    implementation ("com.github.bumptech.glide:glide:4.16.0")
+
 
     implementation ("com.guolindev.permissionx:permissionx:1.7.1")
 
@@ -137,10 +137,15 @@ dependencies {
     implementation ("com.airbnb.android:lottie:6.4.0")
     implementation ("io.github.ShawnLin013:number-picker:2.4.13")
 
+    implementation ("com.github.bumptech.glide:glide:4.15.1")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
+    implementation ("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation ("com.github.bumptech.glide:okhttp3-integration:4.15.1")
 
-    implementation ("com.squareup.okhttp3:okhttp:4.9.0")
+
     implementation ("com.squareup.okhttp3:logging-interceptor:3.14.1")
     implementation ("com.squareup.okio:okio:2.8.0")
+    implementation ("com.caverock:androidsvg:1.4")
 
 //
 //    implementation("androidx.media3:media3-exoplayer:1.3.1")

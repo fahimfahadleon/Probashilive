@@ -11,6 +11,7 @@ import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -27,7 +28,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -75,10 +75,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -725,11 +729,52 @@ public class Functions {
                         File file = files.get(i);
                         mimtype = getMimeType(context, file);
                         String finalMimtype1 = mimtype;
-                        uploadFile(context, connection, file, new UploadCallback() {
+
+
+                        Bitmap thumbnail = BitmapFactory.decodeFile(file.getPath());
+
+                        int width = Resources.getSystem().getDisplayMetrics().widthPixels;
+                        int targetWidth = (width / 3) * 2;
+                        double aspectRatio = (double) thumbnail.getHeight() / (double) thumbnail.getWidth();
+                        int targetHeight = (int) (targetWidth * aspectRatio);
+                        if (targetHeight > targetWidth) {
+                            targetWidth = targetWidth / 2;
+                            targetHeight = targetHeight / 2;
+                        }
+                        Bitmap result = Bitmap.createScaledBitmap(thumbnail, targetWidth, targetHeight, false);
+                        File mymile = new File(context.getExternalCacheDir() + "_" + file.getName());
+
+                        if (!mymile.exists()) {
+                            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                            result.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
+                            byte[] bitmapdata = bos.toByteArray();
+                            ByteArrayInputStream bs = new ByteArrayInputStream(bitmapdata);
+                            try {
+                                try {
+                                    OutputStream output = new FileOutputStream(mymile);
+                                    byte[] buffer = new byte[1024]; // or other buffer size
+                                    int read;
+                                    while ((read = bs.read(buffer)) != -1) {
+                                        output.write(buffer, 0, read);
+                                    }
+                                    output.flush();
+                                } catch (IOException e) {
+                                    e.fillInStackTrace();
+                                }
+                            } finally {
+                                try {
+                                    bs.close();
+                                } catch (IOException e) {
+                                    e.fillInStackTrace();
+                                }
+                            }
+                        }
+                        uploadFile(context, connection, mymile, new UploadCallback() {
                             @Override
                             public void onSuccess(Slot slot) {
                                 originalSlots.add(slot);
                                 callback.onSuccess(originalSlots, null, finalMimtype1);
+                                boolean ignored = mymile.delete();
                                 fun();
                             }
 
@@ -738,6 +783,15 @@ public class Functions {
 
                             }
                         });
+
+
+
+
+
+
+
+
+
 
                         synchronized (this) {
                             wait();
@@ -774,8 +828,8 @@ public class Functions {
                         Log.e("onSuccess", "called");
                         new Handler(Looper.getMainLooper()).post(() -> {
                             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                            Glide.with(imageView).load(bitmap).into(imageView);
-//                            imageView.setImageBitmap(bitmap);
+//                            Glide.with(imageView).load(bitmap).into(imageView);
+                            imageView.setImageBitmap(bitmap);
                         });
                     }
 

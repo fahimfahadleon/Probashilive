@@ -284,7 +284,7 @@ public class CacheManager {
                                 }
                                 baos.flush();
                             } catch (IOException e) {
-                                e.printStackTrace();
+                                e.fillInStackTrace();
                             }
                             InputStream is1 = new ByteArrayInputStream(baos.toByteArray());
                             InputStream is2 = new ByteArrayInputStream(baos.toByteArray());

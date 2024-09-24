@@ -25,20 +25,19 @@ import static com.probashiincltd.probashilive.utils.Configurations.CLOSE_LIVE;
 import static com.probashiincltd.probashilive.utils.Configurations.DATA;
 import static com.probashiincltd.probashilive.utils.Configurations.END_CALL_1;
 import static com.probashiincltd.probashilive.utils.Configurations.END_CALL_2;
-import static com.probashiincltd.probashilive.utils.Configurations.FOLLOW;
 import static com.probashiincltd.probashilive.utils.Configurations.GIFT;
 import static com.probashiincltd.probashilive.utils.Configurations.GIFT1;
 import static com.probashiincltd.probashilive.utils.Configurations.HIDE_COMMENT;
 import static com.probashiincltd.probashilive.utils.Configurations.INITIAL_COMMENT;
 import static com.probashiincltd.probashilive.utils.Configurations.JOIN_REQUEST;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_TYPE_VIDEO;
-import static com.probashiincltd.probashilive.utils.Configurations.OPEN_TIMER_DIALOG;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_AUDIENCE;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_COMPETITOR;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_USER_TYPE_HOST;
 import static com.probashiincltd.probashilive.utils.Configurations.OPEN_JOIN_REQUEST;
 import static com.probashiincltd.probashilive.utils.Configurations.OPEN_PROFILE_1;
 import static com.probashiincltd.probashilive.utils.Configurations.OPEN_PROFILE_2;
+import static com.probashiincltd.probashilive.utils.Configurations.OPEN_TIMER_DIALOG;
 import static com.probashiincltd.probashilive.utils.Configurations.SHOW_VIEWERS;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_COMMENT;
 import static com.probashiincltd.probashilive.utils.Configurations.SUBJECT_TYPE_COMPETITOR_LEFT;
@@ -89,7 +88,6 @@ import org.jivesoftware.smack.packet.StanzaBuilder;
 import org.jivesoftware.smackx.pubsub.Item;
 import org.json.JSONException;
 import org.jxmpp.jid.FullJid;
-import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 
 import java.lang.reflect.Type;
@@ -645,7 +643,7 @@ public class RTMPCallViewModel extends ViewModel {
         int width = context.getResources().getDisplayMetrics().widthPixels;
         int height = context.getResources().getDisplayMetrics().heightPixels;
 
-        nodePublisher = new NodePublisher(context, "");
+        nodePublisher = new NodePublisher(context, "https://github.com/fahimfahadleon/Probashilive/tree/master");
         nodePublisher.setAudioCodecParam(NodePublisher.NMC_CODEC_ID_AAC, NodePublisher.NMC_PROFILE_AUTO, 48000, 1, 64_000);
         nodePublisher.setVideoOrientation(NodePublisher.VIDEO_ORIENTATION_PORTRAIT);
         nodePublisher.setVideoCodecParam(NodePublisher.NMC_CODEC_ID_H264, NodePublisher.NMC_PROFILE_AUTO, width, height, 30, 2_000_000);
@@ -684,7 +682,7 @@ public class RTMPCallViewModel extends ViewModel {
 
     void setUpForAudience(Context context, FrameLayout surface) {
         String receiver = getData().get("room_id");
-        nodePlayer = new NodePlayer(context, "");
+        nodePlayer = new NodePlayer(context, "https://github.com/fahimfahadleon/Probashilive/tree/master");
         nodePlayer.attachView(surface);
         nodePlayer.start(Configurations.RTMP_URL + getData().get("name"));
         CM.sendHLM(SUBJECT_TYPE_JOINED_LIVE, new Gson().toJson(CM.getProfile()), myJid, receiver);
@@ -719,7 +717,7 @@ public class RTMPCallViewModel extends ViewModel {
         int width = context.getResources().getDisplayMetrics().widthPixels;
         int height = context.getResources().getDisplayMetrics().heightPixels;
 
-        nodePublisher = new NodePublisher(context, "");
+        nodePublisher = new NodePublisher(context, "https://github.com/fahimfahadleon/Probashilive/tree/master");
         nodePublisher.setAudioCodecParam(NodePublisher.NMC_CODEC_ID_AAC, NodePublisher.NMC_PROFILE_AUTO, 48000, 2, 64_000);
         nodePublisher.setVideoOrientation(NodePublisher.VIDEO_ORIENTATION_PORTRAIT);
         nodePublisher.setVideoCodecParam(NodePublisher.NMC_CODEC_ID_H264, NodePublisher.NMC_PROFILE_AUTO, width, height, 30, 1_000_000);
@@ -731,7 +729,7 @@ public class RTMPCallViewModel extends ViewModel {
         nodePublisher.openCamera(true);
         nodePublisher.start(Configurations.RTMP_URL + CM.getProfile().getName());
 
-        nodePlayer = new NodePlayer(context, "");
+        nodePlayer = new NodePlayer(context, "https://github.com/fahimfahadleon/Probashilive/tree/master");
         nodePlayer.attachView(surface1);
         nodePlayer.start(Configurations.RTMP_URL + data.get(NAME));
 

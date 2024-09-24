@@ -52,14 +52,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
@@ -497,7 +495,7 @@ public class RTMPCallActivity extends AppCompatActivity {
 //        binding.addPeople.setVisibility(View.GONE);
 
         if (model.getAction().equals(LIVE_USER_TYPE_AUDIENCE)) {
-            nodePlayer = new NodePlayer(this, "");
+            nodePlayer = new NodePlayer(this, "https://github.com/fahimfahadleon/Probashilive/tree/master");
             nodePlayer.attachView(binding.cameraView2);
             nodePlayer.start(Configurations.RTMP_URL + liveItem.getContent().get(NAME));
             return;
@@ -509,7 +507,7 @@ public class RTMPCallActivity extends AppCompatActivity {
         } else {
             binding.endCall1.setVisibility(View.VISIBLE);
             binding.endCall2.setVisibility(View.VISIBLE);
-            nodePlayer = new NodePlayer(this, "");
+            nodePlayer = new NodePlayer(this, "https://github.com/fahimfahadleon/Probashilive/tree/master");
             nodePlayer.attachView(binding.cameraView2);
             nodePlayer.start(Configurations.RTMP_URL + liveItem.getContent().get(NAME));
         }

@@ -12,8 +12,11 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PictureDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.util.Log;
@@ -23,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -33,6 +37,8 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
+import com.caverock.androidsvg.SVG;
 import com.probashiincltd.probashilive.R;
 import com.probashiincltd.probashilive.adapter.FollowerOrFollowingAdapter;
 import com.probashiincltd.probashilive.callbacks.ImageUploadCallback;
@@ -109,6 +115,23 @@ public class ProfileFragment extends Fragment {
                         String name = getFileName(imageUri);
 
                         try {
+                            InputStream inputStream = getResources().openRawResource(R.raw.loading);
+                            SVG svg = SVG.getFromInputStream(inputStream);
+                            PictureDrawable drawable = new PictureDrawable(svg.renderToPicture());
+                            binding.profileEdit.setLayerType(ImageView.LAYER_TYPE_SOFTWARE, null);
+                            binding.profileEdit.setImageDrawable(drawable);
+//                            Glide.with(binding.profileEdit).load(drawable).placeholder(R.drawable.person).into(binding.profileEdit);
+                        }catch (Exception e){
+                            Log.e("errorasdfasdfads",e.toString());
+                            e.fillInStackTrace();
+                        }
+
+
+
+
+
+
+                        try {
                             Functions.uploadProtectedFile(CM.getConnection(), new ArrayList<>(Collections.singletonList(saveImageToCache(name,imageUri))), getContext(), new ImageUploadCallback() {
                                 @Override
                                 public void onFailed(String reason) {
@@ -117,10 +140,12 @@ public class ProfileFragment extends Fragment {
 
                                 @Override
                                 public void onSuccess(ArrayList<Slot> originalSlots, ArrayList<Slot> thumbnailSlots, String type) {
-                                    Log.e("originalSlots",originalSlots.get(0).getGetUrl().toString());
-//                                    Log.e("thumbnailSlots",thumbnailSlots.get(0).getGetUrl().toString());
-                                    Log.e("type",type);
                                     profileSlotAddress = originalSlots.get(0).getGetUrl().toString();
+                                    new Handler(Looper.getMainLooper()).post(() -> {
+                                        binding.profile.setImageURI(imageUri);
+                                        Glide.with(binding.profileEdit).load(R.drawable.edit).into(binding.profileEdit);
+                                    });
+
                                 }
                             });
                         } catch (IOException e) {
@@ -166,19 +191,15 @@ public class ProfileFragment extends Fragment {
         return binding.getRoot();
     }
     void updateProfile(){
-        loadImage(getContext(),binding.profile,CM.getProfile().getContent().get(ProfileItem.PROFILE_PICTURE));
+
         binding.userName.setText(CM.getProfile().getContent().get(ProfileItem.NAME));
         binding.coin.setText(CM.getProfile().getContent().get(ProfileItem.COIN));
         binding.phone.setText(CM.getProfile().getContent().get(ProfileItem.PHONE));
         binding.email.setText(CM.getProfile().getContent().get(ProfileItem.EMAIL));
         binding.status.setText(CM.getProfile().getContent().get(ProfileItem.VIP));
-
         profileSlotAddress = CM.getProfile().getContent().get(ProfileItem.PROFILE_PICTURE);
+        loadImage(getContext(),binding.profile,CM.getProfile().getContent().get(ProfileItem.PROFILE_PICTURE));
     }
-
-
-
-
 
     boolean isEditEnabled = false;
 
@@ -239,6 +260,9 @@ public class ProfileFragment extends Fragment {
 
         CM.setProfile(profileItem);
         updateProfile();
+
+
+        binding.enableEdit.performClick();
 
     }
 
@@ -326,7 +350,8 @@ public class ProfileFragment extends Fragment {
             //setUpDrawable(binding.coin,d);
             setUpDrawable(binding.status,d);
             model.setIsEnabled(true);
-            binding.save.setEnabled(true);
+            binding.save.setVisibility(View.VISIBLE);
+
 
         }else {
             binding.profileEdit.setVisibility(View.GONE);
@@ -336,7 +361,8 @@ public class ProfileFragment extends Fragment {
            // setUpDrawable(binding.coin, null);
             setUpDrawable(binding.status, null);
             model.setIsEnabled(false);
-            binding.save.setEnabled(false);
+            binding.save.setVisibility(View.GONE);
+
         }
     }
 }

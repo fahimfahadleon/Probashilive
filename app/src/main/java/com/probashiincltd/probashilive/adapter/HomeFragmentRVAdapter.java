@@ -1,5 +1,6 @@
 package com.probashiincltd.probashilive.adapter;
 
+import static com.probashiincltd.probashilive.functions.Functions.loadImage;
 import static com.probashiincltd.probashilive.utils.Configurations.LIVE_TYPE_VIDEO;
 
 import android.annotation.SuppressLint;
