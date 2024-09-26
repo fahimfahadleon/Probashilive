@@ -126,11 +126,6 @@ public class ProfileFragment extends Fragment {
                             e.fillInStackTrace();
                         }
 
-
-
-
-
-
                         try {
                             Functions.uploadProtectedFile(CM.getConnection(), new ArrayList<>(Collections.singletonList(saveImageToCache(name,imageUri))), getContext(), new ImageUploadCallback() {
                                 @Override

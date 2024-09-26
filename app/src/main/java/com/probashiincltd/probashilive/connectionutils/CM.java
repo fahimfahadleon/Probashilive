@@ -209,17 +209,14 @@ public class CM extends XmppConnection {
 //                createProfile();
 
                 if (action.equals("register")) {
-                    //todo create everything that is needed for the first time
                     CM.profileModel = createProfile();
                 } else {
                     try {
                         profileModel = ProfileItem.parseProfileItem(Functions.getSingleItemOfNode(NODE_USERS, Functions.getSP(LOGIN_USER, "")));
                     } catch (JSONException e) {
-                        CM.profileModel = createProfile();
+                        throw new RuntimeException(e);
                     }
                 }
-
-
                 try {
                     new RosterHandler(context);
                 }catch (Exception e){

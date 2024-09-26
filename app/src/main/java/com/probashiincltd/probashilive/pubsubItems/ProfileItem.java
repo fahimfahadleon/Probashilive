@@ -4,8 +4,6 @@ import static com.probashiincltd.probashilive.connectionutils.CM.NODE_USERS;
 import static com.probashiincltd.probashilive.utils.Configurations.CONTENT;
 import static com.probashiincltd.probashilive.utils.Configurations.LOGIN_USER;
 
-import androidx.annotation.NonNull;
-
 import com.probashiincltd.probashilive.functions.Functions;
 import com.probashiincltd.probashilive.utils.XmppXMLParser;
 
@@ -72,7 +70,12 @@ public class ProfileItem extends UniversalModelMap{
         profileMap.put(NAME, content.getJSONObject(NAME).optString(CONTENT));
         profileMap.put(PROFILE_PICTURE,content.getJSONObject(PROFILE_PICTURE).optString(CONTENT));
         profileMap.put(EMAIL, content.getJSONObject(EMAIL).optString(CONTENT));
-        String s = XmppXMLParser.load(item.toXML().toString()).getText("/item/"+item.getId()+"/phone/").get(0);
+
+        String s = "";
+        if(!XmppXMLParser.load(item.toXML().toString()).getText("/item/"+item.getId()+"/phone/").isEmpty()){
+            s = XmppXMLParser.load(item.toXML().toString()).getText("/item/"+item.getId()+"/phone/").get(0);
+        }
+
         profileMap.put(PHONE, s);
 
         profileMap.put(COIN, content.getJSONObject(COIN).optString(CONTENT));
@@ -82,11 +85,21 @@ public class ProfileItem extends UniversalModelMap{
     }
 
 
-    @NonNull
+//    @NonNull
+//    @Override
+//    public String toString() {
+//        return "content=" + content;
+//    }
+
+
     @Override
     public String toString() {
-        return "content=" + content;
+        return "ProfileItem{" +
+                "content=" + content +
+                ", requiredFields=" + requiredFields +
+                '}';
     }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
