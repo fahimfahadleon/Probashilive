@@ -118,9 +118,10 @@ public class RTMPCallActivity extends AppCompatActivity {
                 break;
             }
         }
-
-        PermissionX.init(this).permissions("android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE", "android.permission.CAMERA", "android.permission.RECORD_AUDIO").request((allGranted, grantedList, deniedList) -> {
+//"android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE",
+        PermissionX.init(this).permissions( "android.permission.CAMERA", "android.permission.RECORD_AUDIO").request((allGranted, grantedList, deniedList) -> {
             if (allGranted) {
+                Log.e("checking","checking for permission");
                 try {
                     model.initViewModel(RTMPCallActivity.this, getIntent(), binding.cameraView, binding.cameraView2);
                 } catch (JSONException e) {
@@ -128,8 +129,11 @@ public class RTMPCallActivity extends AppCompatActivity {
                 }
                 observeViewModel();
             } else {
-                PermissionX.init(RTMPCallActivity.this).permissions("android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE", "android.permission.CAMERA", "android.permission.RECORD_AUDIO").explainReasonBeforeRequest().request((allGranted1, grantedList1, deniedList1) -> {
+                Log.e("deniedlist",deniedList.toString());
+                Log.e("checking","checking for permission 2");
+                PermissionX.init(RTMPCallActivity.this).permissions("android.permission.CAMERA", "android.permission.RECORD_AUDIO").explainReasonBeforeRequest().request((allGranted1, grantedList1, deniedList1) -> {
                     if (allGranted1) {
+                        Log.e("checking","checking for permission3 ");
                         try {
                             model.initViewModel(RTMPCallActivity.this, getIntent(), binding.cameraView, binding.cameraView2);
                         } catch (JSONException e) {
@@ -137,6 +141,7 @@ public class RTMPCallActivity extends AppCompatActivity {
                         }
                         observeViewModel();
                     } else {
+                        Log.e("checking","checking for permission4 ");
                         Toast.makeText(RTMPCallActivity.this, "Permission is needed", Toast.LENGTH_SHORT).show();
                         finish();
                     }
@@ -365,8 +370,6 @@ public class RTMPCallActivity extends AppCompatActivity {
                 binding.option7.setVisibility(View.VISIBLE);
                 binding.option5.setVisibility(View.VISIBLE);
                 binding.option1.setVisibility(View.GONE);
-
-
             }
         });
         model.getShowToast().observe(this,this::showToast);
@@ -469,9 +472,6 @@ public class RTMPCallActivity extends AppCompatActivity {
             binding.endCall2.setVisibility(View.GONE);
             return;
         }
-        for (LiveItem liveItem : liveItems) {
-            Log.e("liveItems", liveItem.toString());
-        }
         LiveItem liveItem = liveItems.get(0);
 
         if (model.getAction().equals(LIVE_USER_TYPE_HOST)) {
@@ -544,7 +544,9 @@ public class RTMPCallActivity extends AppCompatActivity {
     private void openProfileDialog(String name) throws JSONException {
         new AlertDialogViewer(this, event -> {
             if (event[0].equals(REPLAY_TYPE_MESSAGE)) {
-                Toast.makeText(RTMPCallActivity.this, "Coming Soon!", Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(this,Inbox.class);
+                i.putExtra(DATA,event[1]);
+                startActivity(i);
             }
         }, ALERTDIALOG_TYPE_OPEN_PROFILE, name);
     }

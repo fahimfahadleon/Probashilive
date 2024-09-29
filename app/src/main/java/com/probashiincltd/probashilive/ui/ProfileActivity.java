@@ -1,5 +1,8 @@
 package com.probashiincltd.probashilive.ui;
 
+import static com.probashiincltd.probashilive.utils.Configurations.DATA;
+
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,7 +24,18 @@ public class ProfileActivity extends AppCompatActivity {
         model = new ViewModelProvider(this).get(ActivityProfileViewModel.class);
         binding.setViewModel(model);
         binding.setLifecycleOwner(this);
-        model.initViewModel(this,getIntent());
+        model.initViewModel(getIntent());
+        setUpReceiver();
+
+    }
+
+    private void setUpReceiver() {
+
+        model.buttonClick.observe(this,s->{
+            Intent i = new Intent(this,Inbox.class);
+            i.putExtra(DATA,model.userData);
+            startActivity(i);
+        });
 
     }
 }

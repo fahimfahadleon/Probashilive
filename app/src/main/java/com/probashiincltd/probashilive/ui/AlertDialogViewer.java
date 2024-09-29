@@ -33,7 +33,6 @@ import com.probashiincltd.probashilive.adapter.JoinRequestAdapter;
 import com.probashiincltd.probashilive.adapter.OnlineFriendsAdapter;
 import com.probashiincltd.probashilive.callbacks.OnAlertDialogEventListener;
 import com.probashiincltd.probashilive.connectionutils.CM;
-import com.probashiincltd.probashilive.connectionutils.RosterHandler;
 import com.probashiincltd.probashilive.databinding.CommentOptionsBinding;
 import com.probashiincltd.probashilive.databinding.GiftLayoutBinding;
 import com.probashiincltd.probashilive.databinding.JoinRequestLayoutBinding;
@@ -321,7 +320,7 @@ public class AlertDialogViewer {
         if (isFriendStatus == TYPE_FOLLOWING) {
             binding1.follow.setText(R.string.unfollow);
         }
-        binding1.message.setOnClickListener(v -> listener.onEvent(REPLAY_TYPE_MESSAGE));
+        binding1.message.setOnClickListener(v -> listener.onEvent(REPLAY_TYPE_MESSAGE,new Gson().toJson(profileItem)));
 
         binding1.follow.setOnClickListener(v -> {
             try {

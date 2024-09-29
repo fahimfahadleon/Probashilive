@@ -12,10 +12,13 @@ import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.probashiincltd.probashilive.cache.CacheManager;
 import com.probashiincltd.probashilive.callbacks.HeadlineMessageListener;
 import com.probashiincltd.probashilive.callbacks.RegisterCallback;
 import com.probashiincltd.probashilive.functions.Functions;
+import com.probashiincltd.probashilive.models.ChatItem;
 import com.probashiincltd.probashilive.models.IpModel;
 import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
 import com.probashiincltd.probashilive.utils.Configurations;
@@ -26,6 +29,9 @@ import org.jivesoftware.smack.SASLAuthentication;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.chat2.Chat;
+import org.jivesoftware.smack.chat2.ChatManager;
+import org.jivesoftware.smack.chat2.OutgoingChatMessageListener;
 import org.jivesoftware.smack.filter.StanzaIdFilter;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Message;
@@ -41,6 +47,7 @@ import org.jivesoftware.smackx.caps.EntityCapsManager;
 import org.jivesoftware.smackx.ping.PingManager;
 import org.jivesoftware.smackx.ping.android.ServerPingWithAlarmManager;
 import org.json.JSONException;
+import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.jid.parts.Localpart;
 
@@ -72,6 +79,7 @@ public class CM extends XmppConnection {
     RegisterCallback registerCallback;
     public static final String NODE_LIVE_USERS = "liveusers";
     public static final String NODE_USERS = "users";
+    public static final String FIREBASE_CHAT_BOX = "chatbox";
 
     public static AbstractXMPPConnection getConnection() {
         return connection;
@@ -201,6 +209,7 @@ public class CM extends XmppConnection {
             public void authenticated(XMPPConnection c, boolean resumed) {
                 registerCallback.registerSuccessful();
                 connection = mConnection;
+                setUpChatManager();
                 setUpStanzaListener();
                 setUpPingManager();
 
@@ -208,11 +217,31 @@ public class CM extends XmppConnection {
                 CacheManager.load("/", "xml");
 //                createProfile();
 
+                Log.e("checking","vjjjj");
                 if (action.equals("register")) {
                     CM.profileModel = createProfile();
+                    FirebaseDatabase database = FirebaseDatabase.getInstance();
+                    DatabaseReference reference = database.getReference();
+                    ArrayList<ChatItem>chatItems =new ArrayList<>();
+                    ChatItem chatItem = new ChatItem();
+                    chatItem.setName("initial");
+                    chatItem.setJid(connection.getUser().asBareJid().toString());
+                    chatItem.setProfilePicture("null");
+                    chatItems.add(chatItem);
+                    reference.child(FIREBASE_CHAT_BOX).child(connection.getUser().asBareJid().toString().split("@")[0]).setValue(chatItems);
+
                 } else {
                     try {
                         profileModel = ProfileItem.parseProfileItem(Functions.getSingleItemOfNode(NODE_USERS, Functions.getSP(LOGIN_USER, "")));
+                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+                        DatabaseReference reference = database.getReference();
+                        ArrayList<ChatItem>chatItems =new ArrayList<>();
+                        ChatItem chatItem = new ChatItem();
+                        chatItem.setName("initial");
+                        chatItem.setJid(connection.getUser().asBareJid().toString());
+                        chatItem.setProfilePicture("null");
+                        chatItems.add(chatItem);
+                        reference.child(FIREBASE_CHAT_BOX).child(connection.getUser().asBareJid().toString().split("@")[0]).setValue(chatItems);
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
@@ -315,6 +344,33 @@ public class CM extends XmppConnection {
             }
             return true;
         });
+    }
+
+    public ArrayList<ChatItem> incomingChatItems = new ArrayList<>();
+    public static MutableLiveData<Message> newMessage = new MutableLiveData<>();
+
+    public void setUpChatManager(){
+        ChatManager chatManager = ChatManager.getInstanceFor(connection);
+        chatManager.addIncomingListener((from, message, chat) -> {
+            try {
+                ChatItem chatItem = new ChatItem();
+                ProfileItem profileItem = ProfileItem.parseProfileItem(Functions.getSingleItemOfNode(CM.NODE_USERS,from.toString().split("@")[0]));
+                chatItem.setName(profileItem.getContent().get(ProfileItem.NAME));
+                chatItem.setProfilePicture(profileItem.getContent().get(ProfileItem.PROFILE_PICTURE));
+                chatItem.setJid(from.toString());
+                incomingChatItems.add(chatItem);
+                newMessage.postValue(message);
+            }catch (Exception e){
+                e.fillInStackTrace();
+            }
+        });
+        chatManager.addOutgoingListener(new OutgoingChatMessageListener() {
+            @Override
+            public void newOutgoingMessage(EntityBareJid to, MessageBuilder messageBuilder, Chat chat) {
+
+            }
+        });
+
     }
 
     public void createAccount(String loginuser, String passwordUser, HashMap<String, String> map) {

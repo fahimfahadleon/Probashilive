@@ -56,7 +56,7 @@
             android:paddingHorizontal="@dimen/_12sdp"
             android:paddingVertical="@dimen/_4sdp"
             android:text="Message"
-
+            android:onClick="@{viewModel::onClick}"
             android:textColor="@color/textColor"
             android:background="@drawable/simple_item_border"
             app:layout_constraintStart_toStartOf="parent"

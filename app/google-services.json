@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "428944620126",
+    "firebase_url": "https://probashilive-43659-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "probashilive-43659",
     "storage_bucket": "probashilive-43659.appspot.com"
   },
@@ -14,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "428944620126-0r0avr2qcc56cbv1hqettogjnufb1b50.apps.googleusercontent.com",
+          "client_id": "428944620126-i6glm5s71bcbi5vs5l755gm8mvnj1u0j.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.probashiincltd.probashilive",
-            "certificate_hash": "430139e58da7b3c64740dc650ec9d554eb100d59"
+            "certificate_hash": "1792bfa9cd3669b126bab8500afe3a80a3c1662b"
           }
         },
         {

@@ -580,7 +580,7 @@ public class RTMPCallViewModel extends ViewModel {
             Item item = Functions.createRawItem(liveItem);
             Functions.publishToNode(CM.NODE_LIVE_USERS, item, item.getId());
         } catch (ParserConfigurationException e) {
-            throw new RuntimeException(e);
+            Log.e("Checking","checkingException");
         }
     }
 
@@ -596,6 +596,7 @@ public class RTMPCallViewModel extends ViewModel {
         switch (action) {
             case LIVE_USER_TYPE_HOST: {
 
+                Log.e("checking","checking for host");
                 setUpForHost(context, surface);
                 setUpComplete.setValue(new HashMap<>());
                 break;
@@ -804,7 +805,7 @@ public class RTMPCallViewModel extends ViewModel {
 
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            Log.e("Checking","checkingException2");
         }
     }
 

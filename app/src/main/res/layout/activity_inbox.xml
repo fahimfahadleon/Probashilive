@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="ViewModel"
+            type="com.probashiincltd.probashilive.viewmodels.ActivityInboxViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.Inbox">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:id="@+id/title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:orientation="horizontal">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:layout_width="@dimen/_44sdp"
+                android:layout_height="@dimen/_44sdp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_gravity="center"
+                app:civ_border_width="@dimen/_1sdp"
+                app:civ_border_color="@color/textColor"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:text="Inbox"
+                android:textStyle="bold"
+                android:id="@+id/titleName"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:textColor="@color/textColor"
+                android:gravity="center" />
+
+            <ImageView
+                android:layout_width="@dimen/_45sdp"
+                android:layout_height="match_parent"
+                android:importantForAccessibility="no"
+                android:padding="@dimen/_4sdp"
+                android:src="@drawable/options"
+                android:id="@+id/options"/>
+        </LinearLayout>
+
+
+
+
+        <com.scwang.smart.refresh.layout.SmartRefreshLayout
+            android:id="@+id/refreshLayout"
+            android:layout_width="match_parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_height="0dp">
+            <com.scwang.smart.refresh.header.ClassicsHeader
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/recyclerview"
+                android:overScrollMode="never"
+                app:layoutManager=".ui.WrapContentLinearLayoutManager"
+                android:adapter="@{ViewModel.adapter}"
+                tools:listitem="@layout/inbox_item_left"/>
+            <com.scwang.smart.refresh.footer.ClassicsFooter
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

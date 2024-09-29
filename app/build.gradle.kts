@@ -86,6 +86,7 @@ dependencies {
     implementation("com.google.firebase:firebase-crashlytics:18.6.2")
     implementation("com.google.firebase:firebase-messaging:23.4.1")
     implementation("androidx.activity:activity:1.8.0")
+    implementation("com.google.firebase:firebase-database:21.0.0")
     testImplementation("junit:junit:4.14-SNAPSHOT")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

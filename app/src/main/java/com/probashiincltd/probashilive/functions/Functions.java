@@ -411,7 +411,7 @@ public class Functions {
 
             return i;
         } catch (Exception e) {
-            e.printStackTrace();
+            e.fillInStackTrace();
             return null;
         }
     }
@@ -467,6 +467,21 @@ public class Functions {
         }
 
     }
+//    public static void createFirebaseNode(ChatItem chatItem) {
+//        FirebaseDatabase database = FirebaseDatabase.getInstance();
+//        DatabaseReference reference = database.getReference();
+//        reference.child(FIREBASE_CHAT_BOX).child(chatItem.getJid()).setValue(chatItem);
+//
+//    }
+
+//    public static ArrayList<String> getChatList(Context context){
+//        ArrayList<String> chatList = new ArrayList<>();
+//
+//        reference.child()
+//
+//
+//        return chatList;
+//    }
 
     public static <T extends UniversalModelMap> Item createRawItem(T map) throws ParserConfigurationException {
         DocumentBuilderFactory factory =
@@ -587,6 +602,8 @@ public class Functions {
             return items;
         }
     }
+
+
 
     static class ExtDisco extends IQ {
         public static final String ELEMENT = "services";

@@ -63,7 +63,7 @@ public class Configurations {
     public static final String LIVE_USER_TYPE_COMPETITOR = "competitor";
 
 
-
+    public static final String MESSAGE = "message";
 
 
     public static final String ACTION = "action";
