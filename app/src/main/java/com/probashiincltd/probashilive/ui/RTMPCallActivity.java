@@ -1,5 +1,6 @@
 package com.probashiincltd.probashilive.ui;
 
+import static com.probashiincltd.probashilive.connectionutils.CM.NODE_USERS;
 import static com.probashiincltd.probashilive.pubsubItems.LiveItem.NAME;
 import static com.probashiincltd.probashilive.pubsubItems.LiveItem.PROFILE_IMAGE;
 import static com.probashiincltd.probashilive.ui.AlertDialogViewer.ALERTDIALOG_TYPE_OPEN_FRIEND_LIST;
@@ -525,7 +526,13 @@ public class RTMPCallActivity extends AppCompatActivity {
                             e.fillInStackTrace();
                         }
                     } else {
-                        openProfile(event[1]);
+                        try {
+                            ProfileItem profileItem = ProfileItem.parseProfileItem(Functions.getSingleItemOfNode(NODE_USERS,event[1].split("@")[0]));
+                            openProfile(profileItem);
+                        }catch (Exception e){
+                            e.fillInStackTrace();
+                        }
+
                     }
                     break;
                 }
@@ -580,9 +587,9 @@ public class RTMPCallActivity extends AppCompatActivity {
         }, ALERTDIALOG_TYPE_OPEN_GIFT);
     }
 
-    private void openProfile(String s) {
+    private void openProfile(ProfileItem s) {
         Intent i = new Intent(this, ProfileActivity.class);
-        i.putExtra(DATA, s);
+        i.putExtra(DATA, new Gson().toJson(s));
         startActivity(i);
     }
 

@@ -33,6 +33,7 @@
                 android:layout_gravity="center"
                 app:civ_border_width="@dimen/_1sdp"
                 app:civ_border_color="@color/textColor"
+                android:id="@+id/profile"
                 app:layout_constraintBottom_toBottomOf="parent" />
 
             <TextView
@@ -67,7 +68,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/title"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/bottomView"
             android:layout_height="0dp">
             <com.scwang.smart.refresh.header.ClassicsHeader
                 android:layout_width="match_parent"
@@ -86,6 +87,34 @@
                 android:layout_height="wrap_content"/>
         </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:orientation="horizontal"
+            android:background="#80D1A8A8"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:id="@+id/bottomView">
 
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@null"
+                android:hint="type message..."
+                android:padding="@dimen/_8sdp"
+                android:textColor="@color/textColor"
+                android:textColorHint="@color/hintcolor"
+                android:id="@+id/editText"/>
+            <ImageView
+                android:layout_width="@dimen/_45sdp"
+                android:layout_height="@dimen/_45sdp"
+                android:src="@drawable/send"
+                android:padding="@dimen/_8sdp"
+                android:rotation="320"
+                android:onClick="@{ViewModel::onClick}"
+                android:id="@+id/send"/>
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

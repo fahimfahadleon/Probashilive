@@ -1,5 +1,6 @@
 package com.probashiincltd.probashilive.viewmodels;
 
+import static com.probashiincltd.probashilive.connectionutils.CM.NODE_USERS;
 import static com.probashiincltd.probashilive.connectionutils.RosterHandler.TYPE_FOLLOWING;
 import static com.probashiincltd.probashilive.connectionutils.RosterHandler.TYPE_NO_FRIEND;
 import static com.probashiincltd.probashilive.connectionutils.RosterHandler.getRosterHandler;
@@ -150,7 +151,7 @@ public class RTMPCallViewModel extends ViewModel {
     private final MutableLiveData<HashMap<String, String>> setUpComplete = new MutableLiveData<>();
     private final MutableLiveData<Boolean> optionsMenu = new MutableLiveData<>();
 
-    private final MutableLiveData<String> openProfile = new MutableLiveData<>();
+    private final MutableLiveData<ProfileItem> openProfile = new MutableLiveData<>();
     private final MutableLiveData<Integer> followClicked = new MutableLiveData<>();
     private final MutableLiveData<String> showToast = new MutableLiveData<>();
 
@@ -163,11 +164,11 @@ public class RTMPCallViewModel extends ViewModel {
         return onCommentInserted;
     }
 
-    void setOpenProfile(String profile) {
+    void setOpenProfile(ProfileItem profile) {
         openProfile.setValue(profile);
     }
 
-    public LiveData<String> getOpenProfile() {
+    public LiveData<ProfileItem> getOpenProfile() {
         return openProfile;
     }
     public LiveData<String> getShowToast() {
@@ -220,7 +221,13 @@ public class RTMPCallViewModel extends ViewModel {
             switch (action) {
                 case LIVE_USER_TYPE_AUDIENCE:
                 case LIVE_USER_TYPE_COMPETITOR: {
-                    setOpenProfile(data.get(ROOM_ID));
+                    try {
+                        ProfileItem profileItem = ProfileItem.parseProfileItem(Functions.getSingleItemOfNode(NODE_USERS,data.get(ROOM_ID).split("@")[0]));
+                        setOpenProfile(profileItem);
+                    }catch (Exception e){
+                        e.fillInStackTrace();
+                    }
+
                     break;
                 }
             }
@@ -503,7 +510,7 @@ public class RTMPCallViewModel extends ViewModel {
         if (itemsToBeAdded.isEmpty()) {
             return;
         }
-        List<Item> userProfiles = Functions.getMultipleItemOfNode(CM.NODE_USERS, itemsToBeAdded);
+        List<Item> userProfiles = Functions.getMultipleItemOfNode(NODE_USERS, itemsToBeAdded);
         try {
             for (Item i : userProfiles) {
                 viewerProfiles.put(i.getId(), ProfileItem.parseProfileItem(i));
@@ -793,7 +800,7 @@ public class RTMPCallViewModel extends ViewModel {
             LiveItem liveItem = competitorList.get(i);
             CM.sendHLM(SUBJECT_TYPE_HOST_REMOVED_COMPETITOR, "", CM.getConnection().getUser().asFullJidOrThrow().toString(), liveItem.getContent().get(LiveItem.ROOM_ID));
 
-            ProfileItem profileItem = ProfileItem.parseProfileItem(Functions.getSingleItemOfNode(CM.NODE_USERS, liveItem.getContent().get(NAME)));
+            ProfileItem profileItem = ProfileItem.parseProfileItem(Functions.getSingleItemOfNode(NODE_USERS, liveItem.getContent().get(NAME)));
             removeFromCompetitorList(profileItem);
 
             Message message = StanzaBuilder.buildMessage().build();

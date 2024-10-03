@@ -1,19 +1,18 @@
 package com.probashiincltd.probashilive.viewmodels;
 
 import static com.google.firebase.messaging.Constants.MessageTypes.MESSAGE;
-import static com.probashiincltd.probashilive.utils.Configurations.DATA;
 
-import android.content.Intent;
 import android.view.View;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.probashiincltd.probashilive.R;
+import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
 
 public class ActivityProfileViewModel extends ViewModel {
     public MutableLiveData<String> buttonClick = new MutableLiveData<>();
-    public String userData;
+    public ProfileItem userData;
 
     public void onClick(View vi){
         int id = vi.getId();
@@ -22,7 +21,7 @@ public class ActivityProfileViewModel extends ViewModel {
         }
     }
 
-    public void initViewModel(Intent intent) {
-        userData = intent.getStringExtra(DATA);
+    public void initViewModel(ProfileItem profileItem) {
+        this.userData = profileItem;
     }
 }

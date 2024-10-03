@@ -188,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
     private void startEjabberdRegistration(String userEmail,String password) {
         try {
             startRegisterOrLogin(userEmail.split("@")[0],password,"register");
+            Functions.setSetSharedPreference(USER_EMAIL,userEmail);
         }catch (Exception e){
             Toast.makeText(this, "Email Not Valid!", Toast.LENGTH_SHORT).show();
         }

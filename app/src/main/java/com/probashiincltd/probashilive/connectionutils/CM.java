@@ -233,15 +233,6 @@ public class CM extends XmppConnection {
                 } else {
                     try {
                         profileModel = ProfileItem.parseProfileItem(Functions.getSingleItemOfNode(NODE_USERS, Functions.getSP(LOGIN_USER, "")));
-                        FirebaseDatabase database = FirebaseDatabase.getInstance();
-                        DatabaseReference reference = database.getReference();
-                        ArrayList<ChatItem>chatItems =new ArrayList<>();
-                        ChatItem chatItem = new ChatItem();
-                        chatItem.setName("initial");
-                        chatItem.setJid(connection.getUser().asBareJid().toString());
-                        chatItem.setProfilePicture("null");
-                        chatItems.add(chatItem);
-                        reference.child(FIREBASE_CHAT_BOX).child(connection.getUser().asBareJid().toString().split("@")[0]).setValue(chatItems);
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
@@ -493,11 +484,10 @@ public class CM extends XmppConnection {
         profileMap.put(ProfileItem.NAME, Functions.getSP(LOGIN_USER, ""));
         if (Functions.getSP(LOGIN_TYPE, "").equals(LOGIN_TYPE_GOOGLE)) {
             profileMap.put(ProfileItem.PROFILE_PICTURE, Functions.getSP(USER_PROFILE, ""));
-            profileMap.put(ProfileItem.EMAIL, Functions.getSP(USER_EMAIL, ""));
         } else {
             profileMap.put(ProfileItem.PROFILE_PICTURE, "");
-            profileMap.put(ProfileItem.EMAIL, "");
         }
+        profileMap.put(ProfileItem.EMAIL, Functions.getSP(USER_EMAIL, ""));
         profileMap.put(ProfileItem.PHONE, Functions.getSP("", ""));
         profileMap.put(ProfileItem.COIN, Functions.getSP("0", ""));
         profileMap.put(ProfileItem.VIP, Functions.getSP("false", ""));

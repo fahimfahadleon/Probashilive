@@ -296,7 +296,7 @@ public class AlertDialogViewer {
         });
 
         c.invite.setOnClickListener(v -> listener.onEvent(REPLAY_TYPE_INVITE, cm.getName()));
-        c.visit.setOnClickListener(v -> listener.onEvent(REPLAY_TYPE_VISIT, cm.getName()));
+        c.visit.setOnClickListener(v -> listener.onEvent(REPLAY_TYPE_VISIT, cm.getId()));
 
 
         builder.setView(c.getRoot());

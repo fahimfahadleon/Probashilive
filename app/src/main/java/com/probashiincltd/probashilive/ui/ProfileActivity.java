@@ -4,18 +4,22 @@ import static com.probashiincltd.probashilive.utils.Configurations.DATA;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.gson.Gson;
 import com.probashiincltd.probashilive.R;
 import com.probashiincltd.probashilive.databinding.ActivityProfileBinding;
+import com.probashiincltd.probashilive.pubsubItems.ProfileItem;
 import com.probashiincltd.probashilive.viewmodels.ActivityProfileViewModel;
 
 public class ProfileActivity extends AppCompatActivity {
     ActivityProfileBinding binding;
     ActivityProfileViewModel model;
+    ProfileItem profileItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +28,9 @@ public class ProfileActivity extends AppCompatActivity {
         model = new ViewModelProvider(this).get(ActivityProfileViewModel.class);
         binding.setViewModel(model);
         binding.setLifecycleOwner(this);
-        model.initViewModel(getIntent());
+        profileItem = new Gson().fromJson(getIntent().getStringExtra(DATA),ProfileItem.class);
+        model.initViewModel(profileItem);
+
         setUpReceiver();
 
     }
@@ -32,8 +38,9 @@ public class ProfileActivity extends AppCompatActivity {
     private void setUpReceiver() {
 
         model.buttonClick.observe(this,s->{
+            Log.e("buttonClick",s);
             Intent i = new Intent(this,Inbox.class);
-            i.putExtra(DATA,model.userData);
+            i.putExtra(DATA,new Gson().toJson(profileItem));
             startActivity(i);
         });
 
