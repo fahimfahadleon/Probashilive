@@ -1,45 +1,27 @@
 {
   "project_info": {
-    "project_number": "428944620126",
-    "firebase_url": "https://probashilive-43659-default-rtdb.europe-west1.firebasedatabase.app",
-    "project_id": "probashilive-43659",
-    "storage_bucket": "probashilive-43659.appspot.com"
+    "project_number": "1041284880884",
+    "firebase_url": "https://ratatouille-f60fb-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "ratatouille-f60fb",
+    "storage_bucket": "ratatouille-f60fb.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:428944620126:android:2f2b5f5d1685194ab892cf",
+        "mobilesdk_app_id": "1:1041284880884:android:b7139917743f3ac23901a1",
         "android_client_info": {
-          "package_name": "com.probashiincltd.probashilive"
+          "package_name": "com.horoftech.ratatouille"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "428944620126-i6glm5s71bcbi5vs5l755gm8mvnj1u0j.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.probashiincltd.probashilive",
-            "certificate_hash": "1792bfa9cd3669b126bab8500afe3a80a3c1662b"
-          }
-        },
-        {
-          "client_id": "428944620126-0ftfrh2bvoabhefa096vvek5b3e53lp2.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAN2pqWPTiIUlORjorwled7hH78SlbDdbc"
+          "current_key": "AIzaSyBnihPNB7JwKuR9R-GXvGDxQsv_WkHmKnU"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "428944620126-0ftfrh2bvoabhefa096vvek5b3e53lp2.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }
