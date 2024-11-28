@@ -7,13 +7,13 @@ plugins {
 android {
     signingConfigs {
         getByName("debug") {
-            storeFile = file("/home/fahim/StudioProjects/Probashilive/probashilive.jks")
+            storeFile = file("D:\\StudioProjects\\Probashilive\\probashilive.jks")
             storePassword = "64742812"
             keyAlias = "key0"
             keyPassword = "64742812"
         }
         create("release") {
-            storeFile = file("/home/fahim/StudioProjects/Probashilive/probashilive.jks")
+            storeFile = file("D:\\StudioProjects\\Probashilive\\probashilive.jks")
             storePassword = "64742812"
             keyAlias = "key0"
             keyPassword = "64742812"
