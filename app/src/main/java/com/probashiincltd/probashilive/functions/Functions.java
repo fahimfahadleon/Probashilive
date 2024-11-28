@@ -636,7 +636,9 @@ public class Functions {
                 .replaceAll("'", "&apos;");
     }
 
-
+    public static String removeAllSign(String s){
+        return s.replace(".","_");
+    }
     public static void publishToNode(String nodename, Item item, String id) {
         try {
 

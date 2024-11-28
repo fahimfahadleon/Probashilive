@@ -2,11 +2,14 @@ package com.probashiincltd.probashilive.viewmodels;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.probashiincltd.probashilive.R;
 import com.probashiincltd.probashilive.adapter.InboxAdapter;
+import com.scwang.smart.refresh.layout.api.RefreshLayout;
+import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener;
 
 import org.jivesoftware.smack.packet.Message;
 
@@ -35,5 +38,18 @@ public class ActivityInboxViewModel extends ViewModel {
             clickAction.setValue(CLICK_SEND);
         }
     }
+    private final MutableLiveData<Integer> smartLayoutObserver = new MutableLiveData<>();
+
+    public OnRefreshLoadMoreListener onRefreshLoadMoreListener = new OnRefreshLoadMoreListener() {
+        @Override
+        public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
+            smartLayoutObserver.setValue(1);
+        }
+
+        @Override
+        public void onRefresh(@NonNull RefreshLayout refreshLayout) {
+            smartLayoutObserver.setValue(0);
+        }
+    };
 
 }
