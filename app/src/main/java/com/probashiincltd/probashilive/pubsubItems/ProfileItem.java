@@ -27,6 +27,7 @@ public class ProfileItem extends UniversalModelMap{
     public static final String PHONE = "phone";
     public static final String COIN = "coin";
     public static final String VIP = "vip";
+    public static final String JID = "jid";
 
 
     public ProfileItem(HashMap<String, String> content) {
@@ -38,6 +39,7 @@ public class ProfileItem extends UniversalModelMap{
                 , COIN
                 , LANDING_ANIMATION
                 , VIP
+                , JID
 
         )));
     }
@@ -70,6 +72,7 @@ public class ProfileItem extends UniversalModelMap{
         profileMap.put(NAME, content.getJSONObject(NAME).optString(CONTENT));
         profileMap.put(PROFILE_PICTURE,content.getJSONObject(PROFILE_PICTURE).optString(CONTENT));
         profileMap.put(EMAIL, content.getJSONObject(EMAIL).optString(CONTENT));
+        profileMap.put(JID,content.getJSONObject(JID).optString(CONTENT));
 
         String s = "";
         if(!XmppXMLParser.load(item.toXML().toString()).getText("/item/"+item.getId()+"/phone/").isEmpty()){

@@ -67,6 +67,7 @@ public class MessageController {
 
     public MessageController(String userJid) {
         this.userJid = userJid;
+        mamManager = MamManager.getInstanceFor(CM.getConnection());
         try {
             jid = JidCreate.bareFrom(userJid);
             FormField formField = FormField.builder("with").setValue(JidCreate.bareFrom(userJid))
@@ -100,7 +101,6 @@ public class MessageController {
                 }
 
             } else {
-                Log.e("Messagecontroller.load","pagenotnull");
                 linkedList = (!isFinished ? new LinkedList<>(mamQuery.pagePrevious(count)) : new LinkedList<>());
                 if (linkedList.size() != 30) {
                     isFinished = true;

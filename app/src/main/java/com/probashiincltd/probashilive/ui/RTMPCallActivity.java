@@ -23,6 +23,7 @@ import static com.probashiincltd.probashilive.utils.Configurations.ACTION_TYPE_L
 import static com.probashiincltd.probashilive.utils.Configurations.ACTION_TYPE_LIVE_LEFT;
 import static com.probashiincltd.probashilive.utils.Configurations.ADD_PERSON;
 import static com.probashiincltd.probashilive.utils.Configurations.CLOSE_LIVE;
+import static com.probashiincltd.probashilive.utils.Configurations.CLOSE_LIVE_HOST;
 import static com.probashiincltd.probashilive.utils.Configurations.DATA;
 import static com.probashiincltd.probashilive.utils.Configurations.END_CALL_1;
 import static com.probashiincltd.probashilive.utils.Configurations.END_CALL_2;
@@ -93,7 +94,7 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 public class RTMPCallActivity extends AppCompatActivity {
     ActivityRtmpcallBinding binding;
     RTMPCallViewModel model;
-    boolean doubleBackToExitPressedOnce = false;
+
 
 
     @Override
@@ -152,6 +153,16 @@ public class RTMPCallActivity extends AppCompatActivity {
 
     }
 
+    void liveDestroyed(){
+            isDestroyed = true;
+            if (nodePlayer != null) {
+                nodePlayer.stop();
+            }
+            model.onDestroy();
+            finish();
+            isOccupied = false;
+    }
+
     boolean isDestroyed = false;
 
     @Override
@@ -166,21 +177,21 @@ public class RTMPCallActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    @Override
-    public void onBackPressed() {
-        if (doubleBackToExitPressedOnce) {
-            isDestroyed = true;
-            if (nodePlayer != null) {
-                nodePlayer.stop();
-            }
-            model.onDestroy();
-            super.onBackPressed();
-            return;
-        }
-        this.doubleBackToExitPressedOnce = true;
-        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
-        new Handler(Looper.getMainLooper()).postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
-    }
+//    @Override
+//    public void onBackPressed() {
+//        if (doubleBackToExitPressedOnce) {
+//            isDestroyed = true;
+//            if (nodePlayer != null) {
+//                nodePlayer.stop();
+//            }
+//            model.onDestroy();
+//            super.onBackPressed();
+//            return;
+//        }
+//        this.doubleBackToExitPressedOnce = true;
+//        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+//        new Handler(Looper.getMainLooper()).postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
+//    }
 
 
 
@@ -212,6 +223,10 @@ public class RTMPCallActivity extends AppCompatActivity {
                 }
                 case CLOSE_LIVE: {
                     Toast.makeText(this, "CLOSE LIVE", Toast.LENGTH_SHORT).show();
+                    break;
+                }
+                case CLOSE_LIVE_HOST:{
+                    liveDestroyed();
                     break;
                 }
 

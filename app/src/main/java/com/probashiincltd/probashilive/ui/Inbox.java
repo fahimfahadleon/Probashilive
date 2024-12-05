@@ -1,17 +1,26 @@
 package com.probashiincltd.probashilive.ui;
 
+import static com.probashiincltd.probashilive.connectionutils.CM.FIREBASE_CHAT_BOX;
 import static com.probashiincltd.probashilive.utils.Configurations.DATA;
 import static com.probashiincltd.probashilive.viewmodels.ActivityInboxViewModel.CLICK_OPTIONS;
 import static com.probashiincltd.probashilive.viewmodels.ActivityInboxViewModel.CLICK_SEND;
 
+import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.probashiincltd.probashilive.R;
 import com.probashiincltd.probashilive.adapter.InboxAdapter;
@@ -27,6 +36,8 @@ import com.probashiincltd.probashilive.viewmodels.ActivityInboxViewModel;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.MessageBuilder;
 import org.jxmpp.jid.impl.JidCreate;
+
+import java.util.ArrayList;
 
 public class Inbox extends AppCompatActivity {
     ActivityInboxBinding binding;
@@ -73,6 +84,21 @@ public class Inbox extends AppCompatActivity {
                             model.addNewMessage(m);
                             binding.editText.setText(null);
                             CM.getConnection().sendStanza(m);
+
+                            ChatItem mychatitem = new ChatItem();
+                            mychatitem.setJid(CM.getConnection().getUser().asBareJid().toString());
+                            mychatitem.setName(CM.getProfile().getContent().get(ProfileItem.NAME));
+                            mychatitem.setProfilePicture(CM.getProfile().getContent().get(ProfileItem.PROFILE_PICTURE));
+
+
+                            ChatItem friendChatItem = new ChatItem();
+                            friendChatItem.setJid(chatItem.getJid());
+                            friendChatItem.setName(chatItem.getName());
+                            friendChatItem.setProfilePicture(chatItem.getProfilePicture());
+
+                            updateFirebaseData(CM.getProfile().getContent().get(ProfileItem.JID).split("@")[0],chatItem);
+                            updateFirebaseData(chatItem.getJid().split("@")[0],mychatitem);
+
                         }catch (Exception e){
                             e.fillInStackTrace();
                         }
@@ -86,6 +112,37 @@ public class Inbox extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void updateFirebaseData(String s,ChatItem chatItem) {
+        ArrayList<ChatItem>currentItems =new ArrayList<>();
+        FirebaseDatabase.getInstance().getReference().child(FIREBASE_CHAT_BOX).child(s).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    for(DataSnapshot ds: snapshot.getChildren()){
+                        currentItems.add(ds.getValue(ChatItem.class));
+                    }
+                }
+                boolean shouldAdd = true;
+                for(ChatItem ci : currentItems){
+                    if (ci.getJid().equals(chatItem.getJid())) {
+                        shouldAdd = false;
+                        break;
+                    }
+                }
+                if(shouldAdd){
+                    currentItems.add(chatItem);
+                }
+                FirebaseDatabase.getInstance().getReference().child(FIREBASE_CHAT_BOX).child(s).setValue(currentItems);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
     }
 
     private void setUpMessage() {
@@ -108,8 +165,7 @@ public class Inbox extends AppCompatActivity {
         chatItem = new ChatItem();
         chatItem.setProfilePicture(profileItem.getContent().get(ProfileItem.PROFILE_PICTURE));
         chatItem.setName(profileItem.getContent().get(ProfileItem.NAME));
-        Log.e("profileItem",profileItem.toString());
-        chatItem.setJid(profileItem.getContent().get(ProfileItem.EMAIL).split("@")[0] +"@"+ CM.getConnection().getHost().toString());
+        chatItem.setJid(profileItem.getContent().get(ProfileItem.JID));
         Functions.loadImage(this,binding.profile,chatItem.getProfilePicture());
         binding.titleName.setText(chatItem.getName());
 

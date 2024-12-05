@@ -60,6 +60,7 @@ import static com.probashiincltd.probashilive.utils.Configurations.isOccupied;
 
 import android.content.Context;
 import android.content.Intent;
+import android.provider.SyncStateContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -215,9 +216,7 @@ public class RTMPCallViewModel extends ViewModel {
         int id = vi.getId();
         if (id == R.id.send) {
             onSendButtonClick.setValue(SUBJECT_TYPE_COMMENT);
-        } else if (id == R.id.closeLive) {
-            onSendButtonClick.setValue(CLOSE_LIVE);
-        } else if (id == R.id.profile || id == R.id.name || id == R.id.vip) {
+        }  else if (id == R.id.profile || id == R.id.name || id == R.id.vip) {
             switch (action) {
                 case LIVE_USER_TYPE_AUDIENCE:
                 case LIVE_USER_TYPE_COMPETITOR: {
@@ -286,6 +285,8 @@ public class RTMPCallViewModel extends ViewModel {
             showToast.setValue(isCommentDisabled?"Comment Disabled":"Comment Enabled");
         }else if(id == R.id.option5){
             onSendButtonClick.setValue(OPEN_TIMER_DIALOG);
+        }else if(id == R.id.closeLive){
+            onSendButtonClick.setValue(Configurations.CLOSE_LIVE_HOST);
         }
     }
 
@@ -767,6 +768,7 @@ public class RTMPCallViewModel extends ViewModel {
             broadCastEvent(liveAction, SUBJECT_TYPE_LIVE_ACTION);
             broadCastToCompetitor(liveAction, SUBJECT_TYPE_LIVE_ACTION);
             Functions.deleteFromNode(CM.NODE_LIVE_USERS, CM.getProfile().getContent().get("name"));
+            Log.e("checking","ondestroy called from model");
         } else if (action.equals(LIVE_USER_TYPE_AUDIENCE)) {
             LiveAction liveAction = new LiveAction();
             liveAction.setActionType(ACTION_TYPE_LIVE_LEFT);

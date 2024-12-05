@@ -1,7 +1,9 @@
 package com.probashiincltd.probashilive.ui;
 
 import static com.probashiincltd.probashilive.connectionutils.CM.FIREBASE_CHAT_BOX;
+import static com.probashiincltd.probashilive.connectionutils.CM.NODE_USERS;
 import static com.probashiincltd.probashilive.utils.Configurations.DATA;
+import static com.probashiincltd.probashilive.utils.Configurations.USER_PROFILE;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -35,6 +37,7 @@ import com.scwang.smart.refresh.footer.ClassicsFooter;
 import com.scwang.smart.refresh.header.ClassicsHeader;
 
 import org.jivesoftware.smack.chat2.Chat;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 
@@ -81,7 +84,13 @@ public class NotificationFragment extends Fragment {
 
         chatAdapter = new ChatAdapter(items, requireContext(), chatItem3 -> {
             Intent i = new Intent(requireContext(),Inbox.class);
-            i.putExtra(DATA,new Gson().toJson(chatItem3));
+            ProfileItem profileItem;
+            try {
+                profileItem = ProfileItem.parseProfileItem(Functions.getSingleItemOfNode(NODE_USERS,chatItem3.getJid().split("@")[0]));
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+            i.putExtra(DATA,new Gson().toJson(profileItem));
             startActivity(i);
         });
 
@@ -111,6 +120,13 @@ public class NotificationFragment extends Fragment {
                 if(items.size() == 1){
                     Toast.makeText(requireContext(), "No Chat found!", Toast.LENGTH_SHORT).show();
                     items.clear();
+                }else {
+                    for(ChatItem i: items){
+                        if(i.getJid().equals(CM.getConnection().getUser().asBareJid().toString())){
+                            items.remove(i);
+                            break;
+                        }
+                    }
                 }
 
                 chatAdapter.notifyItemRangeInserted(0,items.size());

@@ -39,11 +39,13 @@ import org.jivesoftware.smack.packet.MessageBuilder;
 import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smack.packet.StanzaBuilder;
 import org.jivesoftware.smack.parsing.SmackParsingException;
+import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.sasl.SASLMechanism;
 import org.jivesoftware.smack.util.ByteUtils;
 import org.jivesoftware.smack.util.PacketParserUtils;
 import org.jivesoftware.smack.xml.XmlPullParserException;
 import org.jivesoftware.smackx.caps.EntityCapsManager;
+import org.jivesoftware.smackx.mam.MamManager;
 import org.jivesoftware.smackx.ping.PingManager;
 import org.jivesoftware.smackx.ping.android.ServerPingWithAlarmManager;
 import org.json.JSONException;
@@ -228,7 +230,7 @@ public class CM extends XmppConnection {
                     chatItem.setJid(connection.getUser().asBareJid().toString());
                     chatItem.setProfilePicture("null");
                     chatItems.add(chatItem);
-                    reference.child(FIREBASE_CHAT_BOX).child(connection.getUser().asBareJid().toString().split("@")[0]).setValue(chatItems);
+                    reference.child(FIREBASE_CHAT_BOX).child(profileModel.getContent().get(ProfileItem.JID).split("@")[0]).setValue(chatItems);
 
                 } else {
                     try {
@@ -488,6 +490,7 @@ public class CM extends XmppConnection {
             profileMap.put(ProfileItem.PROFILE_PICTURE, "");
         }
         profileMap.put(ProfileItem.EMAIL, Functions.getSP(USER_EMAIL, ""));
+        profileMap.put(ProfileItem.JID, connection.getUser().asBareJid().toString());
         profileMap.put(ProfileItem.PHONE, Functions.getSP("", ""));
         profileMap.put(ProfileItem.COIN, Functions.getSP("0", ""));
         profileMap.put(ProfileItem.VIP, Functions.getSP("false", ""));

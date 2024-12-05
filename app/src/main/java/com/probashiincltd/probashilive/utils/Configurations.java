@@ -1,6 +1,7 @@
 package com.probashiincltd.probashilive.utils;
 
 public class Configurations {
+    public static final String CLOSE_LIVE_HOST = "close_live_for_all";
     //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
     static final String hostName = "server.probashilive.xyz";
     static final int port = 5222;
