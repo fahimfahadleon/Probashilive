@@ -86,6 +86,7 @@ public class CM extends XmppConnection {
     public static AbstractXMPPConnection getConnection() {
         return connection;
     }
+    public static ChatManager chatManager;
 
     public static boolean isConnected() {
         return connection.isConnected() && connection.isAuthenticated();
@@ -214,6 +215,7 @@ public class CM extends XmppConnection {
                 setUpChatManager();
                 setUpStanzaListener();
                 setUpPingManager();
+                
 
                 CacheManager.setCacheDir(context.getCacheDir().toString());
                 CacheManager.load("/", "xml");
@@ -343,7 +345,7 @@ public class CM extends XmppConnection {
     public static MutableLiveData<Message> newMessage = new MutableLiveData<>();
 
     public void setUpChatManager(){
-        ChatManager chatManager = ChatManager.getInstanceFor(connection);
+        chatManager = ChatManager.getInstanceFor(connection);
         chatManager.addIncomingListener((from, message, chat) -> {
             try {
                 ChatItem chatItem = new ChatItem();

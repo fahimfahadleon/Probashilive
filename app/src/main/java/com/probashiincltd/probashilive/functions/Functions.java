@@ -859,7 +859,6 @@ public class Functions {
                     }
                 });
             } else {
-                Log.e("onfailed", "empty");
                 imageView.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.person));
             }
         } catch (Exception e) {

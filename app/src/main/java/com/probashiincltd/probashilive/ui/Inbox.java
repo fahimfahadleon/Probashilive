@@ -1,6 +1,7 @@
 package com.probashiincltd.probashilive.ui;
 
 import static com.probashiincltd.probashilive.connectionutils.CM.FIREBASE_CHAT_BOX;
+import static com.probashiincltd.probashilive.connectionutils.CM.getConnection;
 import static com.probashiincltd.probashilive.utils.Configurations.DATA;
 import static com.probashiincltd.probashilive.viewmodels.ActivityInboxViewModel.CLICK_OPTIONS;
 import static com.probashiincltd.probashilive.viewmodels.ActivityInboxViewModel.CLICK_SEND;
@@ -79,11 +80,12 @@ public class Inbox extends AppCompatActivity {
                             builder.setBody(s);
                             builder.ofType(Message.Type.chat);
                             Message m = builder.build();
-                            m.setFrom(CM.getConnection().getUser().asBareJid());
+                            m.setFrom(CM.getConnection().getUser().asFullJidIfPossible());
                             m.setTo(JidCreate.bareFrom(chatItem.getJid()));
                             model.addNewMessage(m);
                             binding.editText.setText(null);
-                            CM.getConnection().sendStanza(m);
+                            CM.chatManager.chatWith(JidCreate.entityBareFrom(JidCreate.bareFrom(chatItem.getJid()))).send(m);
+//                            CM.getConnection().sendStanza(m);
 
                             ChatItem mychatitem = new ChatItem();
                             mychatitem.setJid(CM.getConnection().getUser().asBareJid().toString());
