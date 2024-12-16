@@ -109,6 +109,7 @@ public class NotificationFragment extends Fragment {
 
     void updateData(){
         Log.e("updateData","called");
+        items.clear();
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
         reference.child(FIREBASE_CHAT_BOX).child(CM.getConnection().getUser().asBareJid().toString().split("@")[0]).addListenerForSingleValueEvent(new ValueEventListener() {

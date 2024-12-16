@@ -1,10 +1,15 @@
 package com.probashiincltd.probashilive.viewmodels;
 
+
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.probashiincltd.probashilive.R;
 import com.probashiincltd.probashilive.adapter.InboxAdapter;
@@ -19,8 +24,8 @@ public class ActivityInboxViewModel extends ViewModel {
     public static final int CLICK_SEND = 0;
     public static final int CLICK_OPTIONS = 1;
     InboxAdapter inboxAdapter;
-    LinkedList<Message> messages = new LinkedList<>();
-    public LinkedList<Message> getMessages = new LinkedList<>();
+    public LinkedList<Message> messages = new LinkedList<>();
+
     public MutableLiveData<Integer> clickAction = new MutableLiveData<>();
     public void setAdapter(InboxAdapter adapter){
         this.inboxAdapter = adapter;
@@ -28,9 +33,13 @@ public class ActivityInboxViewModel extends ViewModel {
     public InboxAdapter getAdapter(){
         return inboxAdapter;
     }
-    public void addNewMessage(Message message){
-        messages.add(0,message);
-        inboxAdapter.notifyItemInserted(0);
+    public void addNewMessage(Message message,RecyclerView recyclerView){
+        Log.e("messageinserted",message.getBody());
+        int index = messages.size();
+        messages.add(index,message);
+        inboxAdapter.notifyItemInserted(index);
+        recyclerView.smoothScrollToPosition(index);
+
     }
     public void onClick(View vi){
         int id = vi.getId();

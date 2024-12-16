@@ -61,12 +61,14 @@ public class Inbox extends AppCompatActivity {
         setUpObserver();
 
 
+
     }
 
     private void setUpObserver() {
         CM.newMessage.observe(this,message -> {
-            Toast.makeText(this, "new message Arrieved: from:"+message.getFrom()+" type: "+message.getType().toString(), Toast.LENGTH_SHORT).show();
-            model.addNewMessage(message);
+           if(message.getFrom().asBareJid().toString().equals(chatItem.getJid())){
+               model.addNewMessage(message,binding.recyclerview);
+           }
         });
         model.clickAction.observe(this,i ->{
             switch (i){
@@ -78,14 +80,15 @@ public class Inbox extends AppCompatActivity {
                             MessageBuilder builder = CM.getConnection().getStanzaFactory().buildMessageStanza();
                             builder.setSubject("message");
                             builder.setBody(s);
+                            builder.from(CM.getConnection().getUser().asFullJidIfPossible());
+                            builder.to(JidCreate.bareFrom(chatItem.getJid()));
                             builder.ofType(Message.Type.chat);
                             Message m = builder.build();
                             m.setFrom(CM.getConnection().getUser().asFullJidIfPossible());
                             m.setTo(JidCreate.bareFrom(chatItem.getJid()));
-                            model.addNewMessage(m);
+                            model.addNewMessage(m,binding.recyclerview);
                             binding.editText.setText(null);
                             CM.chatManager.chatWith(JidCreate.entityBareFrom(JidCreate.bareFrom(chatItem.getJid()))).send(m);
-//                            CM.getConnection().sendStanza(m);
 
                             ChatItem mychatitem = new ChatItem();
                             mychatitem.setJid(CM.getConnection().getUser().asBareJid().toString());
@@ -148,17 +151,17 @@ public class Inbox extends AppCompatActivity {
     }
 
     private void setUpMessage() {
-        if(model.getMessages.isEmpty()){
+        if(model.messages.isEmpty()){
             Log.e("checkingfordata",chatItem.getJid());
             messageController = new MessageController(chatItem.getJid());
-            model.getMessages = messageController.load(30, new WarningCallback() {
+            model.messages = messageController.load(30, new WarningCallback() {
                 @Override
                 public void onSuccess() {}
                 @Override
                 public void onFailed() {}
             });
         }
-        model.setAdapter(new InboxAdapter(this,model.getMessages,profileItem));
+        model.setAdapter(new InboxAdapter(this,model.messages,profileItem));
     }
 
     private void setUpPersonalData() {

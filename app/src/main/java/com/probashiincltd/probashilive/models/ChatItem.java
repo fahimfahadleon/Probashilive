@@ -28,4 +28,13 @@ public class ChatItem {
     public void setJid(String jid) {
         this.jid = jid;
     }
+
+    @Override
+    public String toString() {
+        return "ChatItem{" +
+                "profilePicture='" + profilePicture + '\'' +
+                ", name='" + name + '\'' +
+                ", jid='" + jid + '\'' +
+                '}';
+    }
 }

@@ -131,8 +131,7 @@ public class RTMPCallActivity extends AppCompatActivity {
                 }
                 observeViewModel();
             } else {
-                Log.e("deniedlist",deniedList.toString());
-                Log.e("checking","checking for permission 2");
+
                 PermissionX.init(RTMPCallActivity.this).permissions("android.permission.CAMERA", "android.permission.RECORD_AUDIO").explainReasonBeforeRequest().request((allGranted1, grantedList1, deniedList1) -> {
                     if (allGranted1) {
                         Log.e("checking","checking for permission3 ");
@@ -511,7 +510,7 @@ public class RTMPCallActivity extends AppCompatActivity {
 //        binding.addPeople.setVisibility(View.GONE);
 
         if (model.getAction().equals(LIVE_USER_TYPE_AUDIENCE)) {
-            nodePlayer = new NodePlayer(this, "https://github.com/fahimfahadleon/Probashilive/tree/master");
+            nodePlayer = new NodePlayer(this, "");
             nodePlayer.attachView(binding.cameraView2);
             nodePlayer.start(Configurations.RTMP_URL + liveItem.getContent().get(NAME));
             return;
@@ -523,7 +522,7 @@ public class RTMPCallActivity extends AppCompatActivity {
         } else {
             binding.endCall1.setVisibility(View.VISIBLE);
             binding.endCall2.setVisibility(View.VISIBLE);
-            nodePlayer = new NodePlayer(this, "https://github.com/fahimfahadleon/Probashilive/tree/master");
+            nodePlayer = new NodePlayer(this, "");
             nodePlayer.attachView(binding.cameraView2);
             nodePlayer.start(Configurations.RTMP_URL + liveItem.getContent().get(NAME));
         }

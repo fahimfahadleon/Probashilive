@@ -240,6 +240,7 @@ public class ProfileFragment extends Fragment {
         String email = CM.getProfile().getContent().get(ProfileItem.EMAIL);
         String coin = CM.getProfile().getContent().get(ProfileItem.COIN);
         String landingAnimation = CM.getProfile().getContent().get(ProfileItem.LANDING_ANIMATION);
+        String jid = CM.getProfile().getContent().get(ProfileItem.JID);
 
         HashMap<String, String> profileMap = new HashMap<>();
         profileMap.put(ProfileItem.NAME, name);
@@ -248,6 +249,7 @@ public class ProfileFragment extends Fragment {
         profileMap.put(ProfileItem.PHONE, phone);
         profileMap.put(ProfileItem.COIN, coin);
         profileMap.put(ProfileItem.VIP, vip);
+        profileMap.put(ProfileItem.JID,jid);
         profileMap.put(ProfileItem.LANDING_ANIMATION,landingAnimation);
 
         ProfileItem profileItem = new ProfileItem(profileMap);

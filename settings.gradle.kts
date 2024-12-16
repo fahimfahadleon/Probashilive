@@ -17,4 +17,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Probashi Live"
 include(":app")
- 
+include(":NodeMediaClient")

@@ -1,6 +1,8 @@
 package com.probashiincltd.probashilive.adapter;
 
 import android.content.Context;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +38,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.ViewHolder> 
         this.profileItem = profileItem;
     }
 
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -50,6 +53,10 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.ViewHolder> 
     @Override
     public int getItemViewType(int position) {
         Message message = messages.get(position);
+        if(message.getFrom() == null){
+            return MESSAGE_TYPE_RIGHT;
+        }
+
         if (CM.getConnection().getUser().asBareJid().toString().equals(message.getFrom().asBareJid().toString())) {
             return MESSAGE_TYPE_RIGHT;
         } else {
@@ -59,6 +66,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Log.e("onbindViewHolder","called");
         holder.setUpData(messages.get(position));
     }
 

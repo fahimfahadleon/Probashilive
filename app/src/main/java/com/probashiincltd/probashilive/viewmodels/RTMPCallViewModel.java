@@ -652,7 +652,7 @@ public class RTMPCallViewModel extends ViewModel {
         int width = context.getResources().getDisplayMetrics().widthPixels;
         int height = context.getResources().getDisplayMetrics().heightPixels;
 
-        nodePublisher = new NodePublisher(context, "https://github.com/fahimfahadleon/Probashilive/tree/master");
+        nodePublisher = new NodePublisher(context, "");
         nodePublisher.setAudioCodecParam(NodePublisher.NMC_CODEC_ID_AAC, NodePublisher.NMC_PROFILE_AUTO, 48000, 1, 64_000);
         nodePublisher.setVideoOrientation(NodePublisher.VIDEO_ORIENTATION_PORTRAIT);
         nodePublisher.setVideoCodecParam(NodePublisher.NMC_CODEC_ID_H264, NodePublisher.NMC_PROFILE_AUTO, width, height, 30, 2_000_000);
@@ -691,7 +691,7 @@ public class RTMPCallViewModel extends ViewModel {
 
     void setUpForAudience(Context context, FrameLayout surface) {
         String receiver = getData().get("room_id");
-        nodePlayer = new NodePlayer(context, "https://github.com/fahimfahadleon/Probashilive/tree/master");
+        nodePlayer = new NodePlayer(context, "");
         nodePlayer.attachView(surface);
         nodePlayer.start(Configurations.RTMP_URL + getData().get("name"));
         CM.sendHLM(SUBJECT_TYPE_JOINED_LIVE, new Gson().toJson(CM.getProfile()), myJid, receiver);
@@ -726,7 +726,7 @@ public class RTMPCallViewModel extends ViewModel {
         int width = context.getResources().getDisplayMetrics().widthPixels;
         int height = context.getResources().getDisplayMetrics().heightPixels;
 
-        nodePublisher = new NodePublisher(context, "https://github.com/fahimfahadleon/Probashilive/tree/master");
+        nodePublisher = new NodePublisher(context, "");
         nodePublisher.setAudioCodecParam(NodePublisher.NMC_CODEC_ID_AAC, NodePublisher.NMC_PROFILE_AUTO, 48000, 2, 64_000);
         nodePublisher.setVideoOrientation(NodePublisher.VIDEO_ORIENTATION_PORTRAIT);
         nodePublisher.setVideoCodecParam(NodePublisher.NMC_CODEC_ID_H264, NodePublisher.NMC_PROFILE_AUTO, width, height, 30, 1_000_000);
@@ -738,7 +738,7 @@ public class RTMPCallViewModel extends ViewModel {
         nodePublisher.openCamera(true);
         nodePublisher.start(Configurations.RTMP_URL + CM.getProfile().getName());
 
-        nodePlayer = new NodePlayer(context, "https://github.com/fahimfahadleon/Probashilive/tree/master");
+        nodePlayer = new NodePlayer(context, "");
         nodePlayer.attachView(surface1);
         nodePlayer.start(Configurations.RTMP_URL + data.get(NAME));
 
