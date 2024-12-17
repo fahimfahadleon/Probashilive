@@ -1,7 +1,9 @@
 package com.probashiincltd.probashilive.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -57,8 +59,20 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
         public void setUpData(ChatItem chatItem){
             this.chatItem = chatItem;
             binding.name.setText(chatItem.getName());
+            Log.e("profilePicture",chatItem.getProfilePicture());
             Functions.loadImage(context,binding.profile,chatItem.getProfilePicture());
-            binding.getRoot().setOnClickListener(v -> onItemClickListener.onItemClick(chatItem));
+            binding.getRoot().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onItemClickListener.onItemClick(chatItem);
+                    Functions.setSharedPreference(chatItem.getJid(),"0");
+                    notifyItemChanged(chatItems.indexOf(chatItem));
+                }
+            });
+            if(!Functions.getSP(chatItem.getJid(), "0").equals("0")){
+                binding.notification.setVisibility(View.VISIBLE);
+                binding.notification.setText(Functions.getSP(chatItem.getJid(), "0"));
+            }
         }
 
         public ViewHolder(SingleChatItemBinding binding) {

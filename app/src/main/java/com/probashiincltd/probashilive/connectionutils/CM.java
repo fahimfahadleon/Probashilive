@@ -8,6 +8,7 @@ import static com.probashiincltd.probashilive.utils.Configurations.USER_EMAIL;
 import static com.probashiincltd.probashilive.utils.Configurations.USER_PROFILE;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
@@ -73,6 +74,7 @@ public class CM extends XmppConnection {
     public static IpModel getIPModel(){
         return model;
     }
+    public static String INBOX_ID = "";
 
 
     final String tag = "connection";
@@ -343,11 +345,28 @@ public class CM extends XmppConnection {
 
     public ArrayList<ChatItem> incomingChatItems = new ArrayList<>();
     public static MutableLiveData<Message> newMessage = new MutableLiveData<>();
+    public static MutableLiveData<String> notification = new MutableLiveData<>();
 
+    void setMessageNotification(Message message){
+        String s = Functions.getSP(message.getFrom().asBareJid().toString(),"0");
+        Log.e("checking",s);
+        if(s.equals("0")){
+            Functions.setSharedPreference(message.getFrom().asBareJid().toString(),"1");
+        }else {
+            int i = Integer.parseInt(s);
+            i++;
+            Functions.setSharedPreference(message.getFrom().asBareJid().toString(),String.valueOf(i));
+        }
+
+        Functions.setSharedPreference("IS_NEW_MESSAGE","true");
+        notification.postValue("true");
+        Log.e("notificationcm",s);
+    }
     public void setUpChatManager(){
         chatManager = ChatManager.getInstanceFor(connection);
         chatManager.addIncomingListener((from, message, chat) -> {
             try {
+                Log.e("received",message.getBody());
                 ChatItem chatItem = new ChatItem();
                 ProfileItem profileItem = ProfileItem.parseProfileItem(Functions.getSingleItemOfNode(CM.NODE_USERS,from.toString().split("@")[0]));
                 chatItem.setName(profileItem.getContent().get(ProfileItem.NAME));
@@ -355,6 +374,17 @@ public class CM extends XmppConnection {
                 chatItem.setJid(from.toString());
                 incomingChatItems.add(chatItem);
                 newMessage.postValue(message);
+
+                if(TextUtils.isEmpty(INBOX_ID)){
+                    Log.e("inboxID","empty!");
+                    setMessageNotification(message);
+                }else {
+                    Log.e("inboxID",INBOX_ID);
+                    if(!INBOX_ID.equals(message.getFrom().asBareJid().toString())){
+                        setMessageNotification(message);
+                    }
+                }
+
             }catch (Exception e){
                 e.fillInStackTrace();
             }

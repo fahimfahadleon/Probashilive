@@ -77,7 +77,15 @@ public class NotificationFragment extends Fragment {
         binding.refreshLayout.setOnRefreshLoadMoreListener(model.onRefreshLoadMoreListener);
 
         initViewModelObserver();
+
         return binding.getRoot();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Functions.setSharedPreference("IS_NEW_MESSAGE","false");
+        CM.notification.postValue("false");
     }
 
     private void initViewModelObserver() {

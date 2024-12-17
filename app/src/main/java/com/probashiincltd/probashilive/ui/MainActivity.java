@@ -78,16 +78,16 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this,HomeActivity.class));
                 finish();
                 if(account!=null){
-                    Functions.setSetSharedPreference(LOGIN_TYPE,LOGIN_TYPE_GOOGLE);
-                    Functions.setSetSharedPreference(USER_EMAIL,account.getEmail());
-                    Functions.setSetSharedPreference(USER_PROFILE,account.getPhotoUrl() == null?"":account.getPhotoUrl().toString());
+                    Functions.setSharedPreference(LOGIN_TYPE,LOGIN_TYPE_GOOGLE);
+                    Functions.setSharedPreference(USER_EMAIL,account.getEmail());
+                    Functions.setSharedPreference(USER_PROFILE,account.getPhotoUrl() == null?"":account.getPhotoUrl().toString());
                 }else {
-                    Functions.setSetSharedPreference(LOGIN_TYPE,LOGIN_TYPE_RAW);
+                    Functions.setSharedPreference(LOGIN_TYPE,LOGIN_TYPE_RAW);
                 }
 
-                Functions.setSetSharedPreference(LOGIN_STATUS,"true");
-                Functions.setSetSharedPreference(LOGIN_USER,user);
-                Functions.setSetSharedPreference(LOGIN_PASSWORD,password);
+                Functions.setSharedPreference(LOGIN_STATUS,"true");
+                Functions.setSharedPreference(LOGIN_USER,user);
+                Functions.setSharedPreference(LOGIN_PASSWORD,password);
 
             }
 
@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
     private void startEjabberdRegistration(String userEmail,String password) {
         try {
             startRegisterOrLogin(userEmail.split("@")[0],password,"register");
-            Functions.setSetSharedPreference(USER_EMAIL,userEmail);
+            Functions.setSharedPreference(USER_EMAIL,userEmail);
         }catch (Exception e){
             Toast.makeText(this, "Email Not Valid!", Toast.LENGTH_SHORT).show();
         }

@@ -202,7 +202,7 @@ public class Functions {
         return GoogleSignIn.getClient(context, mGoogleSigninOptions);
     }
 
-    public static void setSetSharedPreference(String key, String value) {
+    public static void setSharedPreference(String key, String value) {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(key, value);
         editor.apply();
@@ -859,7 +859,7 @@ public class Functions {
                     }
                 });
             } else {
-                imageView.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.person));
+                new Handler(Looper.getMainLooper()).post(() -> imageView.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.person)));
             }
         } catch (Exception e) {
             e.fillInStackTrace();

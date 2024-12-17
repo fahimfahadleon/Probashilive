@@ -24,7 +24,6 @@ import android.view.WindowManager;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.processing.SurfaceProcessorNode;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -33,6 +32,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.material.badge.BadgeDrawable;
 import com.google.gson.Gson;
 import com.probashiincltd.probashilive.R;
 import com.probashiincltd.probashilive.connectionutils.CM;
@@ -65,7 +65,7 @@ public class HomeActivity extends AppCompatActivity {
         mGoogleSignInClient = Functions.getGoogleSigninClient(this);
         initViewModel();
 
-        Log.e("oncreate","called");
+
         setUpFragment(HomeFragment.getInstance());
 
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
@@ -87,9 +87,43 @@ public class HomeActivity extends AppCompatActivity {
         });
 
 
+        if(Functions.getSP("IS_NEW_MESSAGE","false").equals("true")){
+            showMessageOrNotification("message");
+
+// Optional: Configure the badge appearance
+//            badge.setBackgroundColor(getResources().getColor(R.color));
+//            badge.setBadgeTextColor(getResources().getColor(R.color.white));
+        }
+
+
+
+    }
+    public void showMessageOrNotification(String button){
+        if(button.equals("message")){
+            BadgeDrawable badge = binding.bottomNavigationView.getOrCreateBadge(R.id.notification);
+            badge.setVisible(true); // Show the badge
+            badge.setNumber(1);
+        }
+
+    }
+    public void hideMessageOrNotification(String button){
+        if(button.equals("message")){
+            BadgeDrawable badge = binding.bottomNavigationView.getOrCreateBadge(R.id.notification);
+            badge.setVisible(false); // Show the badge
+
+        }
+
     }
 
     void initViewModel(){
+        CM.notification.observe(this,s->{
+            Log.e("notification",s);
+            if(s.equals("true")){
+                showMessageOrNotification("message");
+            }else {
+                hideMessageOrNotification("message");
+            }
+        });
         model.getOnClickEvent().observe(this, s -> {
             switch (s){
                 case "live":{
@@ -178,9 +212,9 @@ public class HomeActivity extends AppCompatActivity {
 
     public void signOut(){
         mGoogleSignInClient.signOut();
-        Functions.setSetSharedPreference(LOGIN_STATUS,"false");
-        Functions.setSetSharedPreference(LOGIN_USER,"");
-        Functions.setSetSharedPreference(LOGIN_PASSWORD,"");
+        Functions.setSharedPreference(LOGIN_STATUS,"false");
+        Functions.setSharedPreference(LOGIN_USER,"");
+        Functions.setSharedPreference(LOGIN_PASSWORD,"");
         startActivity(new Intent(this,MainActivity.class));
         finish();
         CM.getConnection().disconnect();

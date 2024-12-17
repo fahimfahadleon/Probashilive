@@ -48,6 +48,7 @@ public class Inbox extends AppCompatActivity {
     ChatItem chatItem;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,8 +61,19 @@ public class Inbox extends AppCompatActivity {
         setUpMessage();
         setUpObserver();
 
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        CM.INBOX_ID = chatItem.getJid();
+        Functions.setSharedPreference(chatItem.getJid(),"0");
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        CM.INBOX_ID = "";
     }
 
     private void setUpObserver() {
